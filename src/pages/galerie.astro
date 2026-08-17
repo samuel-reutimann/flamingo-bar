@@ -1,0 +1,21 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+---
+
+<Layout title="Galerie" description="Impressionen aus der Flamingo Bar Langenthal." theme="dark">
+  <Section paddingTop="navoverlap" paddingBottom="large" align="center" fullHeight>
+    <Heading tag="h1" variant="h2">Galerie</Heading>
+    <Paragraph variant="main" maxWidth={36}>
+      Die vollständige Galerie kommt in Kürze online. Ein paar Eindrücke gibt es schon jetzt auf
+      der Startseite.
+    </Paragraph>
+    <ButtonWrapper>
+      <Button element="link" href="/#atmosphaere">Impressionen ansehen</Button>
+    </ButtonWrapper>
+  </Section>
+</Layout>

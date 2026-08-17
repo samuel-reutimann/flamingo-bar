@@ -2,26 +2,761 @@
 import Layout from '@/layouts/BaseLayout.astro';
 import Section from '@/components/Section.astro';
 import Heading from '@/components/Heading.astro';
-import Eyebrow from '@/components/Eyebrow.astro';
-import logo from '@/assets/logo.svg';
-import arrow_full from '@/assets/icons/arrow-full.svg';
-import arrow from '@/assets/icons/arrow.svg';
-import close from '@/assets/icons/close.svg';
-import pause from '@/assets/icons/pause.svg';
-import play from '@/assets/icons/play.svg';
+import Paragraph from '@/components/Paragraph.astro';
+import Button from '@/components/Button.astro';
+import ButtonWrapper from '@/components/ButtonWrapper.astro';
 import Img from '@/components/Img.astro';
-import lumos_background from '@/assets/lumos-background.svg';
-import Icon from '@/components/Icon.astro';
-import logo_icon from '@/assets/logo-icon.svg';
-import ContentWrapper from '@/components/ContentWrapper.astro';
+import Eyebrow from '@/components/Eyebrow.astro';
+import Grid from '@/components/Grid.astro';
+import Card from '@/components/Card.astro';
+import heroImage from '@/assets/flamingo/bar-guests-night.jpeg';
+import aperolImage from '@/assets/flamingo/drink-aperol-spritz.jpeg';
+import longIslandImage from '@/assets/flamingo/drink-long-island.jpeg';
+import pinaColadaImage from '@/assets/flamingo/drink-pina-colada.jpeg';
+import djMixerImage from '@/assets/flamingo/event-dj-mixer.jpeg';
+import crowdImage from '@/assets/flamingo/event-crowd-dancing.jpeg';
+import liveSessionImage from '@/assets/flamingo/event-live-session.jpeg';
+import neonGlassesImage from '@/assets/flamingo/mood-neon-glasses.jpeg';
+import cocktailHandImage from '@/assets/flamingo/mood-cocktail-hand.jpeg';
+import djKnobsImage from '@/assets/flamingo/mood-dj-knobs.jpeg';
+import bottleImage from '@/assets/flamingo/bottle-service-lounge.jpeg';
+import mapImage from '@/assets/flamingo/map-langenthal.jpeg';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BarOrPub",
+  name: "Flamingo Bar",
+  image:
+    "https://www.flamingobar-langenthal.ch/uploads/Guests%20Relaxing%20in%20Dark%20Bar%20Aug%2013.jpeg",
+  url: "https://www.flamingobar-langenthal.ch/",
+  telephone: "+41620000000",
+  priceRange: "CHF 12–150",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Marktgasse 34B",
+    postalCode: "4900",
+    addressLocality: "Langenthal",
+    addressCountry: "CH",
+  },
+  openingHoursSpecification: [
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Thursday", opens: "20:00", closes: "03:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Friday", opens: "20:00", closes: "04:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "20:00", closes: "04:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "20:00", closes: "01:00" },
+  ],
+  menu: "https://www.flamingobar-langenthal.ch/getraenkekarte",
+  sameAs: [],
+};
 ---
-<Layout theme="dark">
-  <Section paddingBottom="even" containerClass="flex-grow" paddingTop="even" class="flex-grow" style="min-height: calc(100svh - var(--nav-height));">
-    <ContentWrapper class="flex-grow theme-brand" variant="card" mediaOpacity={100}>
-      <Icon src={logo_icon} variant="large" />
-      <Heading variant="display" tag="h1" class="margin-block-8">Style Guide</Heading>
-      <Eyebrow variant="tag">v0.01</Eyebrow>
-      <Img slot="column2" src={lumos_background} width={1920} height={1080} loading="eager" fetchPriority="high" />
-    </ContentWrapper>
+<Layout title="Cocktails, DJs, Flaschenservice" description="Flamingo Bar in Langenthal, Marktgasse 34B: Cocktails, DJ-Abende und Flaschenservice. Getränkekarte mit allen Preisen jetzt online ansehen." theme="dark">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <script is:inline slot="head">
+    // Blendet den Hero vor dem ersten Paint aus, damit die Ladeanimation nicht
+    // ruckelt. Ohne JS oder bei prefers-reduced-motion passiert nichts – die
+    // Klasse wird nie gesetzt und der Hero ist von Anfang an sichtbar.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("hero-preload");
+    }
+  </script>
+  <!-- HERO -->
+  <section class="hero_section">
+    <div class="hero_content">
+      <Eyebrow class="hero_status" data-open-status hidden>
+        <span class="hero_status-dot" aria-hidden="true"></span><span class="hero_status-text">Öffnungszeiten</span>
+      </Eyebrow>
+      <Heading tag="h1" variant="h1" class="hero_heading">Deine Bar in Langenthal<br />für Cocktails und lange Nächte</Heading>
+      <Paragraph maxWidth={38} class="hero_text">Cocktails ab CHF 12.–, Flaschenservice und DJ-Abende. Marktgasse 34B, Langenthal.</Paragraph>
+      <ButtonWrapper class="hero_buttons">
+        <Button element="link" href="/getraenkekarte">Getränkekarte ansehen</Button>
+        <Button element="link" href="/#kontakt" variant="secondary">Tisch anfragen</Button>
+      </ButtonWrapper>
+    </div>
+    <div class="hero_visual">
+      <Img src={heroImage} alt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" loading="eager" fetchPriority="high" />
+      <div class="hero_scrim">
+      </div>
+    </div>
+  </section>
+  <!-- ÖFFNUNGSZEITEN -->
+  <Section paddingTop="medium" paddingBottom="medium" align="center" id="oeffnungszeiten" gap="small">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Wann wir offen haben</Heading>
+      <Paragraph variant="main" class="section-note">An Eventabenden gelten teils andere Zeiten.</Paragraph>
+    </div>
+    <div class="hours_content">
+      <ul class="hours_list">
+        <li class="hours_row is-closed" data-day="1"><span class="hours_day">Montag</span><span class="hours_badge">Heute</span><span class="hours_time">Geschlossen</span></li>
+        <li class="hours_row is-closed" data-day="2"><span class="hours_day">Dienstag</span><span class="hours_badge">Heute</span><span class="hours_time">Geschlossen</span></li>
+        <li class="hours_row is-closed" data-day="3"><span class="hours_day">Mittwoch</span><span class="hours_badge">Heute</span><span class="hours_time">Geschlossen</span></li>
+        <li class="hours_row" data-day="4"><span class="hours_day">Donnerstag</span><span class="hours_badge">Heute</span><span class="hours_time">20 – 03 Uhr</span></li>
+        <li class="hours_row" data-day="5"><span class="hours_day">Freitag</span><span class="hours_badge">Heute</span><span class="hours_time">20 – 04 Uhr</span></li>
+        <li class="hours_row" data-day="6"><span class="hours_day">Samstag</span><span class="hours_badge">Heute</span><span class="hours_time">20 – 04 Uhr</span></li>
+        <li class="hours_row" data-day="0"><span class="hours_day">Sonntag</span><span class="hours_badge">Heute</span><span class="hours_time">20 – 01 Uhr</span></li>
+      </ul>
+    </div>
+  </Section>
+  <script>
+    const today = new Date().getDay();
+    document
+      .querySelector(`.hours_row[data-day="${today}"]`)
+      ?.classList.add("is-today");
+  </script>
+  <script>
+    // Hero-Eyebrow: sagt, ob die Bar gerade offen ist.
+    // Minuten seit Mitternacht; Werte über 24 h laufen in den Folgetag.
+    const SCHEDULE: Record<number, [number, number]> = {
+      4: [20 * 60, 27 * 60], // Donnerstag 20 – 03 Uhr
+      5: [20 * 60, 28 * 60], // Freitag 20 – 04 Uhr
+      6: [20 * 60, 28 * 60], // Samstag 20 – 04 Uhr
+      0: [20 * 60, 25 * 60], // Sonntag 20 – 01 Uhr
+    };
+
+    function isOpenAt(date: Date) {
+      const minutes = date.getHours() * 60 + date.getMinutes();
+
+      const today = SCHEDULE[date.getDay()];
+      if (today && minutes >= today[0] && minutes < today[1]) return true;
+
+      // Nachtstunden, die noch zum Vortag gehören
+      const yesterday = SCHEDULE[(date.getDay() + 6) % 7];
+      if (yesterday && yesterday[1] > 24 * 60 && minutes < yesterday[1] - 24 * 60) return true;
+
+      return false;
+    }
+
+    const status = document.querySelector<HTMLElement>("[data-open-status]");
+    const label = status?.querySelector<HTMLElement>(".hero_status-text");
+
+    function renderStatus() {
+      if (!status || !label) return;
+      const open = isOpenAt(new Date());
+      status.classList.toggle("is-closed", !open);
+      label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
+      status.hidden = false;
+    }
+
+    renderStatus();
+    setInterval(renderStatus, 60000);
+  </script>
+  <script>
+    // Ladeanimation des Heros. Läuft genau einmal pro Seitenaufruf, deshalb
+    // darf sie etwas länger sein als eine Interaktions-Animation.
+    import { gsap } from "gsap";
+
+    const root = document.documentElement;
+
+    // Die Klasse setzt der Inline-Head-Script nur, wenn animiert werden darf.
+    if (root.classList.contains("hero-preload")) {
+      const image = document.querySelector<HTMLElement>(".hero_visual img");
+      const scrim = document.querySelector<HTMLElement>(".hero_scrim");
+      const pill = document.querySelector<HTMLElement>(".nav_pill");
+      const items = [
+        document.querySelector<HTMLElement>(".hero_status"),
+        document.querySelector<HTMLElement>(".hero_heading"),
+        document.querySelector<HTMLElement>(".hero_text"),
+        document.querySelector<HTMLElement>(".hero_buttons"),
+      ].filter((el): el is HTMLElement => el !== null);
+
+      const start = () => {
+        // Erst freigeben, wenn GSAP die Startwerte gesetzt hat.
+        gsap.set(items, { opacity: 0, y: 14, force3D: true });
+        gsap.set(image, { opacity: 0, scale: 1.06, yPercent: 3, force3D: true });
+        gsap.set(scrim, { opacity: 0 });
+        gsap.set(pill, { opacity: 0, y: -12, force3D: true });
+        root.classList.remove("hero-preload");
+
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+          onComplete: () => gsap.set([...items, image, scrim, pill], { clearProps: "all" }),
+        });
+
+        tl.to(image, { opacity: 1, scale: 1, yPercent: 0, duration: 1.1 })
+          .to(scrim, { opacity: 1, duration: 0.8 }, "<")
+          .to(items, { opacity: 1, y: 0, duration: 0.6, stagger: 0.06 }, "<0.15")
+          .to(pill, { opacity: 1, y: 0, duration: 0.5 }, "<0.1");
+      };
+
+      // Auf das Hero-Bild warten, sonst startet der Reveal auf einem leeren Feld.
+      const img = image as HTMLImageElement | null;
+      if (img && !img.complete) {
+        img.addEventListener("load", start, { once: true });
+        img.addEventListener("error", start, { once: true });
+      } else {
+        start();
+      }
+    }
+  </script>
+  <script>
+    // Scroll-Reveals für Sections, Listen und Karten. Jede Gruppe läuft genau
+    // einmal – wer zurückscrollt, soll nicht dieselbe Show nochmal sehen.
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Sichtbar ab 15 % Einblendung – früh genug, dass die Bewegung schon
+      // fast fertig ist, wenn das Element in der Blickmitte ankommt.
+      const reveal = (
+        selector: string,
+        options: { stagger?: number; y?: number; scale?: number } = {},
+      ) => {
+        const targets = gsap.utils.toArray<HTMLElement>(selector);
+        if (!targets.length) return;
+
+        targets.forEach((target) => {
+          const children = options.stagger
+            ? gsap.utils.toArray<HTMLElement>(target.children)
+            : [target];
+          if (!children.length) return;
+
+          gsap.from(children, {
+            opacity: 0,
+            y: options.y ?? 16,
+            scale: options.scale ?? 1,
+            duration: 0.6,
+            ease: "power3.out",
+            stagger: options.stagger ?? 0,
+            force3D: true,
+            clearProps: "all",
+            scrollTrigger: { trigger: target, start: "top 85%", once: true },
+          });
+        });
+      };
+
+      // Überschrift, Subline und CTA einer Section laufen gestaffelt ein.
+      reveal(".section-header", { stagger: 0.07 });
+      // Karten und Listen: gleiche Staffelung, damit die Seite einen Takt hat.
+      reveal(".menu_grid", { stagger: 0.08, y: 24 });
+      reveal(".events_grid", { stagger: 0.08, y: 24 });
+      reveal(".bottle_options", { stagger: 0.08 });
+      reveal(".visit_details", { stagger: 0.08 });
+      reveal(".hours_list", { stagger: 0.035, y: 10 });
+      // Grossflächige Bilder blenden ohne Versatz, nur mit leichtem Zoom ein.
+      reveal(".bottle_visual", { y: 0, scale: 1.03 });
+      reveal(".visit_map", { y: 0, scale: 1.03 });
+      reveal(".gallery_marquee", { y: 0 });
+      reveal(".events_note", {});
+      reveal(".gallery_note", { stagger: 0.07 });
+    }
+  </script>
+  <!-- KARTE-TEASER -->
+  <Section paddingTop="medium" paddingBottom="large" align="center" id="karte">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Was ein Abend<br />hier kostet</Heading>
+      <Paragraph variant="main" maxWidth={40} class="section-note">Cocktails ab CHF 12.–, Flaschen ab CHF 105.–. Alle Preise stehen online, nicht nur auf der Tafel an der Bar.</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/getraenkekarte">Ganze Karte ansehen</Button>
+      </ButtonWrapper>
+    </div>
+    <Grid medium={3} class="menu_grid">
+      <Card variant="stacked" image={aperolImage} imageAlt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze" heading="Aperol Spritz" text="Aperol, Prosecco, Mineral, Orange." />
+      <Card variant="stacked" image={longIslandImage} imageAlt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe" heading="Long Island Iced Tea" text="Der Klassiker, stark und kalt." />
+      <Card variant="stacked" image={pinaColadaImage} imageAlt="Piña Colada mit Ananas und Cocktailkirsche an der Bar" heading="Piña Colada" text="Rum, Kokos, Ananas." />
+    </Grid>
+  </Section>
+  <!-- WAS LÄUFT -->
+  <Section paddingTop="medium" paddingBottom="large" align="center" id="events">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Was diese Woche<br />läuft</Heading>
+      <Paragraph variant="main" maxWidth={40} class="section-note">DJ-Abende, Live-Musik und Motto-Partys.</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/events" variant="secondary">Alle Events</Button>
+      </ButtonWrapper>
+    </div>
+    <div class="events_content">
+      <Grid medium={3} class="events_grid">
+        <Card variant="cover" image={djMixerImage} imageAlt="DJane am Pult, pinke Lichtstrahlen über der Menge" eyebrow="Freitag, 21. August 2026" heading="Pink Friday mit DJ Nael" cardTag="article" />
+        <Card variant="cover" image={crowdImage} imageAlt="Tanzende Gäste im Konfettiregen an einer Motto-Party" eyebrow="Samstag, 22. August 2026" heading="Latin Night" cardTag="article" />
+        <Card variant="cover" image={liveSessionImage} imageAlt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht" eyebrow="Donnerstag, 27. August 2026" heading="Live Session" cardTag="article" />
+      </Grid>
+      <Paragraph variant="small" class="section-note events_note">Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen auf Anfrage.</Paragraph>
+    </div>
+  </Section>
+  <!-- ATMOSPHÄRE -->
+  <Section paddingTop="medium" paddingBottom="large" align="center" id="atmosphaere">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Licht, Musik<br />und späte Stunden</Heading>
+      <Paragraph variant="main" class="section-note">So sieht ein Abend bei uns aus.</Paragraph>
+    </div>
+  </Section>
+  <div class="gallery_marquee">
+    <div class="gallery_track">
+      <div class="gallery_item">
+        <Img src={neonGlassesImage} alt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" />
+      </div>
+      <div class="gallery_item">
+        <Img src={cocktailHandImage} alt="Hand hält einen Tumbler mit Cocktail und Eiswürfel" />
+      </div>
+      <div class="gallery_item">
+        <Img src={djKnobsImage} alt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" />
+      </div>
+      <div class="gallery_item">
+        <Img src={crowdImage} alt="Feiernde Gäste auf der Tanzfläche der Flamingo Bar" />
+      </div>
+      <div class="gallery_item">
+        <Img src={neonGlassesImage} alt="" aria-hidden="true" />
+      </div>
+      <div class="gallery_item">
+        <Img src={cocktailHandImage} alt="" aria-hidden="true" />
+      </div>
+      <div class="gallery_item">
+        <Img src={djKnobsImage} alt="" aria-hidden="true" />
+      </div>
+      <div class="gallery_item">
+        <Img src={crowdImage} alt="" aria-hidden="true" />
+      </div>
+    </div>
+  </div>
+  <Section paddingTop="small" paddingBottom="medium" align="center">
+    <div class="gallery_note">
+      <Paragraph variant="small">Kurzfristige Ankündigungen laufen auf Instagram.</Paragraph>
+      <Button element="link" href="https://instagram.com" variant="link">@flamingobar.langenthal</Button>
+    </div>
+  </Section>
+  <!-- FLASCHENSERVICE -->
+  <Section paddingTop="medium" paddingBottom="0" align="center" id="flaschenservice">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Eine Flasche<br />an den Tisch</Heading>
+      <Paragraph variant="main" maxWidth={42} class="section-note">Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein Mixgetränk wie Cola, Red Bull oder Tonic.</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/kontakt">Tisch anfragen</Button>
+        <Button element="link" href="https://wa.me/41620000000" variant="secondary">WhatsApp</Button>
+      </ButtonWrapper>
+    </div>
+  </Section>
+  <div class="bottle_visual">
+    <Img src={bottleImage} alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" />
+    <div class="bottle_scrim">
+    </div>
+  </div>
+  <Section paddingTop="medium" paddingBottom="large">
+    <Grid medium={3} class="bottle_options">
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
+        <Paragraph variant="small">Rum, Vodka, Whisky oder Gin</Paragraph>
+        <p class="bottle_option-price">CHF 105.– bis 150.–</p>
+      </div>
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
+        <Paragraph variant="small">Zum Beispiel Cola und Red Bull</Paragraph>
+        <p class="bottle_option-price">Preis auf Anfrage</p>
+      </div>
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Gruppen und Geburtstage</Heading>
+        <Paragraph variant="small">Ab 6 Personen, Tisch reserviert</Paragraph>
+        <p class="bottle_option-price">Auf Anfrage</p>
+      </div>
+    </Grid>
+  </Section>
+  <!-- ANFAHRT UND KONTAKT -->
+  <Section paddingTop="medium" paddingBottom="large" align="center" id="kontakt">
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Mitten in Langenthal</Heading>
+      <Paragraph variant="main" class="section-note">Fünf Minuten zu Fuss vom Bahnhof.</Paragraph>
+    </div>
+    <Grid medium={3} class="visit_details">
+      <div class="visit_detail-item">
+        <p class="visit_label text-style-small">Adresse</p>
+        <p class="visit_value">Marktgasse 34B, 4900 Langenthal</p>
+        <Button element="link" href="https://maps.google.com/?q=Marktgasse+34B+4900+Langenthal" variant="link">Auf Karte öffnen</Button>
+      </div>
+      <div class="visit_detail-item">
+        <p class="visit_label text-style-small">Hinweg</p>
+        <p class="visit_value">Parkhaus Marktgasse</p>
+        <Paragraph variant="small">Bahnhof Langenthal, 5 Minuten</Paragraph>
+      </div>
+      <div class="visit_detail-item">
+        <p class="visit_label text-style-small">Kontakt</p>
+        <p class="visit_value">062 000 00 00</p>
+        <Paragraph variant="small">WhatsApp für Tischanfragen</Paragraph>
+      </div>
+    </Grid>
+    <div class="visit_map">
+      <Img src={mapImage} alt="Karte mit Standort Marktgasse 34B, 4900 Langenthal" />
+    </div>
+  </Section>
+  <!-- FINALER CTA -->
+  <Section paddingTop="large" paddingBottom="large" align="center" class="cta_section">
+    <div class="cta_glow">
+    </div>
+    <div class="section-header">
+      <Heading tag="h2" variant="h2">Alles für heute Abend<br />an einem Ort</Heading>
+      <Paragraph variant="main" maxWidth={38} class="section-note">Karte, Preise und Flaschenservice, immer aktuell.</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/getraenkekarte">Getränkekarte ansehen</Button>
+        <Button element="link" href="https://instagram.com" variant="secondary">Instagram folgen</Button>
+      </ButtonWrapper>
+    </div>
   </Section>
 </Layout>
+<style is:global>
+  .section-note {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  /* Groups a section's heading + subhead + CTA into one flow block so they
+     get the mockup's tight editorial spacing instead of the Section
+     container's large inter-child gap. */
+  .section-header {
+    max-width: 38rem;
+    margin-inline: auto;
+  }
+
+  /* Haltezustand der Ladeanimation: gilt nur, solange das Head-Script die
+     Klasse gesetzt hat, also nie ohne JS und nie bei reduzierter Bewegung. */
+  .hero-preload .hero_content > *,
+  .hero-preload .hero_visual img,
+  .hero-preload .hero_scrim,
+  .hero-preload .nav_pill {
+    opacity: 0;
+  }
+
+  /* Der senkrechte Strich neben dem Eyebrow-Text ist hier nicht erwünscht. */
+  .eyebrow_marker {
+    display: none;
+  }
+
+  /* ------------------------------------------------------------------- hero */
+  .hero_section {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero_content {
+    position: relative;
+    z-index: 1;
+    padding-top: 9.5rem;
+    padding-bottom: 3rem;
+    padding-inline: var(--site-margin);
+    text-align: center;
+    flex: 0 0 auto;
+  }
+
+  .hero_status {
+    margin-bottom: var(--space-4);
+  }
+
+  .hero_status[hidden] {
+    display: none;
+  }
+
+  .hero_status-dot {
+    flex: none;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: var(--radius-round);
+    background-color: var(--brand-500);
+    box-shadow: var(--shadow-accent-glow);
+  }
+
+  .hero_status.is-closed .hero_status-dot {
+    background-color: color-mix(in lab, currentcolor 40%, transparent);
+    box-shadow: none;
+  }
+
+  .hero_status .eyebrow_text {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .hero_heading {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+
+  .hero_text {
+    margin-inline: auto;
+    margin-bottom: var(--space-5);
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .hero_buttons {
+    justify-content: center;
+  }
+
+  /* Bild liegt als Hintergrund über den unteren 70 % der Section, der Text
+     sitzt darüber. Der Scrim oben blendet es unter der Headline aus. */
+  .hero_visual {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 70%;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .hero_visual img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 100%;
+  }
+
+  .hero_scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to bottom,
+        var(--dark-900) 0%,
+        rgba(10, 7, 8, 0.85) 8%,
+        rgba(10, 7, 8, 0.4) 18%,
+        rgba(10, 7, 8, 0) 32%
+      ),
+      linear-gradient(
+        to top,
+        var(--dark-900) 0%,
+        rgba(10, 7, 8, 0.7) 6%,
+        rgba(10, 7, 8, 0.25) 13%,
+        rgba(10, 7, 8, 0) 20%
+      ),
+      radial-gradient(70% 45% at 50% 26%, rgba(255, 46, 136, 0.12), rgba(255, 46, 136, 0) 70%);
+  }
+
+  /* --------------------------------------------------------------- öffnungs */
+  .hours_content {
+    --_alignment: start;
+    text-align: left;
+  }
+
+  .hours_list {
+    display: grid;
+    gap: 0.25rem;
+    max-width: 32rem;
+    margin: 0 auto;
+    list-style: none;
+    padding: 0;
+  }
+
+  .hours_row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.95rem 1.25rem;
+    border-radius: var(--radius-small);
+    transition: background-color 0.25s ease;
+  }
+
+  .hours_row.is-closed .hours_day,
+  .hours_row.is-closed .hours_time {
+    color: color-mix(in lab, currentcolor 35%, transparent);
+  }
+
+  .hours_day {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .hours_time {
+    font-family: var(--display-family);
+    font-size: 1.125rem;
+  }
+
+  .hours_badge {
+    display: none;
+    font-family: var(--mono-family);
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brand-500);
+    padding: 0.2rem 0.5rem;
+    border: var(--border-width) solid rgba(255, 46, 136, 0.3);
+    border-radius: var(--radius-round);
+  }
+
+  .hours_row.is-today {
+    background-color: rgba(255, 46, 136, 0.07);
+    box-shadow: inset 0 0 0 1px rgba(255, 46, 136, 0.22);
+  }
+
+  .hours_row.is-today .hours_day {
+    color: color-mix(in lab, currentcolor 90%, transparent);
+  }
+
+  .hours_row.is-today .hours_time {
+    color: var(--brand-500);
+  }
+
+  .hours_row.is-today .hours_badge {
+    display: block;
+  }
+
+  /* ----------------------------------------------------------- karte/events */
+  .events_grid {
+    --_alignment: start;
+    text-align: start;
+  }
+
+  /* Lumos's cover card is a fixed 20rem-tall box with content pinned to the
+     top. The mockup wants a tall 3:4 poster card with the date/title
+     anchored to the bottom over the gradient scrim. */
+  .events_grid .card_wrap.cover {
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+  }
+
+  .events_grid .card_content {
+    justify-content: flex-end;
+  }
+
+  .events_note {
+    margin-top: var(--space-6);
+  }
+
+  /* ------------------------------------------------------------ atmosphäre */
+  .gallery_note {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .gallery_marquee {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    overflow: hidden;
+  }
+
+  .gallery_track {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    animation: gallery-scroll 48s linear infinite;
+  }
+
+  .gallery_marquee:hover .gallery_track {
+    animation-play-state: paused;
+  }
+
+  .gallery_item {
+    flex: 0 0 auto;
+    width: clamp(17rem, 26vw, 27rem);
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-main);
+    overflow: hidden;
+  }
+
+  .gallery_item img {
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes gallery-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(calc(-50% - 0.75rem), 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery_track {
+      animation: none;
+    }
+  }
+
+  /* ------------------------------------------------------ flaschenservice */
+  .bottle_visual {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: clamp(26rem, 58vw, 44rem);
+  }
+
+  .bottle_visual img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .bottle_scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--dark-900) 0%,
+      rgba(10, 7, 8, 0.68) 10%,
+      rgba(10, 7, 8, 0.22) 22%,
+      rgba(10, 7, 8, 0) 36%,
+      rgba(10, 7, 8, 0.22) 78%,
+      rgba(10, 7, 8, 0.68) 90%,
+      var(--dark-900) 100%
+    );
+  }
+
+  .bottle_options {
+    text-align: center;
+  }
+
+  .bottle_option {
+    display: grid;
+    gap: 0.45rem;
+    justify-items: center;
+  }
+
+  .bottle_option-price {
+    font-family: var(--mono-family);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--brand-500);
+    margin: 0;
+  }
+
+  /* ------------------------------------------------------------------ visit */
+  .visit_detail-item {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .visit_label {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .visit_value {
+    font-size: var(--text-main);
+    margin: 0;
+  }
+
+  .visit_map {
+    width: 100%;
+    height: clamp(15rem, 28vw, 21rem);
+    overflow: hidden;
+  }
+
+  .visit_map img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --------------------------------------------------------------- final cta */
+  .cta_section {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .cta_glow {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: min(50rem, 130%);
+    aspect-ratio: 1 / 1;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    background: var(--glow-accent-radial);
+    pointer-events: none;
+  }
+</style>

@@ -1,32 +1,44 @@
 ---
-import Icon from "@/components/Icon.astro";
-import logo from "@/assets/logo.svg";
 import { SITE_NAME } from "@/consts.ts";
 ---
 
 <footer class="footer_wrap">
   <div class="footer_inner">
     <div class="footer_top">
-      <a class="footer_logo" href="/" aria-label={SITE_NAME}>
-        <Icon src={logo} variant="full-width" />
-      </a>
+      <div class="footer_brand">
+        <div class="footer_brand-label text-style-small">{SITE_NAME}</div>
+        <p class="footer_brand-address text-style-small">
+          Marktgasse 34B, 4900 Langenthal<br />062 000 00 00
+        </p>
+      </div>
       <nav aria-label="Footer">
         <ul class="footer_links">
-          <li><a class="footer_link" href="/">Home</a></li>
-          <li>
-            <a class="footer_link" href="/example-components">
-              Example Components
-            </a>
-          </li>
+          <li><a class="footer_link" href="/getraenkekarte">Getränkekarte</a></li>
+          <li><a class="footer_link" href="/#events">Events</a></li>
+          <li><a class="footer_link" href="/galerie">Galerie</a></li>
+          <li><a class="footer_link" href="/kontakt">Kontakt</a></li>
+          <li><a class="footer_link" href="https://instagram.com">Instagram</a></li>
         </ul>
       </nav>
     </div>
+  </div>
+
+  <div class="footer_wordmark-wrap">
+    <div class="footer_wordmark-glow"></div>
+    <div class="footer_wordmark">Flamingo</div>
+  </div>
+
+  <div class="footer_inner">
     <div class="footer_bottom">
       <p class="footer_copyright text-style-small">
         &copy; <span id="year">{new Date().getFullYear()}</span>&#160;{
           SITE_NAME
-        }
+        }, Langenthal
       </p>
+      <ul class="footer_legal">
+        <li><a class="footer_link" href="/impressum">Impressum</a></li>
+        <li><a class="footer_link" href="/datenschutz">Datenschutz</a></li>
+      </ul>
     </div>
   </div>
 </footer>
@@ -43,73 +55,115 @@ import { SITE_NAME } from "@/consts.ts";
   @layer components {
     .footer_wrap {
       display: flex;
-      justify-content: center;
-      padding-block: var(--section-space-small);
-      padding-inline: var(--site-margin);
-      background-color: var(--background);
-      color: var(--text);
-      border-top: var(--border-width) solid var(--border);
+      flex-direction: column;
+      background-color: var(--dark-900);
+      color: var(--light-100);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
     }
 
     .footer_inner {
       width: 100%;
       max-width: var(--max-width-main);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
+      margin-inline: auto;
+      padding-inline: var(--site-margin);
     }
 
     .footer_top {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: var(--space-4) var(--space-6);
+      gap: var(--space-6);
+      padding-top: var(--space-8);
+      padding-bottom: var(--space-8);
     }
 
-    /* The logo is a wordmark, so it is sized by width and keeps its ratio. */
-    .footer_logo {
-      display: block;
-      width: 7.5rem;
-      color: inherit;
-      transition: opacity 200ms;
-      @media (hover: hover) {
-        &:hover {
-          opacity: 0.6;
-        }
-      }
+    .footer_brand-label {
+      font-family: var(--mono-family);
+      font-size: 0.5625rem;
+      letter-spacing: var(--letter-spacing-label);
+      text-transform: uppercase;
+      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      margin-bottom: var(--space-2);
+    }
+
+    .footer_brand-address {
+      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      line-height: 1.6;
     }
 
     .footer_links {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
-      gap: var(--space-4);
+      gap: var(--space-4) var(--space-6);
+      list-style: none;
       margin: 0;
       padding: 0;
-      list-style: none;
-      font-size: var(--text-small);
-      font-weight: var(--primary-medium);
     }
 
     .footer_link {
-      color: color-mix(in lab, currentcolor 60%, transparent);
+      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      font-size: 0.8125rem;
       text-decoration: none;
       transition: color 200ms;
       @media (hover: hover) {
         &:hover {
-          color: var(--text);
+          color: var(--brand-500-soft);
         }
       }
     }
 
+    .footer_wordmark-wrap {
+      position: relative;
+    }
+
+    .footer_wordmark-glow {
+      position: absolute;
+      left: 50%;
+      bottom: -40%;
+      z-index: -1;
+      width: min(58rem, 120%);
+      aspect-ratio: 1 / 1;
+      transform: translateX(-50%);
+      background: var(--glow-accent-radial);
+      pointer-events: none;
+    }
+
+    .footer_wordmark {
+      font-family: var(--display-family);
+      font-size: clamp(4rem, 22.5vw, 20rem);
+      line-height: 0.8;
+      letter-spacing: -0.025em;
+      text-align: center;
+      white-space: nowrap;
+      color: var(--light-100);
+      padding-bottom: 0.4rem;
+    }
+
     .footer_bottom {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
       padding-top: var(--space-4);
+      padding-bottom: var(--space-6);
       border-top: var(--border-width) solid var(--border);
     }
 
     .footer_copyright {
-      color: color-mix(in lab, currentcolor 60%, transparent);
+      color: color-mix(in lab, var(--light-100) 48%, transparent);
+    }
+
+    .footer_legal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      list-style: none;
+      margin: 0;
+      padding: 0;
     }
   }
 </style>

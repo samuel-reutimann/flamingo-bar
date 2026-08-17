@@ -1,0 +1,172 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Grid from "@/components/Grid.astro";
+import Card from "@/components/Card.astro";
+import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
+import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
+import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
+---
+
+<Layout
+  title="Events"
+  description="DJ-Abende, Live-Musik und Motto-Partys in der Flamingo Bar Langenthal."
+  theme="dark"
+>
+  <Section paddingTop="navoverlap" paddingBottom="medium" align="center">
+    <div class="section-header">
+      <Heading tag="h1" variant="h2">Alle Events</Heading>
+      <Paragraph variant="main" maxWidth={38} class="section-note">
+        DJ-Abende, Live-Musik und Motto-Partys. Kurzfristige Ankündigungen laufen auf Instagram.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="https://instagram.com" variant="secondary">
+          @flamingobar.langenthal
+        </Button>
+      </ButtonWrapper>
+    </div>
+  </Section>
+
+  <Section paddingTop="0" paddingBottom="large" align="center">
+    <Grid medium={3} class="events_grid">
+      <Card
+        variant="cover"
+        image={djMixerImage}
+        imageAlt="DJane am Pult, pinke Lichtstrahlen über der Menge"
+        eyebrow="Freitag, 21. August 2026"
+        heading="Pink Friday mit DJ Nael"
+        cardTag="article"
+      />
+      <Card
+        variant="cover"
+        image={crowdImage}
+        imageAlt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
+        eyebrow="Samstag, 22. August 2026"
+        heading="Latin Night"
+        cardTag="article"
+      />
+      <Card
+        variant="cover"
+        image={liveSessionImage}
+        imageAlt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
+        eyebrow="Donnerstag, 27. August 2026"
+        heading="Live Session"
+        cardTag="article"
+      />
+    </Grid>
+
+    <ul class="event_list">
+      <li class="event_row">
+        <span class="event_date">Fr, 28. Aug</span>
+        <span class="event_title">Pink Friday mit DJ Nael</span>
+        <span class="event_tag">DJ-Abend</span>
+      </li>
+      <li class="event_row">
+        <span class="event_date">Sa, 29. Aug</span>
+        <span class="event_title">Latin Night</span>
+        <span class="event_tag">Motto-Party</span>
+      </li>
+      <li class="event_row">
+        <span class="event_date">Do, 3. Sep</span>
+        <span class="event_title">Live Session</span>
+        <span class="event_tag">Live-Musik</span>
+      </li>
+      <li class="event_row">
+        <span class="event_date">Fr, 4. Sep</span>
+        <span class="event_title">Flamingo Friday</span>
+        <span class="event_tag">DJ-Abend</span>
+      </li>
+      <li class="event_row">
+        <span class="event_date">Sa, 5. Sep</span>
+        <span class="event_title">90s & 2000s Night</span>
+        <span class="event_tag">Motto-Party</span>
+      </li>
+    </ul>
+
+    <Paragraph variant="small" class="section-note events_note">
+      Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen auf Anfrage.
+    </Paragraph>
+    <ButtonWrapper>
+      <Button element="link" href="/kontakt">Tisch für ein Event anfragen</Button>
+    </ButtonWrapper>
+  </Section>
+</Layout>
+
+<style is:global>
+  .section-note {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .section-header {
+    max-width: 38rem;
+    margin-inline: auto;
+  }
+
+  .section-header > .heading {
+    margin-bottom: 0.9rem;
+  }
+
+  .events_grid {
+    --_alignment: start;
+    text-align: start;
+    margin-bottom: var(--space-6);
+  }
+
+  .events_grid .card_wrap.cover {
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+  }
+
+  .events_grid .card_content {
+    justify-content: flex-end;
+  }
+
+  .event_list {
+    display: grid;
+    gap: 0.25rem;
+    max-width: 34rem;
+    margin: 0 auto var(--space-6);
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+
+  .event_row {
+    display: grid;
+    grid-template-columns: 6rem 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-small);
+  }
+
+  .event_date {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .event_title {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
+  }
+
+  .event_tag {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-500);
+    white-space: nowrap;
+  }
+
+  .events_note {
+    margin-bottom: var(--space-4);
+  }
+</style>

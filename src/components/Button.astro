@@ -1,6 +1,8 @@
 ---
+import { slotContent } from '@/utils/slots.ts';
+
 import type { HTMLAttributes } from "astro/types";
-import { slotContent } from "@/utils/slots.ts";
+
 
 type ButtonProps = HTMLAttributes<"button"> & {
   /** Set to `false` to skip rendering this component and its children. */
@@ -39,21 +41,15 @@ const tagAttrs = isLink
 
 const content = await slotContent(Astro.slots);
 ---
-
 {
   render && content && (
-    <Tag
-      class:list={["button_wrap", variant !== "primary" && variant]}
-      {...tagAttrs}
-      {...rest}
-    >
+    <Tag class:list={["button_wrap", variant !== "primary" && variant]} {...tagAttrs} {...rest}>
       <span class="button_text text-style-trim">
         <slot />
       </span>
     </Tag>
   )
 }
-
 <style is:global>
   @layer components {
     .button_wrap {
@@ -61,24 +57,42 @@ const content = await slotContent(Astro.slots);
       justify-content: center;
       align-items: center;
       gap: 0.5em;
-      padding: 0.75em 1.5em;
+      padding: 1.25em 1.5em;
       background-color: var(--button-background);
       color: var(--button-text);
       border: var(--border-width) solid var(--button-border);
-      border-radius: 0.5em;
+      border-radius: var(--radius-round);
       line-height: 1.2;
       text-decoration: none;
       text-align: center;
       transition:
         background-color 200ms,
         color 200ms,
-        border-color 200ms;
-      @media (hover: hover) {
+        border-color 200ms,
+        box-shadow 200ms,
+        transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+      @media (hover: hover) and (pointer: fine) {
         &:hover {
           background-color: var(--button-background-hover);
           color: var(--button-text-hover);
           border-color: var(--button-border-hover);
         }
+        &:not(.secondary):not(.link):hover {
+          box-shadow: var(--shadow-accent-glow);
+        }
+        &:not(.link):hover {
+          transform: translateY(-2px);
+        }
+      }
+      /* Presse-Feedback: der Button gibt sofort nach, damit die Oberfläche
+         auf den Klick zu reagieren scheint. Steht nach dem Hover-Block, damit
+         der Druck den Lift überschreibt. Der Text-Link skaliert nicht – bei
+         blossem Text wirkt das wie ein Wackler. */
+      &:not(.link):active {
+        transform: scale(0.97);
+      }
+      &.link:active {
+        opacity: 0.7;
       }
       &.secondary {
         --button-background: var(--button-2-background);
@@ -90,40 +104,19 @@ const content = await slotContent(Astro.slots);
       }
       &.link {
         --button-background: transparent;
-        --button-text: var(--link-text);
-        --button-border: var(--link-border);
+        --button-text: var(--brand-500);
+        --button-border: transparent;
         --button-background-hover: transparent;
-        --button-text-hover: var(--link-text-hover);
-        /* The border itself holds still — the sliding line carries the hover color. */
-        --button-border-hover: var(--link-border);
+        --button-text-hover: var(--brand-500-soft);
+        --button-border-hover: transparent;
 
-        position: relative;
-        padding: 0 0 0.4em;
+        padding: 0;
         border: 0;
-        border-bottom: var(--border-width) solid var(--button-border);
         border-radius: 0;
-        /*
-         * The sliding line sits on top of the resting border. It grows from
-         * the left on hover, then collapses to the right on hover out, which
-         * reads as one line travelling left to right in both directions.
-         */
-        &::after {
-          content: "";
-          position: absolute;
-          inset-inline: 0;
-          bottom: calc(var(--border-width) * -1);
-          height: var(--border-width);
-          background-color: var(--link-border-hover);
-          transform: scaleX(0);
-          transform-origin: right;
-          transition: transform 400ms;
-        }
-        @media (hover: hover) {
-          &:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-          }
-        }
+        font-family: var(--mono-family);
+        font-size: 0.6875rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
       }
       &:disabled {
         cursor: not-allowed;

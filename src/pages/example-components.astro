@@ -19,7 +19,7 @@ const text =
 <Layout title="Example Components" description="Every layout variant, side by side." theme="dark">
   <!-- stack -->
   <Section paddingTop="small" paddingBottom="small">
-    <ContentWrapper>
+    <ContentWrapper variant="card">
       <Eyebrow>stack</Eyebrow>
       <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
       <Paragraph maxWidth={36}>{text}</Paragraph>
@@ -173,7 +173,7 @@ const text =
       </ButtonWrapper>
     </ContentWrapper>
     <Grid medium={3}>
-      <Card heading="Heading" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod." buttonHref="/about" buttonLabel="Learn More" />
+      <Card heading="Heading" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod." buttonHref="/about" buttonLabel="Learn More" theme="invert" />
       <Card heading="Heading" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod." buttonHref="/about" buttonLabel="Learn More" variant="cover" image={lumos_background} />
       <Card heading="Heading" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod." buttonHref="/about" buttonLabel="Learn More" variant="stacked" image={lumos_background} />
     </Grid>

@@ -1,0 +1,33 @@
+---
+import Layout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import Heading from '@/components/Heading.astro';
+import Paragraph from '@/components/Paragraph.astro';
+import Button from '@/components/Button.astro';
+import ButtonWrapper from '@/components/ButtonWrapper.astro';
+import ContentWrapper from '@/components/ContentWrapper.astro';
+import Eyebrow from '@/components/Eyebrow.astro';
+import Img from '@/components/Img.astro';
+---
+<Layout title="Kontakt" description="Tisch anfragen oder Flaschenservice reservieren in der Flamingo Bar Langenthal." theme="dark">
+  <Section paddingTop="small" paddingBottom="small">
+    <ContentWrapper>
+      <Eyebrow>stack</Eyebrow>
+      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
+      <Paragraph maxWidth={36}>{text}</Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/about">Learn more</Button>
+        <Button variant="secondary">Send</Button>
+      </ButtonWrapper>
+      <Img src={lumos_background} slot="column2" />
+    </ContentWrapper>
+  </Section>
+  <Section paddingTop="navoverlap" paddingBottom="large" align="center" fullHeight>
+    <Heading tag="h1" variant="h2">Tisch anfragen</Heading>
+    <Paragraph variant="main" maxWidth={36}>Ein Kontaktformular kommt in Kürze online. Bis dahin erreichst du uns direkt per Telefon oder WhatsApp.</Paragraph>
+    <ButtonWrapper>
+      <Button element="link" href="tel:+41620000000">062 000 00 00</Button>
+      <Button element="link" href="https://wa.me/41620000000" variant="secondary">WhatsApp</Button>
+    </ButtonWrapper>
+  </Section>
+</Layout>

@@ -1,0 +1,200 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Grid from "@/components/Grid.astro";
+import Card from "@/components/Card.astro";
+import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
+import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
+import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
+---
+
+<Layout
+  title="Getränkekarte"
+  description="Alle Cocktails, Longdrinks und Flaschen der Flamingo Bar Langenthal mit Preisen."
+  theme="dark"
+>
+  <Section paddingTop="navoverlap" paddingBottom="medium" align="center">
+    <div class="section-header">
+      <Heading tag="h1" variant="h2">Getränkekarte</Heading>
+      <Paragraph variant="main" maxWidth={38} class="section-note">
+        Alle Preise stehen hier, nicht nur auf der Tafel an der Bar.
+      </Paragraph>
+    </div>
+  </Section>
+
+  <Section paddingTop="0" paddingBottom="large" align="center" id="cocktails">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Cocktails</Heading>
+      <Paragraph variant="small" class="section-note">Ab CHF 12.–</Paragraph>
+    </div>
+    <Grid medium={3} class="menu_grid">
+      <Card
+        variant="stacked"
+        image={aperolImage}
+        imageAlt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
+        heading="Aperol Spritz"
+        text="Aperol, Prosecco, Mineral, Orange."
+      />
+      <Card
+        variant="stacked"
+        image={longIslandImage}
+        imageAlt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe"
+        heading="Long Island Iced Tea"
+        text="Der Klassiker, stark und kalt."
+      />
+      <Card
+        variant="stacked"
+        image={pinaColadaImage}
+        imageAlt="Piña Colada mit Ananas und Cocktailkirsche an der Bar"
+        heading="Piña Colada"
+        text="Rum, Kokos, Ananas."
+      />
+    </Grid>
+    <ul class="drink_list">
+      <li class="drink_row"><span class="drink_name">Mojito</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
+      <li class="drink_row"><span class="drink_name">Cosmopolitan</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
+      <li class="drink_row"><span class="drink_name">Whiskey Sour</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
+      <li class="drink_row"><span class="drink_name">Espresso Martini</span><span class="drink_dots"></span><span class="drink_price">CHF 16.–</span></li>
+      <li class="drink_row"><span class="drink_name">Negroni</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
+      <li class="drink_row"><span class="drink_name">Moscow Mule</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
+    </ul>
+  </Section>
+
+  <Section paddingTop="0" paddingBottom="large" align="center" id="longdrinks">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Longdrinks & Spirituosen</Heading>
+      <Paragraph variant="small" class="section-note">Ab CHF 12.–</Paragraph>
+    </div>
+    <ul class="drink_list">
+      <li class="drink_row"><span class="drink_name">Vodka Energy</span><span class="drink_dots"></span><span class="drink_price">CHF 13.–</span></li>
+      <li class="drink_row"><span class="drink_name">Gin Tonic</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
+      <li class="drink_row"><span class="drink_name">Rum Cola</span><span class="drink_dots"></span><span class="drink_price">CHF 12.–</span></li>
+      <li class="drink_row"><span class="drink_name">Whisky Cola</span><span class="drink_dots"></span><span class="drink_price">CHF 13.–</span></li>
+      <li class="drink_row"><span class="drink_name">Jägermeister, 4 cl</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
+      <li class="drink_row"><span class="drink_name">Tequila, 4 cl</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
+    </ul>
+  </Section>
+
+  <Section paddingTop="0" paddingBottom="large" align="center" id="alkoholfrei">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Alkoholfrei & Getränke</Heading>
+    </div>
+    <ul class="drink_list">
+      <li class="drink_row"><span class="drink_name">Virgin Mojito</span><span class="drink_dots"></span><span class="drink_price">CHF 9.–</span></li>
+      <li class="drink_row"><span class="drink_name">Mineral, Cola, Red Bull</span><span class="drink_dots"></span><span class="drink_price">CHF 5.–</span></li>
+      <li class="drink_row"><span class="drink_name">Bier vom Fass</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
+      <li class="drink_row"><span class="drink_name">Prosecco, 1 dl</span><span class="drink_dots"></span><span class="drink_price">CHF 8.–</span></li>
+    </ul>
+  </Section>
+
+  <Section paddingTop="0" paddingBottom="large" align="center" id="flaschen">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Flaschenservice</Heading>
+      <Paragraph variant="main" maxWidth={38} class="section-note">
+        Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein Mixgetränk wie Cola, Red
+        Bull oder Tonic.
+      </Paragraph>
+    </div>
+    <Grid medium={3} class="bottle_options">
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
+        <Paragraph variant="small">Rum, Vodka, Whisky oder Gin</Paragraph>
+        <p class="bottle_option-price">CHF 105.– bis 150.–</p>
+      </div>
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
+        <Paragraph variant="small">Zum Beispiel Cola und Red Bull</Paragraph>
+        <p class="bottle_option-price">Preis auf Anfrage</p>
+      </div>
+      <div class="bottle_option">
+        <Heading tag="h3" variant="h6">Gruppen und Geburtstage</Heading>
+        <Paragraph variant="small">Ab 6 Personen, Tisch reserviert</Paragraph>
+        <p class="bottle_option-price">Auf Anfrage</p>
+      </div>
+    </Grid>
+    <ButtonWrapper>
+      <Button element="link" href="/kontakt">Tisch anfragen</Button>
+      <Button element="link" href="https://wa.me/41620000000" variant="secondary">WhatsApp</Button>
+    </ButtonWrapper>
+  </Section>
+</Layout>
+
+<style is:global>
+  .section-note {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .section-header {
+    max-width: 38rem;
+    margin-inline: auto;
+  }
+
+  .section-header > .heading {
+    margin-bottom: 0.9rem;
+  }
+
+  .menu_grid {
+    margin-bottom: var(--space-6);
+  }
+
+  .drink_list {
+    display: grid;
+    gap: 0.25rem;
+    max-width: 32rem;
+    margin: 0 auto;
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+
+  .drink_row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: var(--radius-small);
+  }
+
+  .drink_name {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
+    white-space: nowrap;
+  }
+
+  .drink_dots {
+    flex: 1 1 auto;
+    border-bottom: var(--border-width) dotted rgba(244, 239, 233, 0.2);
+    transform: translateY(-0.3rem);
+  }
+
+  .drink_price {
+    font-family: var(--mono-family);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--brand-500);
+    white-space: nowrap;
+  }
+
+  .bottle_options {
+    text-align: center;
+    margin-bottom: var(--space-6);
+  }
+
+  .bottle_option {
+    display: grid;
+    gap: 0.45rem;
+    justify-items: center;
+  }
+
+  .bottle_option-price {
+    font-family: var(--mono-family);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--brand-500);
+    margin: 0;
+  }
+</style>

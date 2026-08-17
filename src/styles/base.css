@@ -3,29 +3,33 @@
    ========================================================================== */
 
 :root {
-  /* Swatches */
-  --light-100: #ffffff;
-  --light-200: #ebebeb;
-  --dark-800: #2f2b2d;
-  --dark-900: #1f1d1e;
-  --brand-500: #c6fb50;
-  --brand-text: var(--dark-900);
+  /* Swatches — Flamingo Bar brand: near-black stage, neon pink accent */
+  --light-100: #f4efe9;
+  --light-200: #ece3d8;
+  --dark-800: #0d0d10;
+  --dark-900: #040405;
+  --brand-500: #ff2e88;
+  --brand-500-soft: #ff86bb;
+  --brand-text: #08070a;
 
   /* Typography primitives */
-  --primary-family: system-ui, sans-serif;
+  --primary-family: "Manrope", system-ui, sans-serif;
+  --display-family: "Instrument Serif", Georgia, serif;
+  --mono-family: "Space Mono", ui-monospace, monospace;
   --primary-regular: 400;
   --primary-medium: 500;
   --primary-bold: 700;
   --primary-trim-top: 0.33em;
   --primary-trim-bottom: 0.38em;
 
-  --letter-spacing-tight: -0.03em;
+  --letter-spacing-tight: -0.018em;
   --letter-spacing-normal: 0em;
+  --letter-spacing-label: 0.26em;
 
   --line-height-small: 1;
   --line-height-medium: 1.1;
   --line-height-large: 1.3;
-  --line-height-huge: 1.5;
+  --line-height-huge: 1.7;
 
   /* Borders & focus */
   --border-width: 0.0625rem;
@@ -35,7 +39,7 @@
 
   /* Radius */
   --radius-small: 0.5rem;
-  --radius-main: 1rem;
+  --radius-main: 1.25rem;
   --radius-round: 100vw;
 
   /* Skeleton loading background (resolves against currentcolor) */
@@ -47,11 +51,20 @@
 
   /* Max width */
   --max-width-small: 70rem;
-  --max-width-main: calc(var(--viewport-max) / 16 * 1rem);
+  --max-width-main: 76rem;
   --max-width-full: 100%;
 
   /* Nav */
   --nav-height: 5rem;
+
+  /* Flamingo effects — glass nav pill, accent glow, scrims */
+  --shadow-nav: 0 18px 44px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --shadow-accent-glow: 0 0 30px rgba(255, 46, 136, 0.4);
+  --shadow-dot-glow: 0 0 10px var(--brand-500);
+  --blur-glass: blur(28px) saturate(150%);
+  --gradient-glass: linear-gradient(160deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04) 45%, rgba(8, 8, 10, 0.28));
+  --gradient-card-scrim: linear-gradient(to top, rgba(4, 4, 5, 0.82) 0%, rgba(4, 4, 5, 0.35) 55%, rgba(4, 4, 5, 0) 100%);
+  --glow-accent-radial: radial-gradient(circle, rgba(255, 46, 136, 0.2), rgba(255, 46, 136, 0) 62%);
 
   /* Heading styles */
   --display: clamp(var(--display-min) / 16 * 1rem, ((var(--display-min) - ((var(--display-max) - var(--display-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--display-max) - var(--display-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--display-max) / 16 * 1rem);
@@ -61,36 +74,36 @@
   --display-letter-spacing: var(--letter-spacing-tight);
   --display-text-transform: none;
   --display-margin-top: var(--space-7);
-  --display-margin-bottom: var(--space-6);
-  --display-font-family: var(--primary-family);
+  --display-margin-bottom: 0.5rem;
+  --display-font-family: var(--display-family);
   --display-font-weight: var(--primary-medium);
   --display-trim-top: var(--primary-trim-top);
   --display-trim-bottom: var(--primary-trim-bottom);
   --display-text-wrap: balance;
 
   --h1: clamp(var(--h1-min) / 16 * 1rem, ((var(--h1-min) - ((var(--h1-max) - var(--h1-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h1-max) - var(--h1-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h1-max) / 16 * 1rem);
-  --h1-min: 48;
-  --h1-max: 80;
+  --h1-min: 42;
+  --h1-max: 84;
   --h1-line-height: var(--line-height-small);
   --h1-letter-spacing: var(--letter-spacing-tight);
   --h1-text-transform: none;
   --h1-margin-top: var(--space-7);
-  --h1-margin-bottom: var(--space-6);
-  --h1-font-family: var(--primary-family);
+  --h1-margin-bottom: 0.5rem;
+  --h1-font-family: var(--display-family);
   --h1-font-weight: var(--primary-medium);
   --h1-trim-top: var(--primary-trim-top);
   --h1-trim-bottom: var(--primary-trim-bottom);
   --h1-text-wrap: balance;
 
   --h2: clamp(var(--h2-min) / 16 * 1rem, ((var(--h2-min) - ((var(--h2-max) - var(--h2-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--h2-max) - var(--h2-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--h2-max) / 16 * 1rem);
-  --h2-min: 40;
-  --h2-max: 64;
+  --h2-min: 34;
+  --h2-max: 62;
   --h2-line-height: var(--line-height-small);
   --h2-letter-spacing: var(--letter-spacing-tight);
   --h2-text-transform: none;
   --h2-margin-top: var(--space-7);
-  --h2-margin-bottom: var(--space-5);
-  --h2-font-family: var(--primary-family);
+  --h2-margin-bottom: 0.5rem;
+  --h2-font-family: var(--display-family);
   --h2-font-weight: var(--primary-medium);
   --h2-trim-top: var(--primary-trim-top);
   --h2-trim-bottom: var(--primary-trim-bottom);
@@ -103,8 +116,8 @@
   --h3-letter-spacing: var(--letter-spacing-tight);
   --h3-text-transform: none;
   --h3-margin-top: var(--space-6);
-  --h3-margin-bottom: var(--space-5);
-  --h3-font-family: var(--primary-family);
+  --h3-margin-bottom: 0.5rem;
+  --h3-font-family: var(--display-family);
   --h3-font-weight: var(--primary-medium);
   --h3-trim-top: var(--primary-trim-top);
   --h3-trim-bottom: var(--primary-trim-bottom);
@@ -117,8 +130,8 @@
   --h4-letter-spacing: var(--letter-spacing-tight);
   --h4-text-transform: none;
   --h4-margin-top: var(--space-6);
-  --h4-margin-bottom: var(--space-4);
-  --h4-font-family: var(--primary-family);
+  --h4-margin-bottom: 0.5rem;
+  --h4-font-family: var(--display-family);
   --h4-font-weight: var(--primary-medium);
   --h4-trim-top: var(--primary-trim-top);
   --h4-trim-bottom: var(--primary-trim-bottom);
@@ -131,8 +144,8 @@
   --h5-letter-spacing: var(--letter-spacing-tight);
   --h5-text-transform: none;
   --h5-margin-top: var(--space-5);
-  --h5-margin-bottom: var(--space-4);
-  --h5-font-family: var(--primary-family);
+  --h5-margin-bottom: 0.5rem;
+  --h5-font-family: var(--display-family);
   --h5-font-weight: var(--primary-medium);
   --h5-trim-top: var(--primary-trim-top);
   --h5-trim-bottom: var(--primary-trim-bottom);
@@ -145,8 +158,8 @@
   --h6-letter-spacing: var(--letter-spacing-tight);
   --h6-text-transform: none;
   --h6-margin-top: var(--space-5);
-  --h6-margin-bottom: var(--space-3);
-  --h6-font-family: var(--primary-family);
+  --h6-margin-bottom: 0.5rem;
+  --h6-font-family: var(--display-family);
   --h6-font-weight: var(--primary-medium);
   --h6-trim-top: var(--primary-trim-top);
   --h6-trim-bottom: var(--primary-trim-bottom);
@@ -154,8 +167,8 @@
 
   /* Text styles */
   --text-large: clamp(var(--text-large-min) / 16 * 1rem, ((var(--text-large-min) - ((var(--text-large-max) - var(--text-large-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--text-large-max) - var(--text-large-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--text-large-max) / 16 * 1rem);
-  --text-large-min: 18;
-  --text-large-max: 20;
+  --text-large-min: 17;
+  --text-large-max: 17;
   --text-large-line-height: var(--line-height-large);
   --text-large-letter-spacing: var(--letter-spacing-normal);
   --text-large-text-transform: none;
@@ -168,8 +181,8 @@
   --text-large-text-wrap: pretty;
 
   --text-main: clamp(var(--text-main-min) / 16 * 1rem, ((var(--text-main-min) - ((var(--text-main-max) - var(--text-main-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--text-main-max) - var(--text-main-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--text-main-max) / 16 * 1rem);
-  --text-main-min: 16;
-  --text-main-max: 18;
+  --text-main-min: 14;
+  --text-main-max: 14;
   --text-main-line-height: var(--line-height-huge);
   --text-main-letter-spacing: var(--letter-spacing-normal);
   --text-main-text-transform: none;
@@ -182,8 +195,8 @@
   --text-main-text-wrap: pretty;
 
   --text-small: clamp(var(--text-small-min) / 16 * 1rem, ((var(--text-small-min) - ((var(--text-small-max) - var(--text-small-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--text-small-max) - var(--text-small-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--text-small-max) / 16 * 1rem);
-  --text-small-min: 14;
-  --text-small-max: 16;
+  --text-small-min: 12.5;
+  --text-small-max: 12.5;
   --text-small-line-height: var(--line-height-huge);
   --text-small-letter-spacing: var(--letter-spacing-normal);
   --text-small-text-transform: none;
@@ -197,12 +210,12 @@
 
   /* Site layout */
   --site-margin: clamp(var(--site-margin-min) / 16 * 1rem, ((var(--site-margin-min) - ((var(--site-margin-max) - var(--site-margin-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--site-margin-max) - var(--site-margin-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--site-margin-max) / 16 * 1rem);
-  --site-margin-min: 16;
-  --site-margin-max: 48;
+  --site-margin-min: 20;
+  --site-margin-max: 28;
 
   --site-gutter: clamp(var(--site-gutter-min) / 16 * 1rem, ((var(--site-gutter-min) - ((var(--site-gutter-max) - var(--site-gutter-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--site-gutter-max) - var(--site-gutter-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--site-gutter-max) / 16 * 1rem);
-  --site-gutter-min: 16;
-  --site-gutter-max: 32;
+  --site-gutter-min: 20;
+  --site-gutter-max: 24;
 
   --site-width: calc(100% - var(--site-margin) * 2);
 
@@ -241,7 +254,7 @@
   --section-space-medium-max: 112;
   --section-space-large: clamp(var(--section-space-large-min) / 16 * 1rem, ((var(--section-space-large-min) - ((var(--section-space-large-max) - var(--section-space-large-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--section-space-large-max) - var(--section-space-large-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--section-space-large-max) / 16 * 1rem);
   --section-space-large-min: 88;
-  --section-space-large-max: 160;
+  --section-space-large-max: 176;
   --section-space-nav-overlap: clamp(var(--section-space-nav-overlap-min) / 16 * 1rem, ((var(--section-space-nav-overlap-min) - ((var(--section-space-nav-overlap-max) - var(--section-space-nav-overlap-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--section-space-nav-overlap-max) - var(--section-space-nav-overlap-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--section-space-nav-overlap-max) / 16 * 1rem);
   --section-space-nav-overlap-min: 160;
   --section-space-nav-overlap-max: 224;
@@ -267,7 +280,7 @@
   --selection-background: var(--text);
   --selection-text: var(--background);
 
-  --button-background: var(--brand-500);
+  --button-background: var(--light-100);
   --button-border: var(--button-background);
   --button-text: var(--brand-text);
   --button-background-hover: var(--text);
@@ -301,24 +314,24 @@
   --selection-background: var(--text);
   --selection-text: var(--background);
 
-  --button-background: var(--brand-500);
+  --button-background: var(--text);
   --button-border: var(--button-background);
   --button-text: var(--brand-text);
-  --button-background-hover: var(--text);
+  --button-background-hover: var(--brand-500);
   --button-border-hover: var(--button-background-hover);
-  --button-text-hover: var(--background);
+  --button-text-hover: var(--brand-text);
 
-  --button-2-background: transparent;
+  --button-2-background: color-mix(in srgb, var(--text) 4%, transparent);
   --button-2-border: var(--border);
   --button-2-text: var(--text);
-  --button-2-background-hover: var(--text);
-  --button-2-border-hover: var(--button-2-background-hover);
-  --button-2-text-hover: var(--background);
+  --button-2-background-hover: color-mix(in srgb, var(--brand-500) 8%, transparent);
+  --button-2-border-hover: color-mix(in srgb, var(--brand-500) 50%, transparent);
+  --button-2-text-hover: var(--text);
 
   --link-text: var(--text);
   --link-border: var(--border);
-  --link-text-hover: var(--text);
-  --link-border-hover: var(--text);
+  --link-text-hover: var(--brand-500-soft);
+  --link-border-hover: var(--brand-500-soft);
 }
 
 .theme-brand {

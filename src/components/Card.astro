@@ -189,6 +189,32 @@ if (import.meta.env.DEV && render) {
         background-color: transparent;
         overflow: visible;
       }
+
+      @media (hover: hover) and (pointer: fine) {
+        transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+
+        &:hover {
+          transform: translateY(-4px);
+        }
+
+        &:hover .card_visual img {
+          transform: scale(1.04);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        &:hover {
+          transform: none;
+        }
+
+        .card_visual img {
+          transition: none;
+        }
+
+        &:hover .card_visual img {
+          transform: none;
+        }
+      }
     }
 
     .card_visual {
@@ -197,6 +223,12 @@ if (import.meta.env.DEV && render) {
       flex: none;
       border-radius: inherit;
       overflow: clip;
+
+      /* Das Bild zieht beim Hover langsam heran, die Karte hebt leicht ab.
+         Nur transform, damit nichts neu umbricht. */
+      img {
+        transition: transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
+      }
 
       .stacked > & {
         aspect-ratio: var(--_visual-ratio);

@@ -1,18 +1,203 @@
+## What this is
+
+The Flamingo Bar website — Marktgasse 34B, Langenthal. A bar/cocktail site
+(hours, drink menu teaser, events, gallery, bottle service, visit/contact).
+Built on the **Lumos** Astro starter framework, reskinned to a dark
+neon-pink/black brand instead of Lumos's default lime-green look.
+
+German (`de-CH`) content throughout. No CMS — all copy is hardcoded directly
+in `.astro` files.
+
+The design source of truth is the static HTML/CSS mockup at
+`../Website UI mockups project/` (sibling directory, `index.html` +
+`css/flamingo.css`). When in doubt about how something should look, check
+that file, not this one — it was built first and this project was made to
+match it pixel-for-pixel.
+
 ## Development
 
-When starting the dev server, use background mode:
+Start the dev server in background mode:
 
 ```
 astro dev --background
 ```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+Manage it with `astro dev stop`, `astro dev status`, `astro dev logs`.
+
+**Heads up:** this project is also opened by Stacki (a separate Electron
+visual-editor app, `~/Documents/Dev/stacki`) which spawns its own `astro dev`
+child process against this same directory to render its live preview. Its
+dev-server tracking is shared with the CLI above — running `astro dev
+--background` here may just report "already running" and hand you Stacki's
+instance rather than starting a fresh one. That's fine; it's the same
+project, just don't be surprised by it. Don't run two dev servers against
+this project at once — Stacki and a manually-started one on the same port
+will both throw a `CompilerError` overlay. Stop one before starting the
+other.
+
+Stacki also writes a temporary marker config to
+`node_modules/.avb/astro.config.mjs` (a wrapped copy of the real
+`astro.config.mjs` with `devToolbar: false`, `compressHTML: false`, and a
+custom Vite plugin injected) — that's normal, ignore it, don't edit it, it
+regenerates each time Stacki opens the project.
+
+### The Stacki marker-parser gotcha
+
+Stacki's Vite plugin (`avb-node-markers`) parses every `.astro` file with
+its **own** hand-rolled parser (not the real `@astrojs/compiler`) to inject
+`<template data-avb-s>` marker comments for its visual editor's node
+outline. That parser **cannot handle `array.map()`-generated JSX** —
+dynamically looped markup breaks it with a `CompilerError: Unexpected token`
+that only shows up in Stacki's preview (not in `astro build`, not in a
+plain `astro dev` you start yourself).
+
+Consequence: **never use `.map()` to render repeated JSX in this project.**
+Write repeated blocks out literally instead (see `Nav.astro`'s nav links,
+`Footer.astro`'s link list, or the hours list / gallery track in
+`index.astro` for the pattern — plain arrays of objects were unrolled into
+individual `<li>`/`<a>`/`<div>` tags by hand). This is more verbose but it's
+the only form Stacki's parser reliably accepts. If a `CompilerError:
+Unexpected token` shows up in Stacki with a stack trace mentioning
+`vite.ssrFixStacktrace`, look for a `.map()` you just added before anything
+else.
+
+### Verifying changes visually
+
+There's no `chromium-cli` in this environment. To compare against the
+mockup, install Playwright + Chromium into a scratch dir, serve the mockup
+statically (`python3 -m http.server` from `../Website UI mockups project/`),
+and screenshot both at a matched viewport (1280×900 was used during the
+last pass). Don't trust `curl` for anything CSS/JS-related — dev-mode Vite
+injects styles via JS, invisible to a raw HTML fetch; use a real browser
+(Playwright) or check computed styles with `page.evaluate`.
+
+## Brand tokens (`src/styles/base.css`)
+
+Lumos ships its own generic design tokens (lime-green `--brand-500`, a
+single sans body font, generic Nav/Footer). All of the following were
+retuned to match the mockup — **treat these as the project's actual brand,
+not Lumos defaults**:
+
+- **Colors**: `--dark-900`/`--dark-800` = near-black stage
+  (`#040405`/`#0d0d10`), `--light-100` = warm white (`#f4efe9`),
+  `--brand-500` = neon pink (`#ff2e88`), `--brand-500-soft` = soft pink
+  (`#ff86bb`).
+- **Fonts**: `--primary-family` = Manrope (body), `--display-family` =
+  Instrument Serif (all headings h1–h6 + `.text-style-display`),
+  `--mono-family` = Space Mono (labels, prices, the `.link` button variant,
+  hours-row day labels). Loaded via Google Fonts `<link>` tags in
+  `BaseHead.astro` — don't switch this to a CSS `@import`, it was
+  deliberately done as preconnect + stylesheet links for performance.
+- **Type scale**: h1 42–84px, h2 34–62px, body text 14px (fixed, not
+  fluid), small text 12.5px (fixed), body line-height 1.7. These match the
+  mockup's literal rem values, not Lumos's original fluid-clamp defaults —
+  don't "fix" them back to a smoother fluid curve without checking the
+  mockup first.
+- **`--max-width-main`**: hardcoded to `76rem` (matches the mockup's
+  `container-large`). Decoupled from `--viewport-max` (1440) on purpose —
+  don't derive it from the viewport tokens again, that was the original
+  Lumos default and it rendered every section ~200px too wide.
+- **Button theme tokens** (in the `.theme-dark` block): primary button is
+  **white by default, pink on hover** (this is inverted from Lumos's
+  default, which is pink-by-default). If a button ever looks pink at rest,
+  someone reverted this — check `--button-background` /
+  `--button-background-hover` in `.theme-dark`.
+- **Radius**: buttons are a full pill (`--radius-round`, changed in
+  `Button.astro`), cards use `--radius-main` = `1.25rem`.
+- Effect tokens added wholesale for the glass nav pill / glows / scrims:
+  `--shadow-nav`, `--shadow-accent-glow`, `--blur-glass`,
+  `--gradient-glass`, `--gradient-card-scrim`, `--glow-accent-radial`.
+
+## Component changes vs. stock Lumos
+
+These Lumos framework components were modified project-wide (not just for
+one page) — if something looks different from a fresh Lumos install, it's
+probably one of these, and it's intentional:
+
+- **`Nav.astro`** — fully rewritten. Stock Lumos has a sticky in-flow bar;
+  this is a `position: fixed` floating glass pill with a hamburger-driven
+  slide-down menu, matching the mockup's `navbar_component`. Nav links are
+  written out literally (see the Stacki `.map()` gotcha above).
+- **`Footer.astro`** — fully rewritten to match the mockup's brand block +
+  link list + giant `Flamingo` wordmark + bottom legal bar, instead of
+  Lumos's plain link-list footer.
+- **`Button.astro`** — pill radius, pink glow on hover for the primary
+  variant, and the `.link` variant was completely replaced: stock Lumos's
+  `.link` is an animated sliding-underline text link; this project's
+  `.link` is a mono/uppercase/letter-spaced pink label with no
+  underline/border at all (used for "Tisch für heute anfragen", "Auf Karte
+  öffnen", the Instagram handle). Don't reintroduce the underline animation.
+
+## Page structure (`src/pages/index.astro`)
+
+Sections, top to bottom: hero → Öffnungszeiten (hours) → Karte (cocktail
+teaser) → Events → Atmosphäre (gallery marquee) → Flaschenservice (bottle
+service) → Anfahrt/Kontakt (visit) → final CTA.
+
+A few structural things worth knowing before editing:
+
+- **`.section-header` wrapper**: every section's heading + subhead + CTA
+  button is wrapped in a `<div class="section-header">`. This is
+  deliberate — Lumos's `<Section>` puts a large `gap` between *all* of its
+  direct children (heading, paragraph, button, grid), which stacks on top
+  of each component's own margin and produces way too much whitespace
+  between a heading and its subhead. Grouping them into one plain-flow div
+  sidesteps that; only *between* logical blocks (header → grid, grid →
+  note) should you rely on the Section's own `gap`. If you add a new
+  section, follow the same pattern — don't drop a bare `<Heading>` +
+  `<Paragraph>` directly as siblings in a `<Section>`, wrap them.
+- **`align="center"` ambient alignment**: `<Section align="center">` sets
+  `text-align`/`--_alignment: center` on *everything* inside it, including
+  things that need to stay left-aligned (the hours list) or full-width (the
+  visit map image, which otherwise shrinks to fit-content because
+  `align-items: center` stops it from stretching). Where that happened,
+  there's an explicit override class (`.hours_content { --_alignment:
+  start }`, `.visit_map { width: 100% }`) — if you add new left-aligned or
+  full-width content inside a centered section, you'll need the same kind
+  of override.
+- **`.events_grid .card_wrap.cover` / `.card_content` override**: Lumos's
+  `Card` `cover` variant is a fixed 20rem-tall box with content pinned to
+  the *top*. The mockup's event cards are a tall 3:4 poster with the
+  date/title anchored to the *bottom* over a gradient scrim. This is
+  overridden with `aspect-ratio: 3/4` + `justify-content: flex-end`, scoped
+  to `.events_grid` only — don't "fix" this at the `Card.astro` level, other
+  cover-card usages (if any get added later) may want the default look.
+- **Today-highlight on the hours list**: each `<li class="hours_row">` has
+  a `data-day` attribute (`0`=Sunday…`6`=Saturday, matching
+  `Date.prototype.getDay()`). A small inline `<script>` right after the
+  list adds `.is-today` to the matching row on page load, which reveals the
+  pink "Heute" badge and tints that row. If you reorder days or add a
+  new row, keep the `data-day` values correct.
+
+## Stub pages
+
+`getraenkekarte.astro`, `events.astro`, `galerie.astro`, `kontakt.astro` are
+placeholder pages (just a heading + short text + a link back). They exist
+so the nav/footer links resolve to real routes instead of 404ing. Build
+these out for real when there's actual content (a real drink menu,
+event calendar, photo gallery, contact form) — right now they're
+intentionally minimal, not incomplete by accident.
+
+## Images
+
+Real photos live in `src/assets/flamingo/` (copied from the mockup's
+`assets/images/`), imported and rendered through Lumos's `<Img>` component
+so Astro optimizes them to WebP at build time. Don't reference them via a
+plain `<img src="/...">` or drop new photos into `public/` — import from
+`src/assets` so they go through the image pipeline.
+
+## SEO / metadata
+
+`src/consts.ts` holds `SITE_NAME` ("Flamingo Bar"), `SITE_URL`
+(`https://www.flamingobar-langenthal.ch`), and `SITE_DESCRIPTION` — these
+feed `BaseHead.astro`'s title/meta tags and `astro.config.mjs`'s sitemap.
+`index.astro` also carries a `BarOrPub` JSON-LD block (address, phone,
+opening hours, price range) injected via `slot="head"` — keep this in sync
+if the address/hours/phone ever change for real.
 
 ## Documentation
 
-Full documentation: https://docs.astro.build
-
-Consult these guides before working on related tasks:
+Full Astro docs: https://docs.astro.build
 
 - [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
 - [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
