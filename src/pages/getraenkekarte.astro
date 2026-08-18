@@ -445,243 +445,245 @@ const menuSections = [
 </script>
 
 <style is:global>
-  .menu_grid {
-    margin-bottom: var(--space-6);
-  }
+  @layer components {
+    .menu_grid {
+      margin-bottom: var(--space-6);
+    }
 
-  /* ------------------------------------------------------------------ chips */
-  .chips_wrap {
-    position: sticky;
-    top: calc(var(--nav-height) + 0.5rem);
-    z-index: 5;
-    width: 100%;
-    padding-inline: var(--site-margin);
-    /* Hinter den Chips soll die Seite nicht durchscheinen. */
-    background: linear-gradient(
-      to bottom,
-      var(--background) 55%,
-      color-mix(in lab, var(--background) 0%, transparent)
-    );
-    padding-block: 0.5rem 1rem;
-  }
+    /* ------------------------------------------------------------------ chips */
+    .chips_wrap {
+      position: sticky;
+      top: calc(var(--nav-height) + 0.5rem);
+      z-index: 5;
+      width: 100%;
+      padding-inline: var(--site-margin);
+      /* Hinter den Chips soll die Seite nicht durchscheinen. */
+      background: linear-gradient(
+        to bottom,
+        var(--background) 55%,
+        color-mix(in lab, var(--background) 0%, transparent)
+      );
+      padding-block: 0.5rem 1rem;
+    }
 
-  .chips {
-    display: flex;
-    gap: var(--space-2);
-    max-width: var(--max-width-main);
-    margin: 0 auto;
-    padding: 0 0 0.25rem;
-    list-style: none;
-    overflow-x: auto;
-    scrollbar-width: none;
-    scroll-snap-type: x proximity;
-  }
-
-  .chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Ab dieser Breite passen alle Chips in eine Zeile, dann sitzen sie zentriert
-     wie der Rest der Seite. Schmaler bleibt die Leiste linksbündig, sonst
-     verschwindet der erste Chip hinter dem Rand. */
-  @media (min-width: 48rem) {
     .chips {
-      justify-content: center;
+      display: flex;
+      gap: var(--space-2);
+      max-width: var(--max-width-main);
+      margin: 0 auto;
+      padding: 0 0 0.25rem;
+      list-style: none;
+      overflow-x: auto;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
     }
-  }
 
-  .chip {
-    display: inline-block;
-    padding: 0.5rem 0.9rem;
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-round);
-    background-color: color-mix(in lab, var(--text) 4%, transparent);
-    color: var(--text);
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    scroll-snap-align: center;
-    transition:
-      border-color 200ms,
-      background-color 200ms,
-      color 200ms;
-  }
-
-  @media (hover: hover) {
-    .chip:hover {
-      border-color: color-mix(in lab, var(--brand-500) 50%, transparent);
+    .chips::-webkit-scrollbar {
+      display: none;
     }
-  }
 
-  .chip.is-current {
-    border-color: var(--brand-500);
-    background-color: rgba(255, 46, 136, 0.12);
-    color: var(--brand-500-soft);
-  }
+    /* Ab dieser Breite passen alle Chips in eine Zeile, dann sitzen sie zentriert
+       wie der Rest der Seite. Schmaler bleibt die Leiste linksbündig, sonst
+       verschwindet der erste Chip hinter dem Rand. */
+    @media (min-width: 48rem) {
+      .chips {
+        justify-content: center;
+      }
+    }
 
-  /* Sprungziel nicht unter der Chip-Leiste verstecken. */
-  .section[id] {
-    scroll-margin-top: calc(var(--nav-height) + 4rem);
-  }
+    .chip {
+      display: inline-block;
+      padding: 0.5rem 0.9rem;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-round);
+      background-color: color-mix(in lab, var(--text) 4%, transparent);
+      color: var(--text);
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      scroll-snap-align: center;
+      transition:
+        border-color 200ms,
+        background-color 200ms,
+        color 200ms;
+    }
 
-  /* ------------------------------------------------------------- drink list */
-  .drink_list {
-    display: grid;
-    gap: 0.25rem;
-    max-width: 32rem;
-    margin: 0 auto;
-    list-style: none;
-    padding: 0;
-    text-align: left;
-  }
+    @media (hover: hover) {
+      .chip:hover {
+        border-color: color-mix(in lab, var(--brand-500) 50%, transparent);
+      }
+    }
 
-  .drink_row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.7rem 1.25rem;
-    border-radius: var(--radius-small);
-  }
+    .chip.is-current {
+      border-color: var(--brand-500);
+      background-color: color-mix(in srgb, var(--brand-500) 12%, transparent);
+      color: var(--brand-500-soft);
+    }
 
-  .drink_name {
-    font-family: var(--display-family);
-    font-size: 1.0625rem;
-    white-space: nowrap;
-  }
+    /* Sprungziel nicht unter der Chip-Leiste verstecken. */
+    .section[id] {
+      scroll-margin-top: calc(var(--nav-height) + 4rem);
+    }
 
-  .drink_dots {
-    flex: 1 1 auto;
-    border-bottom: var(--border-width) dotted rgba(244, 239, 233, 0.2);
-    transform: translateY(-0.3rem);
-  }
+    /* ------------------------------------------------------------- drink list */
+    .drink_list {
+      display: grid;
+      gap: 0.25rem;
+      max-width: 32rem;
+      margin: 0 auto;
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
 
-  .drink_price {
-    font-family: var(--mono-family);
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    color: var(--brand-500);
-    white-space: nowrap;
-  }
+    .drink_row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: var(--radius-small);
+    }
 
-  /* ------------------------------------------------------------ price table */
-  .price_table {
-    width: 100%;
-    max-width: 36rem;
-    margin-inline: auto;
-    text-align: left;
-  }
+    .drink_name {
+      font-family: var(--display-family);
+      font-size: 1.0625rem;
+      white-space: nowrap;
+    }
 
-  .price_head,
-  .price_row {
-    display: grid;
-    grid-template-columns: 1fr 6rem 6rem;
-    align-items: baseline;
-    gap: 0.75rem;
-  }
+    .drink_dots {
+      flex: 1 1 auto;
+      border-bottom: var(--border-width) dotted color-mix(in srgb, var(--light-100) 20%, transparent);
+      transform: translateY(-0.3rem);
+    }
 
-  .price_head {
-    padding: 0 1.25rem 0.6rem;
-    border-bottom: var(--border-width) solid var(--border);
-    font-family: var(--mono-family);
-    font-size: 0.5625rem;
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
+    .drink_price {
+      font-family: var(--mono-family);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--brand-500);
+      white-space: nowrap;
+    }
 
-  .price_head > span + span,
-  .price_row > .price_value {
-    text-align: right;
-  }
+    /* ------------------------------------------------------------ price table */
+    .price_table {
+      width: 100%;
+      max-width: 36rem;
+      margin-inline: auto;
+      text-align: left;
+    }
 
-  .price_group {
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    font-weight: var(--primary-regular);
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
-    color: var(--brand-500);
-    margin: var(--space-5) 0 0.35rem;
-    padding-inline: 1.25rem;
-  }
-
-  .price_rows {
-    display: grid;
-    gap: 0.15rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .price_row {
-    padding: 0.6rem 1.25rem;
-    border-radius: var(--radius-small);
-  }
-
-  .price_name {
-    font-family: var(--display-family);
-    font-size: 1.0625rem;
-  }
-
-  .price_value {
-    font-family: var(--mono-family);
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    color: color-mix(in lab, currentcolor 65%, transparent);
-    white-space: nowrap;
-  }
-
-  @media (max-width: 30rem) {
     .price_head,
     .price_row {
-      grid-template-columns: 1fr 5rem 5rem;
-      padding-inline: 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr 6rem 6rem;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .price_head {
+      padding: 0 1.25rem 0.6rem;
+      border-bottom: var(--border-width) solid var(--border);
+      font-family: var(--mono-family);
+      font-size: 0.5625rem;
+      letter-spacing: var(--letter-spacing-label);
+      text-transform: uppercase;
+      color: color-mix(in lab, currentcolor 48%, transparent);
+    }
+
+    .price_head > span + span,
+    .price_row > .price_value {
+      text-align: right;
     }
 
     .price_group {
-      padding-inline: 0.75rem;
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      font-weight: var(--primary-regular);
+      letter-spacing: var(--letter-spacing-label);
+      text-transform: uppercase;
+      color: var(--brand-500);
+      margin: var(--space-5) 0 0.35rem;
+      padding-inline: 1.25rem;
     }
-  }
 
-  /* --------------------------------------------------------------- bottles */
-  .bottle_options {
-    text-align: center;
-    margin-bottom: var(--space-6);
-  }
+    .price_rows {
+      display: grid;
+      gap: 0.15rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
 
-  .bottle_option {
-    display: grid;
-    gap: 0.45rem;
-    justify-items: center;
-  }
+    .price_row {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-small);
+    }
 
-  .bottle_option-price {
-    font-family: var(--mono-family);
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    color: var(--brand-500);
-    margin: 0;
-  }
+    .price_name {
+      font-family: var(--display-family);
+      font-size: 1.0625rem;
+    }
 
-  /* ------------------------------------------------------------------ note */
-  .menu_note {
-    max-width: 44rem;
-    margin-inline: auto;
-    padding: var(--space-4) var(--space-5);
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-main);
-    background-color: color-mix(in lab, var(--text) 2%, transparent);
-  }
+    .price_value {
+      font-family: var(--mono-family);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: color-mix(in lab, currentcolor 65%, transparent);
+      white-space: nowrap;
+    }
 
-  .menu_note-label {
-    font-family: var(--mono-family);
-    font-size: 0.5625rem;
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
-    color: var(--brand-500);
-    margin-bottom: var(--space-2);
+    @media (max-width: 30rem) {
+      .price_head,
+      .price_row {
+        grid-template-columns: 1fr 5rem 5rem;
+        padding-inline: 0.75rem;
+      }
+
+      .price_group {
+        padding-inline: 0.75rem;
+      }
+    }
+
+    /* --------------------------------------------------------------- bottles */
+    .bottle_options {
+      text-align: center;
+      margin-bottom: var(--space-6);
+    }
+
+    .bottle_option {
+      display: grid;
+      gap: 0.45rem;
+      justify-items: center;
+    }
+
+    .bottle_option-price {
+      font-family: var(--mono-family);
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      color: var(--brand-500);
+      margin: 0;
+    }
+
+    /* ------------------------------------------------------------------ note */
+    .menu_note {
+      max-width: 44rem;
+      margin-inline: auto;
+      padding: var(--space-4) var(--space-5);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-main);
+      background-color: color-mix(in lab, var(--text) 2%, transparent);
+    }
+
+    .menu_note-label {
+      font-family: var(--mono-family);
+      font-size: 0.5625rem;
+      letter-spacing: var(--letter-spacing-label);
+      text-transform: uppercase;
+      color: var(--brand-500);
+      margin-bottom: var(--space-2);
+    }
   }
 </style>

@@ -217,149 +217,151 @@ const listed = events.filter((event) => !featured.includes(event));
 </Layout>
 
 <style is:global>
-  .events_grid {
-    --_alignment: start;
-    text-align: start;
-    margin-bottom: var(--space-6);
-  }
+  @layer components {
+    .events_grid {
+      --_alignment: start;
+      text-align: start;
+      margin-bottom: var(--space-6);
+    }
 
-  /* Lumos' Cover-Card ist ein 20rem hoher Kasten mit Inhalt oben. Hier soll
-     sie ein hohes Poster sein, Datum und Titel am Fuss über dem Scrim. */
-  .events_grid .card_wrap.cover {
-    aspect-ratio: 3 / 4;
-    min-height: 0;
-  }
+    /* Lumos' Cover-Card ist ein 20rem hoher Kasten mit Inhalt oben. Hier soll
+       sie ein hohes Poster sein, Datum und Titel am Fuss über dem Scrim. */
+    .events_grid .card_wrap.cover {
+      aspect-ratio: 3 / 4;
+      min-height: 0;
+    }
 
-  .events_grid .card_content {
-    justify-content: flex-end;
-  }
+    .events_grid .card_content {
+      justify-content: flex-end;
+    }
 
-  .event_list {
-    display: grid;
-    gap: 0.25rem;
-    max-width: 34rem;
-    margin: 0 auto;
-    list-style: none;
-    padding: 0;
-    text-align: left;
-  }
+    .event_list {
+      display: grid;
+      gap: 0.25rem;
+      max-width: 34rem;
+      margin: 0 auto;
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
 
-  .event_row {
-    display: grid;
-    grid-template-columns: 6rem 1fr auto;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 0.85rem 1.25rem;
-    border-radius: var(--radius-small);
-  }
-
-  .event_date {
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
-
-  .event_title {
-    font-family: var(--display-family);
-    font-size: 1.0625rem;
-  }
-
-  .event_tag {
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--brand-500);
-    white-space: nowrap;
-  }
-
-  @media (max-width: 30rem) {
     .event_row {
-      grid-template-columns: 1fr auto;
-      row-gap: 0.2rem;
+      display: grid;
+      grid-template-columns: 6rem 1fr auto;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-small);
     }
 
     .event_date {
-      grid-column: 1 / -1;
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: color-mix(in lab, currentcolor 48%, transparent);
     }
-  }
 
-  /* ---------------------------------------------------------------- weekly */
-  .weekly_grid {
-    text-align: center;
-  }
+    .event_title {
+      font-family: var(--display-family);
+      font-size: 1.0625rem;
+    }
 
-  .weekly_item {
-    display: grid;
-    gap: 0.35rem;
-    justify-items: center;
-    padding: var(--space-5) var(--space-4);
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-main);
-    background-color: color-mix(in lab, var(--text) 2%, transparent);
-  }
+    .event_tag {
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brand-500);
+      white-space: nowrap;
+    }
 
-  .weekly_label {
-    font-family: var(--mono-family);
-    font-size: 0.5625rem;
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
-    color: var(--brand-500);
-    margin: 0;
-  }
+    @media (max-width: 30rem) {
+      .event_row {
+        grid-template-columns: 1fr auto;
+        row-gap: 0.2rem;
+      }
 
-  /* --------------------------------------------------------------- private */
-  .private_layout {
-    width: 100%;
-    max-width: var(--max-width-main);
-    margin-inline: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-    gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-    align-items: center;
-  }
+      .event_date {
+        grid-column: 1 / -1;
+      }
+    }
 
-  .private_visual {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--radius-main);
-    overflow: clip;
-  }
+    /* ---------------------------------------------------------------- weekly */
+    .weekly_grid {
+      text-align: center;
+    }
 
-  .private_visual img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+    .weekly_item {
+      display: grid;
+      gap: 0.35rem;
+      justify-items: center;
+      padding: var(--space-5) var(--space-4);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-main);
+      background-color: color-mix(in lab, var(--text) 2%, transparent);
+    }
 
-  .private_rows {
-    display: grid;
-    margin-top: var(--space-5);
-    border-top: var(--border-width) solid var(--border);
-  }
+    .weekly_label {
+      font-family: var(--mono-family);
+      font-size: 0.5625rem;
+      letter-spacing: var(--letter-spacing-label);
+      text-transform: uppercase;
+      color: var(--brand-500);
+      margin: 0;
+    }
 
-  .private_row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.35rem var(--space-5);
-    padding-block: 1rem;
-    border-bottom: var(--border-width) solid var(--border);
-  }
+    /* --------------------------------------------------------------- private */
+    .private_layout {
+      width: 100%;
+      max-width: var(--max-width-main);
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+      gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+      align-items: center;
+    }
 
-  .private_row-label {
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
+    .private_visual {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      border-radius: var(--radius-main);
+      overflow: clip;
+    }
 
-  .private_row-value {
-    font-family: var(--display-family);
-    font-size: 1.0625rem;
+    .private_visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .private_rows {
+      display: grid;
+      margin-top: var(--space-5);
+      border-top: var(--border-width) solid var(--border);
+    }
+
+    .private_row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.35rem var(--space-5);
+      padding-block: 1rem;
+      border-bottom: var(--border-width) solid var(--border);
+    }
+
+    .private_row-label {
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: color-mix(in lab, currentcolor 48%, transparent);
+    }
+
+    .private_row-value {
+      font-family: var(--display-family);
+      font-size: 1.0625rem;
+    }
   }
 </style>

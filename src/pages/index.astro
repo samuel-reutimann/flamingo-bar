@@ -522,411 +522,413 @@ const openDays = openDaysLabel(hours);
   </Section>
 </Layout>
 <style is:global>
-  /* Haltezustand der Ladeanimation: gilt nur, solange das Head-Script die
-     Klasse gesetzt hat, also nie ohne JS und nie bei reduzierter Bewegung. */
-  /* Hero-Bild und H1 sind die LCP-Kandidaten und werden nie ausgeblendet —
-     sonst hängt der Largest Contentful Paint an der Ausführung von GSAP.
-     Beide kommen nur per Transform herein, der Rest darf einblenden. */
-  .hero-preload .hero_status,
-  .hero-preload .hero_text,
-  .hero-preload .hero_buttons,
-  .hero-preload .hero_scrim,
-  .hero-preload .nav_pill {
-    opacity: 0;
-  }
-
-  /* ------------------------------------------------------------------- hero */
-  .hero_section {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .hero_content {
-    position: relative;
-    z-index: 1;
-    padding-top: 9.5rem;
-    padding-bottom: 1rem;
-    padding-inline: var(--site-margin);
-    text-align: center;
-    flex: 0 0 auto;
-  }
-
-  .hero_status {
-    margin-bottom: var(--space-4);
-  }
-
-  .hero_status[hidden] {
-    display: none;
-  }
-
-  .hero_status-dot {
-    flex: none;
-    width: 0.35rem;
-    height: 0.35rem;
-    border-radius: var(--radius-round);
-    background-color: var(--brand-500);
-    box-shadow: var(--shadow-accent-glow);
-  }
-
-  /* Der Punkt pulsiert, solange offen ist. */
-  .hero_status-dot {
-    animation: dot-pulse 2.4s ease-in-out infinite;
-  }
-
-  .hero_status.is-closed .hero_status-dot {
-    background-color: color-mix(in lab, currentcolor 40%, transparent);
-    box-shadow: none;
-    animation: none;
-  }
-
-  @keyframes dot-pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 1;
+  @layer components {
+    /* Haltezustand der Ladeanimation: gilt nur, solange das Head-Script die
+       Klasse gesetzt hat, also nie ohne JS und nie bei reduzierter Bewegung. */
+    /* Hero-Bild und H1 sind die LCP-Kandidaten und werden nie ausgeblendet —
+       sonst hängt der Largest Contentful Paint an der Ausführung von GSAP.
+       Beide kommen nur per Transform herein, der Rest darf einblenden. */
+    .hero-preload .hero_status,
+    .hero-preload .hero_text,
+    .hero-preload .hero_buttons,
+    .hero-preload .hero_scrim,
+    .hero-preload .nav_pill {
+      opacity: 0;
     }
-    50% {
-      transform: scale(1.5);
-      opacity: 0.55;
-    }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
+    /* ------------------------------------------------------------------- hero */
+    .hero_section {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .hero_content {
+      position: relative;
+      z-index: 1;
+      padding-top: 9.5rem;
+      padding-bottom: 1rem;
+      padding-inline: var(--site-margin);
+      text-align: center;
+      flex: 0 0 auto;
+    }
+
+    .hero_status {
+      margin-bottom: var(--space-4);
+    }
+
+    .hero_status[hidden] {
+      display: none;
+    }
+
     .hero_status-dot {
+      flex: none;
+      width: 0.35rem;
+      height: 0.35rem;
+      border-radius: var(--radius-round);
+      background-color: var(--brand-500);
+      box-shadow: var(--shadow-accent-glow);
+    }
+
+    /* Der Punkt pulsiert, solange offen ist. */
+    .hero_status-dot {
+      animation: dot-pulse 2.4s ease-in-out infinite;
+    }
+
+    .hero_status.is-closed .hero_status-dot {
+      background-color: color-mix(in lab, currentcolor 40%, transparent);
+      box-shadow: none;
       animation: none;
     }
-  }
 
-  .hero_status-sep {
-    width: 1px;
-    height: 0.7rem;
-    background-color: color-mix(in lab, currentcolor 18%, transparent);
-  }
-
-  .hero_status-hours {
-    color: color-mix(in lab, currentcolor 55%, transparent);
-  }
-
-  .hero_status .eyebrow_text {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .hero_heading {
-    max-width: 46rem;
-    margin-inline: auto;
-  }
-
-  .hero_text {
-    margin-inline: auto;
-    margin-bottom: var(--space-5);
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
-
-  .hero_buttons {
-    justify-content: center;
-  }
-
-  /* Das Bild ist ein eigener Block unter dem Text und rutscht mit negativem
-     margin-top darunter. Dadurch ist die Section höher als der Viewport und
-     das Bild trägt den Scroll. Der Scrim oben blendet es unter der Headline
-     aus. */
-  .hero_visual {
-    position: relative;
-    inset: auto;
-    z-index: 0;
-    width: 100%;
-    height: 100svh;
-    margin-top: -13svh;
-    overflow: hidden;
-  }
-
-  .hero_visual img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 60%;
-  }
-
-  .hero_scrim {
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(
-        to bottom,
-        var(--dark-900) 0%,
-        rgba(10, 7, 8, 0.82) 6%,
-        rgba(10, 7, 8, 0.34) 14%,
-        rgba(10, 7, 8, 0) 24%
-      ),
-      linear-gradient(
-        to top,
-        var(--dark-900) 0%,
-        rgba(10, 7, 8, 0.7) 6%,
-        rgba(10, 7, 8, 0.25) 13%,
-        rgba(10, 7, 8, 0) 22%
-      ),
-      radial-gradient(
-        70% 45% at 50% 22%,
-        rgba(255, 46, 136, 0.12),
-        rgba(255, 46, 136, 0) 70%
-      );
-  }
-
-  /* --------------------------------------------------------------- öffnungs */
-  .hours_strip {
-    width: 100%;
-    max-width: var(--max-width-main);
-    margin-inline: auto;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4) var(--space-6);
-    padding: 1.35rem 1.6rem;
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-main);
-    background-color: color-mix(in lab, var(--light-100) 2%, transparent);
-  }
-
-  .hours_strip-headline {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
-  .hours_strip-label {
-    font-family: var(--mono-family);
-    font-size: 0.6875rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: color-mix(in lab, currentcolor 60%, transparent);
-  }
-
-  .hours_strip-value {
-    font-family: var(--display-family);
-    font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
-    line-height: 1.1;
-  }
-
-  .hours_strip-today {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
-  .hours_strip-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.5rem 0.9rem;
-    border-radius: var(--radius-round);
-    border: var(--border-width) solid rgba(255, 46, 136, 0.28);
-    background-color: rgba(255, 46, 136, 0.07);
-  }
-
-  .hours_strip-pill-label {
-    font-family: var(--mono-family);
-    font-size: 0.625rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--brand-500);
-  }
-
-  /* ----------------------------------------------------------- karte/events */
-  .events_grid {
-    --_alignment: start;
-    text-align: start;
-  }
-
-  /* Lumos's cover card is a fixed 20rem-tall box with content pinned to the
-     top. The mockup wants a tall 3:4 poster card with the date/title
-     anchored to the bottom over the gradient scrim. */
-  .events_grid .card_wrap.cover {
-    aspect-ratio: 3 / 4;
-    min-height: 0;
-  }
-
-  .events_grid .card_content {
-    justify-content: flex-end;
-  }
-
-  .events_note {
-    margin-top: var(--space-6);
-  }
-
-  /* ------------------------------------------------------------ atmosphäre */
-  .gallery_note {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.9rem;
-  }
-
-  .gallery_marquee {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    overflow: hidden;
-  }
-
-  .gallery_track {
-    display: flex;
-    gap: 1.5rem;
-    width: max-content;
-    animation: gallery-scroll 48s linear infinite;
-  }
-
-  .gallery_marquee:hover .gallery_track {
-    animation-play-state: paused;
-  }
-
-  .gallery_item {
-    flex: 0 0 auto;
-    width: clamp(17rem, 26vw, 27rem);
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-main);
-    overflow: hidden;
-  }
-
-  .gallery_item img {
-    width: 100%;
-    height: 100%;
-  }
-
-  @keyframes gallery-scroll {
-    from {
-      transform: translate3d(0, 0, 0);
+    @keyframes dot-pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.55;
+      }
     }
-    to {
-      transform: translate3d(calc(-50% - 0.75rem), 0, 0);
-    }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
+    @media (prefers-reduced-motion: reduce) {
+      .hero_status-dot {
+        animation: none;
+      }
+    }
+
+    .hero_status-sep {
+      width: 1px;
+      height: 0.7rem;
+      background-color: color-mix(in lab, currentcolor 18%, transparent);
+    }
+
+    .hero_status-hours {
+      color: color-mix(in lab, currentcolor 55%, transparent);
+    }
+
+    .hero_status .eyebrow_text {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .hero_heading {
+      max-width: 46rem;
+      margin-inline: auto;
+    }
+
+    .hero_text {
+      margin-inline: auto;
+      margin-bottom: var(--space-5);
+      color: color-mix(in lab, currentcolor 48%, transparent);
+    }
+
+    .hero_buttons {
+      justify-content: center;
+    }
+
+    /* Das Bild ist ein eigener Block unter dem Text und rutscht mit negativem
+       margin-top darunter. Dadurch ist die Section höher als der Viewport und
+       das Bild trägt den Scroll. Der Scrim oben blendet es unter der Headline
+       aus. */
+    .hero_visual {
+      position: relative;
+      inset: auto;
+      z-index: 0;
+      width: 100%;
+      height: 100svh;
+      margin-top: -13svh;
+      overflow: hidden;
+    }
+
+    .hero_visual img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 60%;
+    }
+
+    .hero_scrim {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          var(--dark-900) 0%,
+          color-mix(in srgb, var(--dark-900) 82%, transparent) 6%,
+          color-mix(in srgb, var(--dark-900) 34%, transparent) 14%,
+          transparent 24%
+        ),
+        linear-gradient(
+          to top,
+          var(--dark-900) 0%,
+          color-mix(in srgb, var(--dark-900) 70%, transparent) 6%,
+          color-mix(in srgb, var(--dark-900) 25%, transparent) 13%,
+          transparent 22%
+        ),
+        radial-gradient(
+          70% 45% at 50% 22%,
+          color-mix(in srgb, var(--brand-500) 12%, transparent),
+          transparent 70%
+        );
+    }
+
+    /* --------------------------------------------------------------- öffnungs */
+    .hours_strip {
+      width: 100%;
+      max-width: var(--max-width-main);
+      margin-inline: auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4) var(--space-6);
+      padding: 1.35rem 1.6rem;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-main);
+      background-color: color-mix(in lab, var(--light-100) 2%, transparent);
+    }
+
+    .hours_strip-headline {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .hours_strip-label {
+      font-family: var(--mono-family);
+      font-size: 0.6875rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: color-mix(in lab, currentcolor 60%, transparent);
+    }
+
+    .hours_strip-value {
+      font-family: var(--display-family);
+      font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
+      line-height: 1.1;
+    }
+
+    .hours_strip-today {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .hours_strip-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: var(--radius-round);
+      border: var(--border-width) solid color-mix(in srgb, var(--brand-500) 28%, transparent);
+      background-color: color-mix(in srgb, var(--brand-500) 7%, transparent);
+    }
+
+    .hours_strip-pill-label {
+      font-family: var(--mono-family);
+      font-size: 0.625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--brand-500);
+    }
+
+    /* ----------------------------------------------------------- karte/events */
+    .events_grid {
+      --_alignment: start;
+      text-align: start;
+    }
+
+    /* Lumos's cover card is a fixed 20rem-tall box with content pinned to the
+       top. The mockup wants a tall 3:4 poster card with the date/title
+       anchored to the bottom over the gradient scrim. */
+    .events_grid .card_wrap.cover {
+      aspect-ratio: 3 / 4;
+      min-height: 0;
+    }
+
+    .events_grid .card_content {
+      justify-content: flex-end;
+    }
+
+    .events_note {
+      margin-top: var(--space-6);
+    }
+
+    /* ------------------------------------------------------------ atmosphäre */
+    .gallery_note {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .gallery_marquee {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      overflow: hidden;
+    }
+
     .gallery_track {
-      animation: none;
+      display: flex;
+      gap: 1.5rem;
+      width: max-content;
+      animation: gallery-scroll 48s linear infinite;
     }
-  }
 
-  /* ------------------------------------------------------ flaschenservice */
-  .bottle_layout {
-    width: 100%;
-    max-width: var(--max-width-main);
-    margin-inline: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-    gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-    align-items: center;
-  }
+    .gallery_marquee:hover .gallery_track {
+      animation-play-state: paused;
+    }
 
-  .bottle_visual {
-    position: relative;
-    isolation: isolate;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--radius-main);
-    overflow: clip;
-  }
+    .gallery_item {
+      flex: 0 0 auto;
+      width: clamp(17rem, 26vw, 27rem);
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius-main);
+      overflow: hidden;
+    }
 
-  .bottle_visual img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+    .gallery_item img {
+      width: 100%;
+      height: 100%;
+    }
 
-  .bottle_scrim {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      to top,
-      rgba(4, 4, 5, 0.55),
-      rgba(4, 4, 5, 0) 45%
-    );
-  }
+    @keyframes gallery-scroll {
+      from {
+        transform: translate3d(0, 0, 0);
+      }
+      to {
+        transform: translate3d(calc(-50% - 0.75rem), 0, 0);
+      }
+    }
 
-  .bottle_text {
-    text-align: left;
-  }
+    @media (prefers-reduced-motion: reduce) {
+      .gallery_track {
+        animation: none;
+      }
+    }
 
-  .bottle_rows {
-    display: grid;
-    margin-top: var(--space-5);
-    border-top: var(--border-width) solid var(--border);
-  }
+    /* ------------------------------------------------------ flaschenservice */
+    .bottle_layout {
+      width: 100%;
+      max-width: var(--max-width-main);
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+      gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+      align-items: center;
+    }
 
-  .bottle_row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem var(--space-5);
-    padding-block: 1.1rem;
-    border-bottom: var(--border-width) solid var(--border);
-  }
+    .bottle_visual {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      border-radius: var(--radius-main);
+      overflow: clip;
+    }
 
-  .bottle_price {
-    margin: 0;
-    font-family: var(--mono-family);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    color: var(--brand-500);
-    white-space: nowrap;
-  }
+    .bottle_visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-  /* ------------------------------------------------------------------ visit */
-  .visit_detail-item {
-    display: grid;
-    gap: 0.5rem;
-    justify-items: center;
-    text-align: center;
-  }
+    .bottle_scrim {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        to top,
+        color-mix(in srgb, var(--dark-900) 55%, transparent),
+        transparent 45%
+      );
+    }
 
-  .visit_label {
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
+    .bottle_text {
+      text-align: left;
+    }
 
-  .visit_value {
-    font-size: var(--text-main);
-    margin: 0;
-  }
+    .bottle_rows {
+      display: grid;
+      margin-top: var(--space-5);
+      border-top: var(--border-width) solid var(--border);
+    }
 
-  .visit_map {
-    width: 100%;
-    height: clamp(15rem, 28vw, 21rem);
-    overflow: hidden;
-  }
+    .bottle_row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem var(--space-5);
+      padding-block: 1.1rem;
+      border-bottom: var(--border-width) solid var(--border);
+    }
 
-  .visit_map img {
-    width: 100%;
-    height: 100%;
-  }
+    .bottle_price {
+      margin: 0;
+      font-family: var(--mono-family);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--brand-500);
+      white-space: nowrap;
+    }
 
-  /* --------------------------------------------------------------- final cta */
-  .cta_section {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-  }
+    /* ------------------------------------------------------------------ visit */
+    .visit_detail-item {
+      display: grid;
+      gap: 0.5rem;
+      justify-items: center;
+      text-align: center;
+    }
 
-  .cta_glow {
-    position: absolute;
-    left: 50%;
-    top: 55%;
-    width: min(50rem, 130%);
-    aspect-ratio: 1 / 1;
-    z-index: -1;
-    transform: translate(-50%, -50%);
-    background: var(--glow-accent-radial);
-    pointer-events: none;
+    .visit_label {
+      color: color-mix(in lab, currentcolor 48%, transparent);
+    }
+
+    .visit_value {
+      font-size: var(--text-main);
+      margin: 0;
+    }
+
+    .visit_map {
+      width: 100%;
+      height: clamp(15rem, 28vw, 21rem);
+      overflow: hidden;
+    }
+
+    .visit_map img {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* --------------------------------------------------------------- final cta */
+    .cta_section {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .cta_glow {
+      position: absolute;
+      left: 50%;
+      top: 55%;
+      width: min(50rem, 130%);
+      aspect-ratio: 1 / 1;
+      z-index: -1;
+      transform: translate(-50%, -50%);
+      background: var(--glow-accent-radial);
+      pointer-events: none;
+    }
   }
 </style>
