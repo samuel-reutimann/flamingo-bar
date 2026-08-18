@@ -25,3 +25,11 @@ pnpm-debug.log*
 
 # local agent settings
 .claude/settings.local.json
+.claude/launch.json
+
+# Local state of the visual editors and the Cloudflare dev runtime. All three
+# rewrite these on every run; .wrangler/ alone was ~9 MB of miniflare SQLite.
+.shipstudio/
+.stacki/
+.impeccable/
+.wrangler/

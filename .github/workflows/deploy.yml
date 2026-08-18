@@ -36,3 +36,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # The adapter writes the deployable config (it holds `main`, which the
+          # root wrangler.jsonc deliberately does not). Without this the action
+          # falls back to the root file and deploys nothing.
+          command: deploy --config dist/server/wrangler.json
