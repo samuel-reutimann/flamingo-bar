@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "lumos-for-astro",
+  "name": "flamingo-bar",
   "compatibility_date": "2026-08-13",
   "compatibility_flags": ["nodejs_compat"],
 
@@ -11,7 +11,7 @@
   // `main` steht bewusst nicht hier — `@astrojs/cloudflare` liest diese Datei
   // beim Build, ergänzt Einstiegspunkt und Asset-Pfad und schreibt das
   // Ergebnis nach `dist/server/wrangler.json`. Das ist die Datei, die
-  // deployt wird:
+  // deployt wird (Workers Builds macht das automatisch):
   //
   //     npx astro build
   //     npx wrangler deploy --config dist/server/wrangler.json
@@ -20,14 +20,19 @@
     "not_found_handling": "404-page"
   },
 
-  // The domain the Worker answers on. `custom_domain` makes Cloudflare create
-  // and manage the DNS record for it, so the zone needs to be in this account.
-  "routes": [
-    {
-      "pattern": "lumosframework.timothyricks.com",
-      "custom_domain": true
-    }
-  ],
+  // Vorläufige Adresse: https://flamingo-bar.<dein-subdomain>.workers.dev
+  //
+  // Hier stand die Domain des Lumos-Starters (`lumosframework.timothyricks.com`).
+  // Die Zone gehört einem fremden Account, deshalb konnte Cloudflare den
+  // DNS-Eintrag nicht anlegen und der Deploy brach mit Fehler 10082 ab.
+  //
+  // Sobald `flamingobar-langenthal.ch` als Zone in diesem Cloudflare-Account
+  // liegt, hier ergänzen — dann verschwindet die workers.dev-Adresse:
+  //
+  //     "routes": [
+  //       { "pattern": "www.flamingobar-langenthal.ch", "custom_domain": true }
+  //     ]
+  "workers_dev": true,
 
   "observability": {
     "enabled": true
