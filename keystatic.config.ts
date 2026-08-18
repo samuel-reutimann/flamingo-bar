@@ -10,16 +10,18 @@
  *
  * ## Storage
  *
- * Steht auf `local`: die Oberfläche schreibt direkt in die Dateien auf dieser
- * Maschine. Damit der Kunde im Browser pflegen kann, braucht es ein Projekt
- * auf keystatic.cloud (Konto und Projekt legt der Betreiber selbst an) und
- * dann hier:
+ * `cloud`: die Redaktion läuft über keystatic.cloud gegen das GitHub-Repo
+ * `samuel-reutimann/flamingo-bar`. Der Kunde meldet sich bei Keystatic Cloud
+ * an und braucht selbst keinen GitHub-Zugang. Jede Speicherung wird ein
+ * Commit auf `main` und löst den Cloudflare-Build aus — die Änderung steht
+ * rund eine Minute später auf der Seite.
  *
- *     storage: { kind: "cloud" },
- *     cloud: { project: "team-slug/projekt-slug" },
+ * Lokal (`npm run dev`, `http://127.0.0.1:4321/keystatic`) funktioniert das
+ * ebenfalls, weil im Cloud-Projekt "Allow local development" aktiv ist.
  *
- * Danach `astro build` und deployen. Jede Speicherung des Kunden wird ein
- * Commit im GitHub-Repo und löst den Rebuild aus.
+ * Wichtig: Keystatic Cloud lässt die Anmeldung nur von den URLs zu, die im
+ * Projekt unter "Project URLs" eingetragen sind. Neue Domain der Seite dort
+ * ergänzen, sonst bricht der Login ab.
  */
 import { config, collection, singleton, fields } from "@keystatic/core";
 
@@ -72,7 +74,8 @@ const priceGroup = (label: string) => ({
 });
 
 export default config({
-  storage: { kind: "local" },
+  storage: { kind: "cloud" },
+  cloud: { project: "flamingo-bar/flamingo-bar" },
 
   ui: {
     brand: { name: "Flamingo Bar" },

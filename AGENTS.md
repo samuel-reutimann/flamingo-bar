@@ -275,14 +275,15 @@ Admin UI at `/keystatic`. It needs server-side code, which is why the
 project now has `@astrojs/cloudflare` and deploys as a Worker instead of a
 flat asset bundle. Content pages stay prerendered.
 
-Storage is `local` — it writes straight to the files on this machine. For
-the client to edit in a browser, create a project at keystatic.cloud and
-switch `keystatic.config.ts` to:
+Storage is `cloud`, project `flamingo-bar/flamingo-bar` on keystatic.cloud,
+backed by the GitHub repo `samuel-reutimann/flamingo-bar`. The client signs
+in to Keystatic Cloud and needs no GitHub account of their own. Each save is
+a commit on `main`, which triggers the Cloudflare build.
 
-```ts
-storage: { kind: "cloud" },
-cloud: { project: "team-slug/projekt-slug" },
-```
+Keystatic Cloud only accepts logins from the URLs listed under **Project
+URLs** in the cloud project. When the site moves to a new domain, add it
+there or the login fails. "Allow local development" is on, so
+`http://127.0.0.1:4321/keystatic` works too.
 
 Deploy with:
 
