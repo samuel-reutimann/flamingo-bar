@@ -1,33 +1,198 @@
 ---
-import Layout from '@/layouts/BaseLayout.astro';
-import Section from '@/components/Section.astro';
-import Heading from '@/components/Heading.astro';
-import Paragraph from '@/components/Paragraph.astro';
-import Button from '@/components/Button.astro';
-import ButtonWrapper from '@/components/ButtonWrapper.astro';
-import ContentWrapper from '@/components/ContentWrapper.astro';
-import Eyebrow from '@/components/Eyebrow.astro';
-import Img from '@/components/Img.astro';
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import HoursTable from "@/components/HoursTable.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Grid from "@/components/Grid.astro";
+import Img from "@/components/Img.astro";
+import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
+import Schema from "@/components/Schema.astro";
+import { barSchema, breadcrumbSchema } from "@/utils/schema.ts";
+import { BUSINESS } from "@/consts.ts";
 ---
-<Layout title="Kontakt" description="Tisch anfragen oder Flaschenservice reservieren in der Flamingo Bar Langenthal." theme="dark">
-  <Section paddingTop="small" paddingBottom="small">
-    <ContentWrapper>
-      <Eyebrow>stack</Eyebrow>
-      <Heading tag="h2" variant="h3" maxWidth={17}>{heading}</Heading>
-      <Paragraph maxWidth={36}>{text}</Paragraph>
+
+<Layout
+  title="Kontakt & Anfahrt – Marktgasse 34B"
+  description="Flamingo Bar, Marktgasse 34B, 4900 Langenthal: Telefon, WhatsApp und E-Mail, Anfahrt mit Bahn, Bus und Auto sowie alle Öffnungszeiten auf einen Blick."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={[
+      barSchema,
+      breadcrumbSchema([{ name: "Kontakt", path: "/kontakt" }]),
+    ]}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Kontakt"
+      heading="Direkt erreichbar"
+      text="WhatsApp ist der schnellste Weg, auch mitten am Abend. Für einen Tisch gibt es das Formular."
+    >
       <ButtonWrapper>
-        <Button element="link" href="/about">Learn more</Button>
-        <Button variant="secondary">Send</Button>
+        <Button element="link" href="/reservation">Tisch anfragen</Button>
+        <Button
+          element="link"
+          href={`https://wa.me/${BUSINESS.whatsapp}`}
+          variant="secondary">WhatsApp</Button
+        >
       </ButtonWrapper>
-      <Img src={lumos_background} slot="column2" />
-    </ContentWrapper>
+    </PageHeader>
   </Section>
-  <Section paddingTop="navoverlap" paddingBottom="large" align="center" fullHeight>
-    <Heading tag="h1" variant="h2">Tisch anfragen</Heading>
-    <Paragraph variant="main" maxWidth={36}>Ein Kontaktformular kommt in Kürze online. Bis dahin erreichst du uns direkt per Telefon oder WhatsApp.</Paragraph>
+
+  <Section paddingTop="small" paddingBottom="medium" align="center">
+    <Grid medium={3} class="contact_channels">
+      <div class="contact_channel">
+        <p class="contact_label text-style-small">Telefon</p>
+        <p class="contact_value">{BUSINESS.phoneDisplay}</p>
+        <Button element="link" href={`tel:${BUSINESS.phone}`} variant="link"
+          >Anrufen</Button
+        >
+      </div>
+      <div class="contact_channel">
+        <p class="contact_label text-style-small">WhatsApp</p>
+        <p class="contact_value">{BUSINESS.phoneDisplay}</p>
+        <Button
+          element="link"
+          href={`https://wa.me/${BUSINESS.whatsapp}`}
+          variant="link">Chat öffnen</Button
+        >
+      </div>
+      <div class="contact_channel">
+        <p class="contact_label text-style-small">E-Mail</p>
+        <p class="contact_value">{BUSINESS.email}</p>
+        <Button element="link" href={`mailto:${BUSINESS.email}`} variant="link">
+          Schreiben
+        </Button>
+      </div>
+    </Grid>
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="medium">
+    <div class="contact_layout">
+      <div class="contact_text">
+        <Heading tag="h2" variant="h3">Marktgasse 34B, Langenthal</Heading>
+        <Paragraph maxWidth={34} class="section-note">
+          Mitten in der Altstadt, fünf Minuten zu Fuss vom Bahnhof Langenthal.
+        </Paragraph>
+        <div class="contact_rows">
+          <div class="contact_row">
+            <div>
+              <Heading tag="h3" variant="h6">Mit dem ÖV</Heading>
+              <Paragraph variant="small" class="section-note">
+                Bahnhof Langenthal, danach fünf Minuten zu Fuss.
+              </Paragraph>
+            </div>
+          </div>
+          <div class="contact_row">
+            <div>
+              <Heading tag="h3" variant="h6">Mit dem Auto</Heading>
+              <Paragraph variant="small" class="section-note">
+                Parkhaus Marktgasse, direkt um die Ecke.
+              </Paragraph>
+            </div>
+          </div>
+          <div class="contact_row">
+            <div>
+              <Heading tag="h3" variant="h6">Adresse</Heading>
+              <Paragraph variant="small" class="section-note">
+                Flamingo Bar, Marktgasse 34B, 4900 Langenthal
+              </Paragraph>
+            </div>
+          </div>
+        </div>
+        <ButtonWrapper>
+          <Button element="link" href={BUSINESS.mapsUrl}>
+            Auf Karte öffnen
+          </Button>
+        </ButtonWrapper>
+      </div>
+      <div class="contact_map">
+        <Img
+          src={mapImage}
+          alt="Karte mit Standort Marktgasse 34B, 4900 Langenthal"
+        />
+      </div>
+    </div>
+  </Section>
+
+  <Section paddingTop="medium" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Öffnungszeiten</Heading>
+      <Paragraph variant="main" class="section-note">
+        Donnerstag bis Sonntag, ab 20 Uhr.
+      </Paragraph>
+    </div>
+    <HoursTable />
     <ButtonWrapper>
-      <Button element="link" href="tel:+41620000000">062 000 00 00</Button>
-      <Button element="link" href="https://wa.me/41620000000" variant="secondary">WhatsApp</Button>
+      <Button element="link" href="/oeffnungszeiten" variant="secondary">
+        Alle Zeiten und Hinweise
+      </Button>
     </ButtonWrapper>
   </Section>
 </Layout>
+
+<style is:global>
+  .contact_channels {
+    text-align: center;
+  }
+
+  .contact_channel {
+    display: grid;
+    gap: 0.4rem;
+    justify-items: center;
+    padding: var(--space-5) var(--space-4);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-main);
+    background-color: color-mix(in lab, var(--text) 2%, transparent);
+  }
+
+  .contact_label {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .contact_value {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .contact_layout {
+    width: 100%;
+    max-width: var(--max-width-main);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+    align-items: center;
+  }
+
+  .contact_rows {
+    display: grid;
+    margin-top: var(--space-5);
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .contact_row {
+    padding-block: 1.1rem;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .contact_map {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-main);
+    overflow: clip;
+  }
+
+  .contact_map img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

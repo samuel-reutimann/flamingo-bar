@@ -1,5 +1,5 @@
 ---
-import { SITE_NAME } from "@/consts.ts";
+import { BUSINESS, SITE_NAME } from "@/consts.ts";
 ---
 
 <footer class="footer_wrap">
@@ -8,16 +8,52 @@ import { SITE_NAME } from "@/consts.ts";
       <div class="footer_brand">
         <div class="footer_brand-label text-style-small">{SITE_NAME}</div>
         <p class="footer_brand-address text-style-small">
-          Marktgasse 34B, 4900 Langenthal<br />062 000 00 00
+          {BUSINESS.street}, {BUSINESS.postalCode}
+          {BUSINESS.city}<br />{BUSINESS.phoneDisplay}
         </p>
       </div>
+      <div id="alle-zeiten">
+        <div class="footer_brand-label text-style-small">Öffnungszeiten</div>
+        <ul class="footer_hours">
+          <li class="footer_hours-row is-closed" data-day="1">
+            <span>Montag</span><span>Geschlossen</span>
+          </li>
+          <li class="footer_hours-row is-closed" data-day="2">
+            <span>Dienstag</span><span>Geschlossen</span>
+          </li>
+          <li class="footer_hours-row is-closed" data-day="3">
+            <span>Mittwoch</span><span>Geschlossen</span>
+          </li>
+          <li class="footer_hours-row" data-day="4">
+            <span>Donnerstag</span><span>20 – 03 Uhr</span>
+          </li>
+          <li class="footer_hours-row" data-day="5">
+            <span>Freitag</span><span>20 – 04 Uhr</span>
+          </li>
+          <li class="footer_hours-row" data-day="6">
+            <span>Samstag</span><span>20 – 04 Uhr</span>
+          </li>
+          <li class="footer_hours-row" data-day="0">
+            <span>Sonntag</span><span>20 – 01 Uhr</span>
+          </li>
+        </ul>
+      </div>
       <nav aria-label="Footer">
+        <div class="footer_brand-label text-style-small">Seiten</div>
         <ul class="footer_links">
-          <li><a class="footer_link" href="/getraenkekarte">Getränkekarte</a></li>
-          <li><a class="footer_link" href="/#events">Events</a></li>
+          <li>
+            <a class="footer_link" href="/getraenkekarte">Getränkekarte</a>
+          </li>
+          <li><a class="footer_link" href="/events">Events</a></li>
           <li><a class="footer_link" href="/galerie">Galerie</a></li>
+          <li><a class="footer_link" href="/reservation">Reservation</a></li>
+          <li>
+            <a class="footer_link" href="/oeffnungszeiten">Öffnungszeiten</a>
+          </li>
           <li><a class="footer_link" href="/kontakt">Kontakt</a></li>
-          <li><a class="footer_link" href="https://instagram.com">Instagram</a></li>
+          <li>
+            <a class="footer_link" href={BUSINESS.instagram}>Instagram</a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -49,6 +85,11 @@ import { SITE_NAME } from "@/consts.ts";
   if (year) {
     year.textContent = new Date().getFullYear().toString();
   }
+
+  // Heutigen Tag in der Öffnungszeiten-Spalte markieren.
+  document
+    .querySelector(`.footer_hours-row[data-day="${new Date().getDay()}"]`)
+    ?.classList.add("is-today");
 </script>
 
 <style is:global>
@@ -71,11 +112,9 @@ import { SITE_NAME } from "@/consts.ts";
     }
 
     .footer_top {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-6);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: clamp(2rem, 1.5rem + 2vw, 3.5rem);
       padding-top: var(--space-8);
       padding-bottom: var(--space-8);
     }
@@ -95,12 +134,46 @@ import { SITE_NAME } from "@/consts.ts";
     }
 
     .footer_links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-4) var(--space-6);
+      display: grid;
+      gap: var(--space-3);
       list-style: none;
       margin: 0;
       padding: 0;
+    }
+
+    .footer_hours {
+      display: grid;
+      gap: 0.15rem;
+      max-width: 22rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer_hours-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: 0.35rem 0.6rem;
+      margin-inline: -0.6rem;
+      border-radius: var(--radius-small);
+      font-size: 0.8125rem;
+      color: color-mix(in lab, var(--light-100) 72%, transparent);
+    }
+
+    .footer_hours-row.is-closed {
+      color: color-mix(in lab, var(--light-100) 45%, transparent);
+    }
+
+    .footer_hours-row.is-today {
+      background-color: rgba(255, 46, 136, 0.09);
+      box-shadow: inset 0 0 0 1px rgba(255, 46, 136, 0.22);
+      color: var(--light-100);
+    }
+
+    .footer_hours-row.is-today span:last-child {
+      color: var(--brand-500);
     }
 
     .footer_link {

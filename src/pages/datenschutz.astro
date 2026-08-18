@@ -1,0 +1,125 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import LegalText from "@/components/LegalText.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema } from "@/utils/schema.ts";
+import { BUSINESS } from "@/consts.ts";
+---
+
+<Layout
+  title="Datenschutz"
+  description="Datenschutzerklärung der Flamingo Bar Langenthal: welche Personendaten die Website bearbeitet, wozu, wie lange sie bleiben und welche Rechte du dabei hast."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={breadcrumbSchema([{ name: "Datenschutz", path: "/datenschutz" }])}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Rechtliches"
+      heading="Datenschutz"
+      text="Welche Daten diese Website bearbeitet, wozu und wie lange. Kurz gehalten, weil wenig anfällt."
+    />
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="large">
+    <LegalText>
+      <h2>Verantwortliche Stelle</h2>
+      <p>
+        Flamingo Bar, Marktgasse 34B, 4900 Langenthal, Schweiz<br />
+        E-Mail: <a href={`mailto:${BUSINESS.email}`}>
+          {BUSINESS.email}
+        </a>
+      </p>
+      <p>
+        Wir bearbeiten Personendaten nach dem schweizerischen Datenschutzgesetz
+        (DSG). Wo die Datenschutz-Grundverordnung (DSGVO) zusätzlich gilt,
+        halten wir uns auch daran.
+      </p>
+
+      <h2>Tischanfragen über das Formular</h2>
+      <p>
+        Das Reservationsformular sendet keine Daten an einen Server dieser
+        Website. Es setzt aus deinen Angaben eine Nachricht zusammen und öffnet
+        damit WhatsApp. Erst wenn du die Nachricht dort abschickst, erhalten wir
+        Name, Telefonnummer, Wunschtermin, Personenzahl und deine Bemerkung. Wir
+        verwenden diese Angaben nur, um die Anfrage zu beantworten, und löschen
+        die Konversation, sobald sie nicht mehr gebraucht wird.
+      </p>
+      <p>
+        Für die Übermittlung gelten zusätzlich die Bedingungen von WhatsApp
+        (WhatsApp Ireland Limited, Meta). Wenn du das nicht möchtest, ruf uns an
+        oder schreib eine E-Mail.
+      </p>
+
+      <h2>Server-Logfiles</h2>
+      <p>
+        Beim Aufruf der Website erfasst der Hosting-Anbieter automatisch
+        technische Daten: gekürzte IP-Adresse, Datum und Uhrzeit, aufgerufene
+        Seite, übermittelte Datenmenge, Browsertyp und Betriebssystem. Diese
+        Daten sind für den Betrieb und die Sicherheit notwendig, werden nicht
+        mit anderen Quellen zusammengeführt und nach kurzer Zeit gelöscht.
+      </p>
+      <p>Hosting: [Hosting-Anbieter und Standort eintragen]</p>
+
+      <h2>Cookies und Analyse</h2>
+      <p>
+        Diese Website setzt keine Cookies für Werbung oder Tracking und
+        verwendet kein Analyse-Werkzeug, das dich über Seiten hinweg
+        wiedererkennt. Deshalb erscheint auch kein Cookie-Banner.
+      </p>
+
+      <h2>Externe Dienste und Links</h2>
+      <ul>
+        <li>
+          <strong>Google Maps:</strong> Die Karte ist ein Bild, keine Einbettung.
+          Erst wenn du «Auf Karte öffnen» anklickst, wirst du zu Google Maps weitergeleitet
+          und es gelten die Datenschutzbestimmungen von Google.
+        </li>
+        <li>
+          <strong>Instagram:</strong> Wir verlinken unser Profil, es ist kein Feed
+          eingebettet. Der Aufruf des Links führt zu Meta Platforms Ireland Limited.
+        </li>
+        <li>
+          <strong>WhatsApp und Telefon:</strong> Die Knöpfe öffnen die jeweilige App
+          auf deinem Gerät. Wir erhalten nur, was du dort abschickst.
+        </li>
+      </ul>
+
+      <h2>Schriften</h2>
+      <p>
+        Die Schriften dieser Website werden von Google Fonts geladen (Google
+        Ireland Limited). Dabei übermittelt dein Browser technische
+        Verbindungsdaten, darunter die IP-Adresse, an Google. Grundlage ist
+        unser Interesse an einer einheitlichen Darstellung.
+      </p>
+
+      <h2>Deine Rechte</h2>
+      <p>
+        Du hast das Recht auf Auskunft über die zu dir bearbeiteten Daten, auf
+        Berichtigung, auf Löschung und auf Einschränkung der Bearbeitung. Eine
+        kurze E-Mail an die oben genannte Adresse genügt. Beschwerden kannst du
+        an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten
+        (EDÖB) richten.
+      </p>
+
+      <h2>Änderungen</h2>
+      <p>
+        Wir passen diese Erklärung an, wenn sich die Website oder die
+        eingesetzten Dienste ändern. Es gilt die jeweils hier veröffentlichte
+        Fassung.
+      </p>
+      <p>Stand: August 2026</p>
+    </LegalText>
+    <ButtonWrapper>
+      <Button element="link" href="/impressum" variant="secondary"
+        >Impressum</Button
+      >
+    </ButtonWrapper>
+  </Section>
+</Layout>

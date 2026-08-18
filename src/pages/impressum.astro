@@ -1,0 +1,94 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import LegalText from "@/components/LegalText.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema } from "@/utils/schema.ts";
+import { BUSINESS } from "@/consts.ts";
+---
+
+<Layout
+  title="Impressum"
+  description="Impressum der Flamingo Bar, Marktgasse 34B, 4900 Langenthal: verantwortliche Stelle, Kontaktangaben, Rechtsform und Hinweise zu Haftung und Urheberrecht."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={breadcrumbSchema([{ name: "Impressum", path: "/impressum" }])}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Rechtliches"
+      heading="Impressum"
+      text="Angaben zur verantwortlichen Stelle dieser Website."
+    />
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="large">
+    <LegalText>
+      <h2>Betreiberin</h2>
+      <p>
+        Flamingo Bar<br />
+        Marktgasse 34B<br />
+        4900 Langenthal<br />
+        Schweiz
+      </p>
+      <p>
+        Telefon: <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a
+        ><br />
+        E-Mail: <a href={`mailto:${BUSINESS.email}`}>
+          {BUSINESS.email}
+        </a>
+      </p>
+
+      <h2>Rechtsform und Vertretung</h2>
+      <p>
+        Rechtsform: [Rechtsform eintragen]<br />
+        Vertreten durch: [Vor- und Nachname der Inhaberschaft]<br />
+        Handelsregister-Nummer: [CHE-Nummer]<br />
+        Mehrwertsteuer-Nummer: [CHE-Nummer MWST]
+      </p>
+
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p>[Vor- und Nachname], Marktgasse 34B, 4900 Langenthal</p>
+
+      <h2>Haftung für Inhalte</h2>
+      <p>
+        Die Inhalte dieser Website werden mit Sorgfalt erstellt. Für die
+        Richtigkeit, Vollständigkeit und Aktualität der Angaben, insbesondere
+        von Preisen, Öffnungszeiten und Veranstaltungsdaten, wird keine Haftung
+        übernommen. Preise und Zeiten können sich kurzfristig ändern;
+        verbindlich sind die Angaben in der Bar.
+      </p>
+
+      <h2>Haftung für Links</h2>
+      <p>
+        Diese Website verweist auf externe Websites, etwa auf Instagram,
+        WhatsApp und Google Maps. Für deren Inhalte sind ausschliesslich die
+        jeweiligen Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren
+        keine rechtswidrigen Inhalte erkennbar.
+      </p>
+
+      <h2>Urheberrecht</h2>
+      <p>
+        Texte, Bilder und Gestaltung dieser Website sind urheberrechtlich
+        geschützt. Eine Verwendung ausserhalb der gesetzlichen Schranken bedarf
+        der vorherigen schriftlichen Zustimmung der Betreiberin.
+      </p>
+
+      <h2>Datenschutz</h2>
+      <p>
+        Wie wir mit Personendaten umgehen, steht in der
+        <a href="/datenschutz">Datenschutzerklärung</a>.
+      </p>
+    </LegalText>
+    <ButtonWrapper>
+      <Button element="link" href="/" variant="secondary"
+        >Zurück zur Startseite</Button
+      >
+    </ButtonWrapper>
+  </Section>
+</Layout>

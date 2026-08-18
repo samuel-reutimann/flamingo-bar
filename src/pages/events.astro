@@ -1,37 +1,55 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
+import Img from "@/components/Img.astro";
 import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
 import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
 import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
+import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
+import { EVENTS } from "@/data/events.ts";
+import { BUSINESS } from "@/consts.ts";
 ---
 
 <Layout
-  title="Events"
-  description="DJ-Abende, Live-Musik und Motto-Partys in der Flamingo Bar Langenthal."
+  title="Events & DJ-Abende in Langenthal"
+  description="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour in der Flamingo Bar Langenthal. Alle kommenden Termine und wie du einen Tisch anfragst."
   theme="dark"
 >
-  <Section paddingTop="navoverlap" paddingBottom="medium" align="center">
-    <div class="section-header">
-      <Heading tag="h1" variant="h2">Alle Events</Heading>
-      <Paragraph variant="main" maxWidth={38} class="section-note">
-        DJ-Abende, Live-Musik und Motto-Partys. Kurzfristige Ankündigungen laufen auf Instagram.
-      </Paragraph>
+  <Schema
+    slot="head"
+    data={[
+      ...eventsSchema(EVENTS),
+      breadcrumbSchema([{ name: "Events", path: "/events" }]),
+    ]}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Events"
+      heading="Ein Datum ist ein Grund"
+      text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram."
+    >
       <ButtonWrapper>
-        <Button element="link" href="https://instagram.com" variant="secondary">
+        <Button element="link" href="/reservation"
+          >Tisch für einen Abend anfragen</Button
+        >
+        <Button element="link" href={BUSINESS.instagram} variant="secondary">
           @flamingobar.langenthal
         </Button>
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 
-  <Section paddingTop="0" paddingBottom="large" align="center">
+  <Section paddingTop="small" paddingBottom="large" align="center">
+    <PageHeader headingTag="h2" variant="h3" heading="Als Nächstes" />
     <Grid medium={3} class="events_grid">
       <Card
         variant="cover"
@@ -39,6 +57,7 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
         imageAlt="DJane am Pult, pinke Lichtstrahlen über der Menge"
         eyebrow="Freitag, 21. August 2026"
         heading="Pink Friday mit DJ Nael"
+        text="Ab 21 Uhr, Eintritt frei."
         cardTag="article"
       />
       <Card
@@ -47,6 +66,7 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
         imageAlt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
         eyebrow="Samstag, 22. August 2026"
         heading="Latin Night"
+        text="Ab 21 Uhr, Eintritt frei."
         cardTag="article"
       />
       <Card
@@ -55,6 +75,7 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
         imageAlt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
         eyebrow="Donnerstag, 27. August 2026"
         heading="Live Session"
+        text="Ab 20.30 Uhr, Eintritt frei."
         cardTag="article"
       />
     </Grid>
@@ -82,40 +103,134 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
       </li>
       <li class="event_row">
         <span class="event_date">Sa, 5. Sep</span>
-        <span class="event_title">90s & 2000s Night</span>
+        <span class="event_title">90s &amp; 2000s Night</span>
         <span class="event_tag">Motto-Party</span>
       </li>
     </ul>
 
-    <Paragraph variant="small" class="section-note events_note">
-      Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen auf Anfrage.
-    </Paragraph>
     <ButtonWrapper>
-      <Button element="link" href="/kontakt">Tisch für ein Event anfragen</Button>
+      <Button element="link" href="/reservation"
+        >Tisch für diesen Abend anfragen</Button
+      >
     </ButtonWrapper>
+  </Section>
+
+  {
+    /* Wiederkehrendes braucht keinen Eintrag pro Woche, aber einen festen
+       Platz — sonst fragt jeder einzeln nach der Happy Hour. */
+  }
+  <Section
+    paddingTop="none"
+    paddingBottom="large"
+    align="center"
+    id="jede-woche"
+  >
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Jede Woche"
+      text="Was ohne Ankündigung stattfindet, solange offen ist."
+    />
+    <Grid medium={3} class="weekly_grid">
+      <div class="weekly_item">
+        <p class="weekly_label text-style-small">Donnerstag</p>
+        <Heading tag="h3" variant="h6">Happy Hour</Heading>
+        <Paragraph variant="small" class="section-note">
+          20 – 22 Uhr, ausgewählte Cocktails und Longdrinks vergünstigt.
+        </Paragraph>
+      </div>
+      <div class="weekly_item">
+        <p class="weekly_label text-style-small">Freitag und Samstag</p>
+        <Heading tag="h3" variant="h6">DJ ab 21 Uhr</Heading>
+        <Paragraph variant="small" class="section-note">
+          Wechselnde DJs, offen bis 4 Uhr, Eintritt frei.
+        </Paragraph>
+      </div>
+      <div class="weekly_item">
+        <p class="weekly_label text-style-small">Auf Anfrage</p>
+        <Heading tag="h3" variant="h6">Sportübertragungen</Heading>
+        <Paragraph variant="small" class="section-note">
+          Grosse Spiele zeigen wir, wenn genug Interesse da ist. Kurz melden
+          genügt.
+        </Paragraph>
+      </div>
+    </Grid>
+  </Section>
+
+  <Section paddingTop="none" paddingBottom="medium" id="private-events">
+    <div class="private_layout">
+      <div class="private_visual">
+        <Img
+          src={bottleImage}
+          alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze"
+        />
+      </div>
+      <div class="private_text">
+        <Heading tag="h2" variant="h3">Geburtstage und private Abende</Heading>
+        <Paragraph maxWidth={34} class="section-note">
+          Ab 6 Personen reservieren wir einen Tisch, ab 20 Personen einen
+          eigenen Bereich. Flaschenservice mit Mineral oder zwei Zusätzen,
+          Wunschmusik nach Absprache.
+        </Paragraph>
+        <div class="private_rows">
+          <div class="private_row">
+            <span class="private_row-label">Ab wie vielen Personen</span>
+            <span class="private_row-value"
+              >6 für einen Tisch, 20 für einen Bereich</span
+            >
+          </div>
+          <div class="private_row">
+            <span class="private_row-label">Vorlaufzeit</span>
+            <span class="private_row-value">Mindestens eine Woche</span>
+          </div>
+          <div class="private_row">
+            <span class="private_row-label">Preis</span>
+            <span class="private_row-value"
+              >Flaschen ab CHF 105.–, Rest auf Anfrage</span
+            >
+          </div>
+        </div>
+        <ButtonWrapper>
+          <Button element="link" href="/reservation">Anfrage senden</Button>
+          <Button
+            element="link"
+            href={`https://wa.me/${BUSINESS.whatsapp}`}
+            variant="secondary"
+          >
+            WhatsApp
+          </Button>
+        </ButtonWrapper>
+      </div>
+    </div>
+  </Section>
+
+  <Section paddingTop="medium" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Kurzfristiges steht auf Instagram</Heading>
+      <Paragraph variant="main" class="section-note">
+        Zusätzliche Abende, Gästelisten und Absagen kündigen wir dort an.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href={BUSINESS.instagram}
+          >@flamingobar.langenthal</Button
+        >
+        <Button element="link" href="/getraenkekarte" variant="secondary">
+          Getränkekarte ansehen
+        </Button>
+      </ButtonWrapper>
+    </div>
   </Section>
 </Layout>
 
 <style is:global>
-  .section-note {
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
-
-  .section-header {
-    max-width: 38rem;
-    margin-inline: auto;
-  }
-
-  .section-header > .heading {
-    margin-bottom: 0.9rem;
-  }
-
   .events_grid {
     --_alignment: start;
     text-align: start;
     margin-bottom: var(--space-6);
   }
 
+  /* Lumos' Cover-Card ist ein 20rem hoher Kasten mit Inhalt oben. Hier soll
+     sie ein hohes Poster sein, Datum und Titel am Fuss über dem Scrim. */
   .events_grid .card_wrap.cover {
     aspect-ratio: 3 / 4;
     min-height: 0;
@@ -129,7 +244,7 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
     display: grid;
     gap: 0.25rem;
     max-width: 34rem;
-    margin: 0 auto var(--space-6);
+    margin: 0 auto;
     list-style: none;
     padding: 0;
     text-align: left;
@@ -166,7 +281,91 @@ import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
     white-space: nowrap;
   }
 
-  .events_note {
-    margin-bottom: var(--space-4);
+  @media (max-width: 30rem) {
+    .event_row {
+      grid-template-columns: 1fr auto;
+      row-gap: 0.2rem;
+    }
+
+    .event_date {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* ---------------------------------------------------------------- weekly */
+  .weekly_grid {
+    text-align: center;
+  }
+
+  .weekly_item {
+    display: grid;
+    gap: 0.35rem;
+    justify-items: center;
+    padding: var(--space-5) var(--space-4);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-main);
+    background-color: color-mix(in lab, var(--text) 2%, transparent);
+  }
+
+  .weekly_label {
+    font-family: var(--mono-family);
+    font-size: 0.5625rem;
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    color: var(--brand-500);
+    margin: 0;
+  }
+
+  /* --------------------------------------------------------------- private */
+  .private_layout {
+    width: 100%;
+    max-width: var(--max-width-main);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+    gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+    align-items: center;
+  }
+
+  .private_visual {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-main);
+    overflow: clip;
+  }
+
+  .private_visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .private_rows {
+    display: grid;
+    margin-top: var(--space-5);
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .private_row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.35rem var(--space-5);
+    padding-block: 1rem;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .private_row-label {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .private_row-value {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
   }
 </style>

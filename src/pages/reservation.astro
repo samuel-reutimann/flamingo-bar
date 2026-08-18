@@ -1,0 +1,413 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import HoursTable from "@/components/HoursTable.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Grid from "@/components/Grid.astro";
+import Img from "@/components/Img.astro";
+import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
+import { BUSINESS } from "@/consts.ts";
+
+/**
+ * Ohne Backend geht die Anfrage über WhatsApp: das Skript baut aus den
+ * Feldern eine Nachricht und öffnet den Chat. Sobald ein Formular-Endpoint
+ * existiert, hier die URL eintragen und das Feld `action` am Formular setzen.
+ *
+ * Die Nummern kommen aus `BUSINESS`, damit Formular, Links und Structured
+ * Data dieselbe Nummer nennen.
+ */
+const WHATSAPP_NUMBER = BUSINESS.whatsapp;
+const PHONE_NUMBER = BUSINESS.phoneDisplay;
+---
+
+<Layout
+  title="Tisch reservieren in Langenthal"
+  description="Tisch oder Flaschenservice in der Flamingo Bar Langenthal anfragen: fünf Felder, Antwort per WhatsApp oder Telefon an einem Öffnungstag. Ohne Anmeldung."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={[
+      faqSchema([
+        {
+          question: "Wie frage ich einen Tisch an?",
+          answer:
+            "Über das Formular auf dieser Seite: Name, Telefon, Wunschtermin, Personenzahl und Bemerkung. Die Anfrage geht per WhatsApp raus, alternativ per Telefon.",
+        },
+        {
+          question: "Wann kommt die Antwort?",
+          answer:
+            "An einem Öffnungstag, also von Donnerstag bis Sonntag. Die Anfrage ist erst mit unserer Bestätigung verbindlich.",
+        },
+        {
+          question: "Ab wie vielen Personen lohnt sich eine Reservation?",
+          answer:
+            "Ab sechs Personen, ebenso für Flaschenservice, Geburtstage und private Abende.",
+        },
+      ]),
+      breadcrumbSchema([{ name: "Reservation", path: "/reservation" }]),
+    ]}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Reservation"
+      heading="Tisch anfragen"
+      text="Fünf Felder, mehr braucht es nicht. Wir melden uns an einem Öffnungstag zurück."
+    />
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="medium">
+    <div class="reservation_layout">
+      <form class="form" data-reservation-form novalidate>
+        <div class="form_field">
+          <label class="form_label" for="res-name">Name</label>
+          <input
+            class="form_input"
+            id="res-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+          />
+        </div>
+        <div class="form_field">
+          <label class="form_label" for="res-phone">Telefon</label>
+          <input
+            class="form_input"
+            id="res-phone"
+            name="phone"
+            type="tel"
+            autocomplete="tel"
+            inputmode="tel"
+            required
+          />
+        </div>
+        <div class="form_row">
+          <div class="form_field">
+            <label class="form_label" for="res-datetime">Datum und Zeit</label>
+            <input
+              class="form_input"
+              id="res-datetime"
+              name="datetime"
+              type="datetime-local"
+              required
+            />
+          </div>
+          <div class="form_field">
+            <label class="form_label" for="res-people">Personen</label>
+            <input
+              class="form_input"
+              id="res-people"
+              name="people"
+              type="number"
+              min="1"
+              max="60"
+              step="1"
+              inputmode="numeric"
+              required
+            />
+          </div>
+        </div>
+        <div class="form_field">
+          <label class="form_label" for="res-message"
+            >Anlass oder Bemerkung</label
+          >
+          <textarea class="form_input" id="res-message" name="message" rows="4"
+          ></textarea>
+        </div>
+        <p class="form_note text-style-small">
+          Wir verwenden deine Angaben nur, um die Anfrage zu beantworten.
+          <a href="/datenschutz">Datenschutz</a>
+        </p>
+        <ButtonWrapper>
+          <Button type="submit">Anfrage senden</Button>
+          <Button
+            element="link"
+            href={`tel:+${WHATSAPP_NUMBER}`}
+            variant="secondary"
+          >
+            {PHONE_NUMBER}
+          </Button>
+        </ButtonWrapper>
+        <p
+          class="form_status"
+          data-form-status
+          role="status"
+          aria-live="polite"
+        >
+        </p>
+        <noscript>
+          <p class="form_note text-style-small">
+            Das Formular braucht JavaScript. Schreib uns stattdessen direkt auf
+            <a href={`https://wa.me/${WHATSAPP_NUMBER}`}>WhatsApp</a> oder ruf an:
+            <a href={`tel:+${WHATSAPP_NUMBER}`}>{PHONE_NUMBER}</a>.
+          </p>
+        </noscript>
+      </form>
+
+      <aside class="reservation_aside">
+        <div class="reservation_visual">
+          <Img
+            src={bottleImage}
+            alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze"
+          />
+        </div>
+        <Heading tag="h2" variant="h5">Direkter Weg</Heading>
+        <Paragraph variant="small" class="section-note">
+          Kurzfristig? WhatsApp ist am schnellsten, auch während des Abends.
+        </Paragraph>
+        <ButtonWrapper marginTop="4">
+          <Button element="link" href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            >WhatsApp</Button
+          >
+        </ButtonWrapper>
+        <div class="reservation_hours">
+          <p class="reservation_label text-style-small">Wann wir da sind</p>
+          <HoursTable />
+        </div>
+      </aside>
+    </div>
+  </Section>
+
+  <Section paddingTop="medium" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Flaschenservice und Gruppen</Heading>
+      <Paragraph variant="main" class="section-note">
+        Ein Zusatz ist ein Mixgetränk wie Cola, Red Bull oder Tonic.
+      </Paragraph>
+    </div>
+    <Grid medium={3} class="reservation_options">
+      <div class="reservation_option">
+        <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
+        <Paragraph variant="small" class="section-note"
+          >Rum, Vodka, Whisky oder Gin</Paragraph
+        >
+        <p class="reservation_price">CHF 105.– bis 150.–</p>
+      </div>
+      <div class="reservation_option">
+        <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
+        <Paragraph variant="small" class="section-note"
+          >Zum Beispiel Cola und Red Bull</Paragraph
+        >
+        <p class="reservation_price">Preis auf Anfrage</p>
+      </div>
+      <div class="reservation_option">
+        <Heading tag="h3" variant="h6">Geburtstage und private Abende</Heading>
+        <Paragraph variant="small" class="section-note"
+          >Ab 6 Personen, Tisch reserviert</Paragraph
+        >
+        <p class="reservation_price">Auf Anfrage</p>
+      </div>
+    </Grid>
+    <ButtonWrapper>
+      <Button element="link" href="/getraenkekarte" variant="secondary">
+        Getränkekarte ansehen
+      </Button>
+    </ButtonWrapper>
+  </Section>
+</Layout>
+
+<script>
+  // Kein Backend: die Anfrage wird als WhatsApp-Nachricht zusammengesetzt und
+  // der Chat geöffnet. Validierung bleibt beim Browser, nur die Meldung ist
+  // eigen, damit sie zum Rest der Seite passt.
+  import { BUSINESS } from "@/consts.ts";
+
+  const WHATSAPP_NUMBER = BUSINESS.whatsapp;
+
+  const form = document.querySelector<HTMLFormElement>(
+    "[data-reservation-form]",
+  );
+  const status = document.querySelector<HTMLElement>("[data-form-status]");
+
+  const formatDateTime = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat("de-CH", {
+      dateStyle: "full",
+      timeStyle: "short",
+    }).format(date);
+  };
+
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      if (status) {
+        status.textContent =
+          "Bitte Name, Telefon, Datum und Personenzahl ausfüllen.";
+        status.classList.add("is-error");
+      }
+      return;
+    }
+
+    const data = new FormData(form);
+    const message = data.get("message")?.toString().trim();
+
+    const lines = [
+      "Tischanfrage Flamingo Bar",
+      `Name: ${data.get("name")}`,
+      `Telefon: ${data.get("phone")}`,
+      `Wann: ${formatDateTime(data.get("datetime")?.toString() ?? "")}`,
+      `Personen: ${data.get("people")}`,
+    ];
+    if (message) lines.push(`Bemerkung: ${message}`);
+
+    if (status) {
+      status.textContent =
+        "WhatsApp wird geöffnet. Die Anfrage ist bereits vorbereitet.";
+      status.classList.remove("is-error");
+    }
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`,
+      "_blank",
+      "noopener",
+    );
+  });
+</script>
+
+<style is:global>
+  .reservation_layout {
+    width: 100%;
+    max-width: var(--max-width-main);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+    align-items: start;
+  }
+
+  /* ------------------------------------------------------------------- form */
+  .form {
+    display: grid;
+    gap: var(--space-4);
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-main);
+    background-color: color-mix(in lab, var(--text) 2%, transparent);
+  }
+
+  .form_row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  .form_field {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .form_label {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    color: color-mix(in lab, currentcolor 60%, transparent);
+  }
+
+  .form_input {
+    width: 100%;
+    padding: 0.8rem 0.9rem;
+    font-family: var(--primary-family);
+    font-size: 1rem;
+    color: var(--text);
+    background-color: color-mix(in lab, var(--text) 4%, transparent);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-small);
+    transition:
+      border-color 200ms,
+      background-color 200ms;
+  }
+
+  .form_input:focus-visible {
+    outline: var(--focus-width) solid var(--brand-500);
+    outline-offset: var(--focus-offset);
+    border-color: color-mix(in lab, var(--brand-500) 50%, transparent);
+  }
+
+  textarea.form_input {
+    resize: vertical;
+    min-height: 6rem;
+  }
+
+  .form_note {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+    margin: 0;
+  }
+
+  .form_status {
+    margin: 0;
+    min-height: 1.2em;
+    font-family: var(--mono-family);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    color: var(--brand-500-soft);
+  }
+
+  .form_status.is-error {
+    color: var(--brand-500);
+  }
+
+  /* ------------------------------------------------------------------ aside */
+  .reservation_aside {
+    display: grid;
+    justify-items: start;
+    gap: 0;
+  }
+
+  .reservation_visual {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    margin-bottom: var(--space-5);
+    border-radius: var(--radius-main);
+    overflow: clip;
+  }
+
+  .reservation_visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .reservation_hours {
+    width: 100%;
+    margin-top: var(--space-6);
+  }
+
+  .reservation_label {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+    margin-bottom: var(--space-2);
+  }
+
+  .reservation_hours .hours_table {
+    max-width: none;
+  }
+
+  /* ---------------------------------------------------------------- options */
+  .reservation_options {
+    text-align: center;
+  }
+
+  .reservation_option {
+    display: grid;
+    gap: 0.4rem;
+    justify-items: center;
+  }
+
+  .reservation_price {
+    font-family: var(--mono-family);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--brand-500);
+    margin: 0;
+  }
+</style>

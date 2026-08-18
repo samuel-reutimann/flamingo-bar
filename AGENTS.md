@@ -169,14 +169,52 @@ A few structural things worth knowing before editing:
   pink "Heute" badge and tints that row. If you reorder days or add a
   new row, keep the `data-day` values correct.
 
-## Stub pages
+## Pages and shared page components
 
-`getraenkekarte.astro`, `events.astro`, `galerie.astro`, `kontakt.astro` are
-placeholder pages (just a heading + short text + a link back). They exist
-so the nav/footer links resolve to real routes instead of 404ing. Build
-these out for real when there's actual content (a real drink menu,
-event calendar, photo gallery, contact form) — right now they're
-intentionally minimal, not incomplete by accident.
+All routes are built out: `index`, `getraenkekarte`, `events`, `galerie`,
+`reservation`, `kontakt`, `oeffnungszeiten`, `impressum`, `datenschutz`,
+`404`. The structure follows `../../04-Resources/Seitenaufbau Flamingo
+Bar.md`, with one deviation: that document argues for folding reservation
+into the contact page. Here they are split on request — `reservation.astro`
+owns the form, `kontakt.astro` owns the direct channels, address and hours,
+and each links to the other. Don't duplicate the form onto Kontakt.
+
+Three project components carry the patterns the subpages share:
+
+- **`PageHeader.astro`** — the `.section-header` block (eyebrow, heading,
+  subhead, optional buttons via the default slot) as a component, so every
+  page gets the same measure and heading/subhead rhythm. Use `headingTag`
+  for the outline level and `variant` for the size; pass markup through the
+  `heading` slot when a plain string isn't enough. `.section-header` and
+  `.section-note` themselves now live in `patterns.css` — don't redeclare
+  them per page.
+- **`HoursTable.astro`** — the week's opening hours as one list, used by
+  Öffnungszeiten, Kontakt and Reservation. Rows carry `data-day`
+  (`0`=Sunday…`6`=Saturday) and an **`is:inline`** script marks today.
+  It has to be `is:inline`: a normally bundled component script is dropped
+  by Astro when the component is rendered inside a `<Section>` slot, so the
+  hoisted version silently never shipped on any of the three pages. Keep
+  the times in sync with `src/utils/hours.ts`, which stays the single
+  source for hero pill, status pill and footer.
+- **`LegalText.astro`** — long-form legal copy (Impressum, Datenschutz).
+  Wraps `RichText` and supplies the paragraph/list spacing, because this
+  project's `RichText` ships no `.rich-text` descendant styles and the
+  global reset zeroes every margin.
+
+`reservation.astro` has no backend: the form validates in the browser,
+builds a WhatsApp message from the fields and opens the chat. `<noscript>`
+falls back to phone and WhatsApp links. When a real form endpoint exists,
+set it as the form's `action` and drop the `window.open` call.
+
+`getraenkekarte.astro` carries the sticky category chips. Which chip is
+current is *calculated* in a scroll handler, not observed with an
+IntersectionObserver — the measurement is six `getBoundingClientRect` calls
+per event and stays in step during fast scrolling.
+
+Placeholders that still need real data from the bar: the phone number
+(`062 000 00 00`) and e-mail across all pages, the Instagram URL, the
+spirits prices on the drink menu, the event dates, and everything in square
+brackets on the Impressum plus the hosting line on Datenschutz.
 
 ## Images
 

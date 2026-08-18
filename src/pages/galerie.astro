@@ -1,21 +1,446 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Img from "@/components/Img.astro";
+import Icon from "@/components/Icon.astro";
+import closeIcon from "@/assets/icons/close.svg";
+import barGuestsImage from "@/assets/flamingo/bar-guests-night.jpeg";
+import neonGlassesImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
+import cocktailHandImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
+import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
+import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
+import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
+import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
+import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
+import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
+import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
+import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema } from "@/utils/schema.ts";
+import { BUSINESS } from "@/consts.ts";
 ---
 
-<Layout title="Galerie" description="Impressionen aus der Flamingo Bar Langenthal." theme="dark">
-  <Section paddingTop="navoverlap" paddingBottom="large" align="center" fullHeight>
-    <Heading tag="h1" variant="h2">Galerie</Heading>
-    <Paragraph variant="main" maxWidth={36}>
-      Die vollständige Galerie kommt in Kürze online. Ein paar Eindrücke gibt es schon jetzt auf
-      der Startseite.
-    </Paragraph>
-    <ButtonWrapper>
-      <Button element="link" href="/#atmosphaere">Impressionen ansehen</Button>
-    </ButtonWrapper>
+<Layout
+  title="Galerie – Bar, Drinks und Nächte"
+  description="Bilder aus der Flamingo Bar Langenthal: die Bartheke bei Nacht, Cocktails und Longdrinks, DJ-Abende, Motto-Partys und die Logen mit Flaschenservice."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={breadcrumbSchema([{ name: "Galerie", path: "/galerie" }])}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Galerie"
+      heading="Bar, Drinks und lange Nächte"
+      text="Bilder aus der Bar, von den Drinks und von den Abenden. Zum Vergrössern antippen."
+    />
+  </Section>
+
+  {
+    /* Die Kacheln stehen einzeln im Markup statt aus einer Liste gemappt —
+       Stackis Marker-Parser verträgt kein `.map()` (siehe AGENTS.md). */
+  }
+  <Section paddingTop="small" paddingBottom="medium">
+    <div class="gallery_grid">
+      <figure class="gallery_tile is-wide">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={barGuestsImage}
+            alt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet"
+            loading="eager"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Die Bar
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={neonGlassesImage}
+            alt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund"
+            loading="eager"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Neonlicht
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={aperolImage}
+            alt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Aperol Spritz
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={cocktailHandImage}
+            alt="Hand hält einen Tumbler mit Cocktail und Eiswürfel"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Cocktails
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile is-tall">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={djKnobsImage}
+            alt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Am Pult
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={longIslandImage}
+            alt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Long Island Iced Tea
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile is-wide">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={crowdImage}
+            alt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Tanzfläche
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={djMixerImage}
+            alt="DJane am Pult, pinke Lichtstrahlen über der Menge"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          DJ-Abend
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={liveSessionImage}
+            alt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Live Session
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={pinaColadaImage}
+            alt="Piña Colada mit Ananas und Cocktailkirsche an der Bar"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Piña Colada
+        </figcaption>
+      </figure>
+      <figure class="gallery_tile is-wide">
+        <button
+          class="gallery_button"
+          type="button"
+          aria-label="Bild vergrössern"
+        >
+          <Img
+            src={bottleImage}
+            alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze"
+          />
+        </button>
+        <figcaption class="gallery_caption text-style-small">
+          Flaschenservice
+        </figcaption>
+      </figure>
+    </div>
+  </Section>
+
+  <dialog class="lightbox" data-lightbox aria-label="Bild in Grossansicht">
+    <button
+      class="lightbox_close"
+      type="button"
+      data-lightbox-close
+      aria-label="Schliessen"
+    >
+      <Icon src={closeIcon} variant="small" />
+    </button>
+    <img
+      class="lightbox_image"
+      data-lightbox-image
+      alt=""
+      width="1376"
+      height="768"
+      decoding="async"
+    />
+    <p class="lightbox_caption text-style-small" data-lightbox-caption></p>
+  </dialog>
+
+  <Section paddingTop="medium" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Aktueller geht Instagram</Heading>
+      <Paragraph variant="main" class="section-note">
+        Kurzfristige Ankündigungen und Bilder vom letzten Wochenende laufen
+        dort.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href={BUSINESS.instagram}
+          >@flamingobar.langenthal</Button
+        >
+        <Button element="link" href="/getraenkekarte" variant="secondary">
+          Getränkekarte ansehen
+        </Button>
+      </ButtonWrapper>
+    </div>
   </Section>
 </Layout>
+
+<script>
+  // Lightbox: nimmt die schon geladene Variante des Bildes (`currentSrc`),
+  // damit kein zweiter Download nötig ist. Ohne JS bleiben die Kacheln
+  // sichtbar, sie lassen sich nur nicht vergrössern.
+  const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+  const target = document.querySelector<HTMLImageElement>(
+    "[data-lightbox-image]",
+  );
+  const caption = document.querySelector<HTMLElement>(
+    "[data-lightbox-caption]",
+  );
+  const close = document.querySelector<HTMLButtonElement>(
+    "[data-lightbox-close]",
+  );
+
+  document
+    .querySelectorAll<HTMLButtonElement>(".gallery_button")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const image = button.querySelector("img");
+        if (!dialog || !target || !image) return;
+
+        target.src = image.currentSrc || image.src;
+        target.alt = image.alt;
+        if (caption) {
+          caption.textContent =
+            button.closest("figure")?.querySelector(".gallery_caption")
+              ?.textContent ?? "";
+        }
+        dialog.showModal();
+      });
+    });
+
+  close?.addEventListener("click", () => dialog?.close());
+
+  // Klick auf den Hintergrund schliesst ebenfalls — das Bild selbst nicht.
+  dialog?.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>
+
+<style is:global>
+  .gallery_grid {
+    width: 100%;
+    max-width: var(--max-width-main);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--site-gutter);
+  }
+
+  @media (min-width: 48rem) {
+    .gallery_grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .gallery_tile.is-wide {
+      grid-column: span 2;
+    }
+
+    .gallery_tile.is-tall {
+      grid-row: span 2;
+    }
+  }
+
+  .gallery_tile {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .gallery_button {
+    flex: 1 1 auto;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-main);
+    background-color: transparent;
+    cursor: pointer;
+    overflow: clip;
+    /* Ohne isolation überlagert der Zoom im Hover die Nachbarkachel. */
+    isolation: isolate;
+  }
+
+  .gallery_button img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .gallery_tile.is-wide .gallery_button img {
+    aspect-ratio: 2 / 1;
+  }
+
+  .gallery_tile.is-tall .gallery_button img {
+    aspect-ratio: 1 / 2;
+  }
+
+  @media (max-width: 47.999rem) {
+    .gallery_tile.is-wide .gallery_button img,
+    .gallery_tile.is-tall .gallery_button img {
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  @media (hover: hover) {
+    .gallery_button:hover img {
+      transform: scale(1.04);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery_button img {
+      transition: none;
+    }
+  }
+
+  .gallery_caption {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+    margin: 0;
+  }
+
+  /* -------------------------------------------------------------- lightbox */
+  .lightbox {
+    width: min(92vw, 60rem);
+    max-width: none;
+    max-height: 92svh;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-main);
+    background-color: transparent;
+    color: var(--light-100);
+    overflow: visible;
+  }
+
+  .lightbox::backdrop {
+    background-color: rgba(4, 4, 5, 0.88);
+    backdrop-filter: blur(6px);
+  }
+
+  .lightbox_image {
+    width: 100%;
+    max-height: 82svh;
+    object-fit: contain;
+    border-radius: var(--radius-main);
+  }
+
+  .lightbox_caption {
+    margin: var(--space-3) 0 0;
+    text-align: center;
+    color: color-mix(in lab, var(--light-100) 55%, transparent);
+  }
+
+  .lightbox_close {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: var(--border-width) solid rgba(244, 239, 233, 0.24);
+    border-radius: var(--radius-round);
+    background-color: rgba(4, 4, 5, 0.7);
+    color: var(--light-100);
+    cursor: pointer;
+    transition:
+      background-color 200ms,
+      border-color 200ms;
+  }
+
+  @media (hover: hover) {
+    .lightbox_close:hover {
+      background-color: var(--brand-500);
+      border-color: var(--brand-500);
+      color: var(--brand-text);
+    }
+  }
+</style>

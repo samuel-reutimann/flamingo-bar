@@ -1,0 +1,14 @@
+{
+  "name": "Flamingo Bar Langenthal",
+  "short_name": "Flamingo Bar",
+  "description": "Cocktailbar in Langenthal: Cocktails, DJ-Abende und Flaschenservice.",
+  "lang": "de-CH",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08070a",
+  "theme_color": "#08070a",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}

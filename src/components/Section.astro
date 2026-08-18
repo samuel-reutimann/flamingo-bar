@@ -48,10 +48,17 @@ const {
 
 const { class: containerAttrsClass, ...containerRest } = containerAttrs;
 
+/** `medium` is the stylesheet default, so it needs no class. `even` and
+    `none` are named after the intent; the utilities they map to are not. */
+const PAD_UTILITY: Partial<Record<SectionSpace, string>> = {
+  even: "sitemargin",
+  none: "0",
+};
+
 const padClass = (side: "top" | "bottom", value: SectionSpace) =>
   !!value &&
   value !== "medium" &&
-  `padding-${side}-${value === "even" ? "sitemargin" : value}`;
+  `padding-${side}-${PAD_UTILITY[value] ?? value}`;
 
 const content = await slotContent(Astro.slots);
 const background = await slotContent(Astro.slots, "background");

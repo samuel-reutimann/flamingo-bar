@@ -6,6 +6,8 @@ export interface SeoProps {
   description?: string;
   /** Social share image. Defaults to `/og-image.jpg`. Relative paths resolve against `site` in `astro.config.mjs`. */
   image?: string;
+  /** Alt text for the social share image. Defaults to the site name plus the page title. */
+  imageAlt?: string;
   /** Open Graph type. Defaults to `website`; use `article` for posts and news pages. */
   type?: "website" | "article";
   /**

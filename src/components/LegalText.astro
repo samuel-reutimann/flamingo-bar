@@ -1,0 +1,76 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import RichText from "@/components/RichText.astro";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+  /** Measure of the body copy, in characters. */
+  maxWidth?: number;
+}
+
+const { render = true, maxWidth = 68, class: className, ...rest } = Astro.props;
+---
+
+<RichText
+  render={render}
+  maxWidth={maxWidth}
+  class:list={["legal", className]}
+  {...rest}
+>
+  <slot />
+</RichText>
+
+<style is:global>
+  @layer components {
+    /* Long-form legal copy: one narrow column, headings small enough that a
+       page of them still reads as text rather than as a set of sections. */
+    .legal {
+      margin-inline: auto;
+    }
+
+    .legal h2 {
+      font-family: var(--display-family);
+      font-size: var(--h5);
+      line-height: var(--line-height-medium);
+      letter-spacing: var(--letter-spacing-tight);
+      margin-top: var(--space-7);
+      margin-bottom: var(--space-2);
+    }
+
+    /* Der globale Reset nimmt allen Elementen die Margins, und dieses Projekt
+       bringt keine `.rich-text`-Abstände mit — die Fliesstext-Abstände gehören
+       darum hierher. */
+    .legal p,
+    .legal ul,
+    .legal ol {
+      margin-bottom: var(--space-4);
+    }
+
+    .legal ul,
+    .legal ol {
+      padding-left: 1.2em;
+    }
+
+    .legal li + li {
+      margin-top: var(--space-2);
+    }
+
+    .legal li::marker {
+      color: var(--brand-500);
+    }
+
+    .legal strong {
+      font-weight: var(--primary-medium);
+      color: var(--text);
+    }
+
+    .legal > :first-child {
+      margin-top: 0;
+    }
+
+    .legal > :last-child {
+      margin-bottom: 0;
+    }
+  }
+</style>

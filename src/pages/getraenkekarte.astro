@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
@@ -10,27 +11,63 @@ import Card from "@/components/Card.astro";
 import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
 import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
 import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
+import Schema from "@/components/Schema.astro";
+import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
+import { MENU_SECTIONS } from "@/data/menu.ts";
+import { BUSINESS } from "@/consts.ts";
+
+/** Stand der Preise. Beim Aktualisieren der Karte hier mitziehen. */
+const PRICE_DATE = "18. August 2026";
+/** Derselbe Stand für `Menu.dateModified`, das ein ISO-Datum braucht. */
+const PRICE_DATE_ISO = "2026-08-18";
 ---
 
 <Layout
-  title="Getränkekarte"
-  description="Alle Cocktails, Longdrinks und Flaschen der Flamingo Bar Langenthal mit Preisen."
+  title="Getränkekarte mit Preisen – Langenthal"
+  description="Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: Cocktails ab CHF 12.–, Longdrinks, Spirituosen, alkoholfreie Drinks und Flaschenservice."
   theme="dark"
 >
-  <Section paddingTop="navoverlap" paddingBottom="medium" align="center">
-    <div class="section-header">
-      <Heading tag="h1" variant="h2">Getränkekarte</Heading>
-      <Paragraph variant="main" maxWidth={38} class="section-note">
-        Alle Preise stehen hier, nicht nur auf der Tafel an der Bar.
-      </Paragraph>
-    </div>
+  <Schema
+    slot="head"
+    data={[
+      menuSchema(MENU_SECTIONS, PRICE_DATE_ISO),
+      breadcrumbSchema([{ name: "Getränkekarte", path: "/getraenkekarte" }]),
+    ]}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      heading="Getränkekarte"
+      text="Alle Preise stehen hier, nicht nur auf der Tafel an der Bar."
+    />
   </Section>
 
-  <Section paddingTop="0" paddingBottom="large" align="center" id="cocktails">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Cocktails</Heading>
-      <Paragraph variant="small" class="section-note">Ab CHF 12.–</Paragraph>
-    </div>
+  {
+    /* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
+       Die Chips bleiben beim Scrollen unter der Nav kleben. */
+  }
+  <nav class="chips_wrap" aria-label="Kategorien">
+    <ul class="chips">
+      <li><a class="chip" href="#cocktails">Cocktails</a></li>
+      <li><a class="chip" href="#longdrinks">Longdrinks</a></li>
+      <li><a class="chip" href="#spirituosen">Spirituosen</a></li>
+      <li><a class="chip" href="#alkoholfrei">Alkoholfrei</a></li>
+      <li><a class="chip" href="#flaschen">Flaschenservice</a></li>
+      <li><a class="chip" href="#weitere">Weitere</a></li>
+    </ul>
+  </nav>
+
+  <Section
+    paddingTop="medium"
+    paddingBottom="large"
+    align="center"
+    id="cocktails"
+  >
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Cocktails"
+      text="Ab CHF 12.–, alle frisch gemixt."
+    />
     <Grid medium={3} class="menu_grid">
       <Card
         variant="stacked"
@@ -55,92 +92,434 @@ import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
       />
     </Grid>
     <ul class="drink_list">
-      <li class="drink_row"><span class="drink_name">Mojito</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
-      <li class="drink_row"><span class="drink_name">Cosmopolitan</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
-      <li class="drink_row"><span class="drink_name">Whiskey Sour</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
-      <li class="drink_row"><span class="drink_name">Espresso Martini</span><span class="drink_dots"></span><span class="drink_price">CHF 16.–</span></li>
-      <li class="drink_row"><span class="drink_name">Negroni</span><span class="drink_dots"></span><span class="drink_price">CHF 15.–</span></li>
-      <li class="drink_row"><span class="drink_name">Moscow Mule</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
+      <li class="drink_row">
+        <span class="drink_name">Mojito</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 14.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Cosmopolitan</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 15.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Whiskey Sour</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 15.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Espresso Martini</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 16.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Negroni</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 15.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Moscow Mule</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 14.–</span>
+      </li>
     </ul>
   </Section>
 
-  <Section paddingTop="0" paddingBottom="large" align="center" id="longdrinks">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Longdrinks & Spirituosen</Heading>
-      <Paragraph variant="small" class="section-note">Ab CHF 12.–</Paragraph>
-    </div>
+  <Section
+    paddingTop="none"
+    paddingBottom="large"
+    align="center"
+    id="longdrinks"
+  >
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Longdrinks"
+      text="Ab CHF 12.–"
+    />
     <ul class="drink_list">
-      <li class="drink_row"><span class="drink_name">Vodka Energy</span><span class="drink_dots"></span><span class="drink_price">CHF 13.–</span></li>
-      <li class="drink_row"><span class="drink_name">Gin Tonic</span><span class="drink_dots"></span><span class="drink_price">CHF 14.–</span></li>
-      <li class="drink_row"><span class="drink_name">Rum Cola</span><span class="drink_dots"></span><span class="drink_price">CHF 12.–</span></li>
-      <li class="drink_row"><span class="drink_name">Whisky Cola</span><span class="drink_dots"></span><span class="drink_price">CHF 13.–</span></li>
-      <li class="drink_row"><span class="drink_name">Jägermeister, 4 cl</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
-      <li class="drink_row"><span class="drink_name">Tequila, 4 cl</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
+      <li class="drink_row">
+        <span class="drink_name">Vodka Energy</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 13.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Gin Tonic</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 14.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Rum Cola</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 12.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Whisky Cola</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 13.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Jägermeister, 4 cl</span><span
+          class="drink_dots"></span><span class="drink_price">CHF 6.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Tequila, 4 cl</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 6.–</span>
+      </li>
     </ul>
   </Section>
 
-  <Section paddingTop="0" paddingBottom="large" align="center" id="alkoholfrei">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Alkoholfrei & Getränke</Heading>
+  {
+    /* Spirituosen: 4 cl und ganze Flasche in einer Zeile, damit der Sprung
+       vom Glas zum Flaschenservice ohne Rechnen sichtbar ist. */
+  }
+  <Section
+    paddingTop="none"
+    paddingBottom="large"
+    align="center"
+    id="spirituosen"
+  >
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Spirituosen und Flaschen"
+      text="Preis pro 4 cl und für die ganze Flasche. Flaschen kommen mit Mineral an den Tisch."
+    />
+    <div class="price_table">
+      <div class="price_head">
+        <span>Sorte</span>
+        <span>4 cl</span>
+        <span>Flasche</span>
+      </div>
+
+      <h3 class="price_group">Whisky</h3>
+      <ul class="price_rows">
+        <li class="price_row">
+          <span class="price_name">Jack Daniel’s</span><span class="price_value"
+            >CHF 14.–</span
+          ><span class="price_value">CHF 120.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Chivas Regal 12</span><span
+            class="price_value">CHF 15.–</span
+          ><span class="price_value">CHF 135.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Ballantine’s</span><span class="price_value"
+            >CHF 13.–</span
+          ><span class="price_value">CHF 105.–</span>
+        </li>
+      </ul>
+
+      <h3 class="price_group">Vodka</h3>
+      <ul class="price_rows">
+        <li class="price_row">
+          <span class="price_name">Absolut</span><span class="price_value"
+            >CHF 13.–</span
+          ><span class="price_value">CHF 105.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Grey Goose</span><span class="price_value"
+            >CHF 16.–</span
+          ><span class="price_value">CHF 150.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Belvedere</span><span class="price_value"
+            >CHF 16.–</span
+          ><span class="price_value">CHF 150.–</span>
+        </li>
+      </ul>
+
+      <h3 class="price_group">Rum</h3>
+      <ul class="price_rows">
+        <li class="price_row">
+          <span class="price_name">Havana Club 3</span><span class="price_value"
+            >CHF 13.–</span
+          ><span class="price_value">CHF 105.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Bacardi Carta Blanca</span><span
+            class="price_value">CHF 13.–</span
+          ><span class="price_value">CHF 105.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Zacapa 23</span><span class="price_value"
+            >Auf Anfrage</span
+          ><span class="price_value">Auf Anfrage</span>
+        </li>
+      </ul>
+
+      <h3 class="price_group">Gin</h3>
+      <ul class="price_rows">
+        <li class="price_row">
+          <span class="price_name">Bombay Sapphire</span><span
+            class="price_value">CHF 14.–</span
+          ><span class="price_value">CHF 120.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Gordon’s</span><span class="price_value"
+            >CHF 13.–</span
+          ><span class="price_value">CHF 105.–</span>
+        </li>
+        <li class="price_row">
+          <span class="price_name">Tanqueray</span><span class="price_value"
+            >CHF 14.–</span
+          ><span class="price_value">CHF 125.–</span>
+        </li>
+      </ul>
     </div>
+  </Section>
+
+  <Section
+    paddingTop="none"
+    paddingBottom="large"
+    align="center"
+    id="alkoholfrei"
+  >
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Alkoholfrei und Getränke"
+    />
     <ul class="drink_list">
-      <li class="drink_row"><span class="drink_name">Virgin Mojito</span><span class="drink_dots"></span><span class="drink_price">CHF 9.–</span></li>
-      <li class="drink_row"><span class="drink_name">Mineral, Cola, Red Bull</span><span class="drink_dots"></span><span class="drink_price">CHF 5.–</span></li>
-      <li class="drink_row"><span class="drink_name">Bier vom Fass</span><span class="drink_dots"></span><span class="drink_price">CHF 6.–</span></li>
-      <li class="drink_row"><span class="drink_name">Prosecco, 1 dl</span><span class="drink_dots"></span><span class="drink_price">CHF 8.–</span></li>
+      <li class="drink_row">
+        <span class="drink_name">Virgin Mojito</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 9.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Mineral, Cola, Red Bull</span><span
+          class="drink_dots"></span><span class="drink_price">CHF 5.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Bier vom Fass</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 6.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Prosecco, 1 dl</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 8.–</span>
+      </li>
     </ul>
   </Section>
 
-  <Section paddingTop="0" paddingBottom="large" align="center" id="flaschen">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Flaschenservice</Heading>
-      <Paragraph variant="main" maxWidth={38} class="section-note">
-        Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein Mixgetränk wie Cola, Red
-        Bull oder Tonic.
-      </Paragraph>
-    </div>
+  <Section paddingTop="none" paddingBottom="large" align="center" id="flaschen">
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Flaschenservice"
+      text="Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein Mixgetränk wie Cola, Red Bull oder Tonic."
+    />
     <Grid medium={3} class="bottle_options">
       <div class="bottle_option">
         <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
-        <Paragraph variant="small">Rum, Vodka, Whisky oder Gin</Paragraph>
+        <Paragraph variant="small" class="section-note"
+          >Rum, Vodka, Whisky oder Gin</Paragraph
+        >
         <p class="bottle_option-price">CHF 105.– bis 150.–</p>
       </div>
       <div class="bottle_option">
         <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
-        <Paragraph variant="small">Zum Beispiel Cola und Red Bull</Paragraph>
+        <Paragraph variant="small" class="section-note"
+          >Zum Beispiel Cola und Red Bull</Paragraph
+        >
         <p class="bottle_option-price">Preis auf Anfrage</p>
       </div>
       <div class="bottle_option">
         <Heading tag="h3" variant="h6">Gruppen und Geburtstage</Heading>
-        <Paragraph variant="small">Ab 6 Personen, Tisch reserviert</Paragraph>
+        <Paragraph variant="small" class="section-note"
+          >Ab 6 Personen, Tisch reserviert</Paragraph
+        >
         <p class="bottle_option-price">Auf Anfrage</p>
       </div>
     </Grid>
     <ButtonWrapper>
-      <Button element="link" href="/kontakt">Tisch anfragen</Button>
-      <Button element="link" href="https://wa.me/41620000000" variant="secondary">WhatsApp</Button>
+      <Button element="link" href="/reservation">Tisch anfragen</Button>
+      <Button
+        element="link"
+        href={`https://wa.me/${BUSINESS.whatsapp}`}
+        variant="secondary">WhatsApp</Button
+      >
     </ButtonWrapper>
+  </Section>
+
+  <Section paddingTop="none" paddingBottom="medium" align="center" id="weitere">
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      heading="Weitere Getränke"
+      text="Was nicht auf der Karte steht, gibt es oft trotzdem. Frag an der Bar."
+    />
+    <ul class="drink_list">
+      <li class="drink_row">
+        <span class="drink_name">Vodka Red Bull</span><span class="drink_dots"
+        ></span><span class="drink_price">CHF 15.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Spirituose mit Mineral, 4 cl</span><span
+          class="drink_dots"></span><span class="drink_price">Ab CHF 13.–</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Belvedere mit Zusatz</span><span
+          class="drink_dots"></span><span class="drink_price">Auf Anfrage</span>
+      </li>
+      <li class="drink_row">
+        <span class="drink_name">Shots, ab 4 Stück</span><span
+          class="drink_dots"></span><span class="drink_price">Auf Anfrage</span>
+      </li>
+    </ul>
+  </Section>
+
+  <Section paddingTop="none" paddingBottom="medium" align="center">
+    <div class="menu_note">
+      <p class="menu_note-label text-style-small">Stand der Preise</p>
+      <Paragraph variant="small" maxWidth={52} class="section-note">
+        Preise aktualisiert am {PRICE_DATE}. «Auf Anfrage» heisst: der Preis
+        hängt von der Sorte oder der Menge ab, wir sagen ihn dir vor der
+        Bestellung. Einzelne Sorten können ausgehen — dann nennen wir eine
+        Alternative.
+      </Paragraph>
+    </div>
+  </Section>
+
+  <Section paddingTop="none" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Heute Abend hier?</Heading>
+      <Paragraph variant="main" class="section-note">
+        Donnerstag bis Sonntag ab 20 Uhr, Marktgasse 34B.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/reservation">Tisch anfragen</Button>
+        <Button element="link" href="/events" variant="secondary"
+          >Events ansehen</Button
+        >
+      </ButtonWrapper>
+    </div>
   </Section>
 </Layout>
 
+<script>
+  // Markiert den Chip der Kategorie, die gerade im Blick ist, und schiebt ihn
+  // in der Leiste mit. Gerechnet statt beobachtet: die Kategorie, deren
+  // Abschnitt die Messlinie knapp unter der Chip-Leiste schneidet, gilt als
+  // aktuell. Ohne JS bleiben die Chips reine Sprunglinks.
+  const chips = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>(".chip"),
+  );
+
+  const entries = chips
+    .map((chip) => {
+      const section = document.querySelector<HTMLElement>(
+        chip.getAttribute("href") ?? "",
+      );
+      return section ? { chip, section } : null;
+    })
+    .filter(
+      (entry): entry is { chip: HTMLAnchorElement; section: HTMLElement } =>
+        entry !== null,
+    );
+
+  if (entries.length) {
+    const update = () => {
+      // Messlinie: ein Drittel unter dem oberen Rand, also unterhalb der Chips.
+      const line = window.innerHeight / 3;
+      let currentIndex = -1;
+
+      entries.forEach((entry, index) => {
+        if (entry.section.getBoundingClientRect().top <= line)
+          currentIndex = index;
+      });
+
+      entries.forEach((entry, index) => {
+        const isCurrent = index === currentIndex;
+        if (entry.chip.classList.contains("is-current") === isCurrent) return;
+        entry.chip.classList.toggle("is-current", isCurrent);
+        if (isCurrent)
+          entry.chip.scrollIntoView({ block: "nearest", inline: "center" });
+      });
+    };
+
+    // Sechs Messungen pro Scroll-Event, direkt im Handler: billiger als das
+    // Umschalten selbst, und ohne rAF bleibt die Leiste beim schnellen Scrollen
+    // nicht hinter dem Inhalt zurück.
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+  }
+</script>
+
 <style is:global>
-  .section-note {
-    color: color-mix(in lab, currentcolor 48%, transparent);
-  }
-
-  .section-header {
-    max-width: 38rem;
-    margin-inline: auto;
-  }
-
-  .section-header > .heading {
-    margin-bottom: 0.9rem;
-  }
-
   .menu_grid {
     margin-bottom: var(--space-6);
   }
 
+  /* ------------------------------------------------------------------ chips */
+  .chips_wrap {
+    position: sticky;
+    top: calc(var(--nav-height) + 0.5rem);
+    z-index: 5;
+    width: 100%;
+    padding-inline: var(--site-margin);
+    /* Hinter den Chips soll die Seite nicht durchscheinen. */
+    background: linear-gradient(
+      to bottom,
+      var(--background) 55%,
+      color-mix(in lab, var(--background) 0%, transparent)
+    );
+    padding-block: 0.5rem 1rem;
+  }
+
+  .chips {
+    display: flex;
+    gap: var(--space-2);
+    max-width: var(--max-width-main);
+    margin: 0 auto;
+    padding: 0 0 0.25rem;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ab dieser Breite passen alle Chips in eine Zeile, dann sitzen sie zentriert
+     wie der Rest der Seite. Schmaler bleibt die Leiste linksbündig, sonst
+     verschwindet der erste Chip hinter dem Rand. */
+  @media (min-width: 48rem) {
+    .chips {
+      justify-content: center;
+    }
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-round);
+    background-color: color-mix(in lab, var(--text) 4%, transparent);
+    color: var(--text);
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    scroll-snap-align: center;
+    transition:
+      border-color 200ms,
+      background-color 200ms,
+      color 200ms;
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      border-color: color-mix(in lab, var(--brand-500) 50%, transparent);
+    }
+  }
+
+  .chip.is-current {
+    border-color: var(--brand-500);
+    background-color: rgba(255, 46, 136, 0.12);
+    color: var(--brand-500-soft);
+  }
+
+  /* Sprungziel nicht unter der Chip-Leiste verstecken. */
+  .section[id] {
+    scroll-margin-top: calc(var(--nav-height) + 4rem);
+  }
+
+  /* ------------------------------------------------------------- drink list */
   .drink_list {
     display: grid;
     gap: 0.25rem;
@@ -179,6 +558,87 @@ import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
     white-space: nowrap;
   }
 
+  /* ------------------------------------------------------------ price table */
+  .price_table {
+    width: 100%;
+    max-width: 36rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .price_head,
+  .price_row {
+    display: grid;
+    grid-template-columns: 1fr 6rem 6rem;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .price_head {
+    padding: 0 1.25rem 0.6rem;
+    border-bottom: var(--border-width) solid var(--border);
+    font-family: var(--mono-family);
+    font-size: 0.5625rem;
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .price_head > span + span,
+  .price_row > .price_value {
+    text-align: right;
+  }
+
+  .price_group {
+    font-family: var(--mono-family);
+    font-size: 0.625rem;
+    font-weight: var(--primary-regular);
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    color: var(--brand-500);
+    margin: var(--space-5) 0 0.35rem;
+    padding-inline: 1.25rem;
+  }
+
+  .price_rows {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .price_row {
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-small);
+  }
+
+  .price_name {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
+  }
+
+  .price_value {
+    font-family: var(--mono-family);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: color-mix(in lab, currentcolor 65%, transparent);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30rem) {
+    .price_head,
+    .price_row {
+      grid-template-columns: 1fr 5rem 5rem;
+      padding-inline: 0.75rem;
+    }
+
+    .price_group {
+      padding-inline: 0.75rem;
+    }
+  }
+
+  /* --------------------------------------------------------------- bottles */
   .bottle_options {
     text-align: center;
     margin-bottom: var(--space-6);
@@ -196,5 +656,24 @@ import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
     letter-spacing: 0.1em;
     color: var(--brand-500);
     margin: 0;
+  }
+
+  /* ------------------------------------------------------------------ note */
+  .menu_note {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: var(--space-4) var(--space-5);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-main);
+    background-color: color-mix(in lab, var(--text) 2%, transparent);
+  }
+
+  .menu_note-label {
+    font-family: var(--mono-family);
+    font-size: 0.5625rem;
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    color: var(--brand-500);
+    margin-bottom: var(--space-2);
   }
 </style>

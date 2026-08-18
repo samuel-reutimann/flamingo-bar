@@ -13,7 +13,7 @@
   --brand-text: #08070a;
 
   /* Typography primitives */
-  --primary-family: "Manrope", system-ui, sans-serif;
+  --primary-family: "Manrope Variable", "Manrope", system-ui, sans-serif;
   --display-family: "Instrument Serif", Georgia, serif;
   --mono-family: "Space Mono", ui-monospace, monospace;
   --primary-regular: 400;
@@ -181,8 +181,8 @@
   --text-large-text-wrap: pretty;
 
   --text-main: clamp(var(--text-main-min) / 16 * 1rem, ((var(--text-main-min) - ((var(--text-main-max) - var(--text-main-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--text-main-max) - var(--text-main-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--text-main-max) / 16 * 1rem);
-  --text-main-min: 14;
-  --text-main-max: 14;
+  --text-main-min: 16;
+  --text-main-max: 16;
   --text-main-line-height: var(--line-height-huge);
   --text-main-letter-spacing: var(--letter-spacing-normal);
   --text-main-text-transform: none;

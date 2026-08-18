@@ -1,0 +1,38 @@
+---
+/**
+ * Rendert JSON-LD in den `<head>`. Immer mit `slot="head"` einsetzen, damit
+ * das Skript im Head landet und nicht im Body:
+ *
+ * ```astro
+ * <Schema slot="head" data={barSchema} />
+ * ```
+ *
+ * `data` nimmt ein Objekt oder ein Array — mehrere Schemas werden zu einem
+ * `@graph` zusammengefasst, das kostet nur ein Skript-Tag.
+ */
+interface Props {
+  data: object | object[];
+}
+
+const { data } = Astro.props;
+
+const graph = Array.isArray(data);
+const payload = graph
+  ? { "@context": "https://schema.org", "@graph": data.map(stripContext) }
+  : data;
+
+function stripContext(node: object) {
+  const { "@context": _context, ...rest } = node as Record<string, unknown>;
+  return rest;
+}
+---
+
+{
+  (!graph || (data as object[]).length > 0) && (
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(payload)}
+    />
+  )
+}

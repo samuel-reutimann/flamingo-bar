@@ -1,0 +1,77 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Eyebrow from "@/components/Eyebrow.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+type HeadingStyle = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "display";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+  /** Small label above the heading. Omit for no label. */
+  eyebrow?: string;
+  /** Heading text. Use the `heading` slot instead when it needs markup. */
+  heading?: string;
+  /** Outline level. The visual size is `variant`. */
+  headingTag?: HeadingTag;
+  /** Visual size, independent of the outline level. */
+  variant?: HeadingStyle;
+  /** Supporting line under the heading. */
+  text?: string;
+  /** Measure of the supporting line, in characters. */
+  maxWidth?: number;
+}
+
+const {
+  render = true,
+  eyebrow,
+  heading,
+  headingTag = "h1",
+  variant = "h2",
+  text,
+  maxWidth = 38,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{
+  render && (
+    <div class:list={["section-header", className]} {...rest}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <Heading tag={headingTag} variant={variant}>
+        {heading}
+        <slot name="heading" />
+      </Heading>
+      <Paragraph variant="main" maxWidth={maxWidth} class="section-note">
+        {text}
+        <slot name="text" />
+      </Paragraph>
+      <slot />
+    </div>
+  )
+}
+
+<style is:global>
+  @layer components {
+    /* A touch more air than Lumos's default heading/text pairing, so the
+       subhead reads as its own line rather than as a second heading row. */
+    .section-header > .heading {
+      margin-bottom: 0.9rem;
+    }
+
+    /* `maxWidth` caps the measure; without this the narrower box would sit
+       against the left edge of a centered header instead of under it. */
+    .section-header > .text {
+      margin-inline: auto;
+    }
+
+    /* The eyebrow is inline-flex, so the section's text-align places it;
+       it only needs breathing room before the heading. */
+    .section-header > .eyebrow_wrap {
+      margin-bottom: var(--space-3);
+    }
+  }
+</style>

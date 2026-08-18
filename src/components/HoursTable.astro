@@ -1,0 +1,126 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+}
+
+const { render = true, class: className, ...rest } = Astro.props;
+---
+
+{
+  /* The rows are written out by hand rather than mapped over `DAY_TIMES` —
+     Stacki's marker parser cannot read `.map()` in this project (see AGENTS.md).
+     Keep the times in sync with `src/utils/hours.ts`. */
+}
+{
+  render && (
+    <div class:list={["hours_table", className]} {...rest}>
+      <ul class="hours_rows">
+        <li class="hours_row is-closed" data-day="1">
+          <span class="hours_day">Montag</span>
+          <span class="hours_time">Geschlossen</span>
+        </li>
+        <li class="hours_row is-closed" data-day="2">
+          <span class="hours_day">Dienstag</span>
+          <span class="hours_time">Geschlossen</span>
+        </li>
+        <li class="hours_row is-closed" data-day="3">
+          <span class="hours_day">Mittwoch</span>
+          <span class="hours_time">Geschlossen</span>
+        </li>
+        <li class="hours_row" data-day="4">
+          <span class="hours_day">Donnerstag</span>
+          <span class="hours_time">20 – 03 Uhr</span>
+        </li>
+        <li class="hours_row" data-day="5">
+          <span class="hours_day">Freitag</span>
+          <span class="hours_time">20 – 04 Uhr</span>
+        </li>
+        <li class="hours_row" data-day="6">
+          <span class="hours_day">Samstag</span>
+          <span class="hours_time">20 – 04 Uhr</span>
+        </li>
+        <li class="hours_row" data-day="0">
+          <span class="hours_day">Sonntag</span>
+          <span class="hours_time">20 – 01 Uhr</span>
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+<script is:inline>
+  // Heutigen Tag markieren. Ohne JS bleibt die Tabelle vollständig lesbar,
+  // nur ohne Hervorhebung. `is:inline`, weil Astro ein gebündeltes
+  // Komponenten-Skript verliert, sobald die Komponente in einem Section-Slot
+  // steckt — das Skript käme dann auf keiner der drei Seiten mit.
+  document
+    .querySelectorAll('.hours_row[data-day="' + new Date().getDay() + '"]')
+    .forEach(function (row) {
+      row.classList.add("is-today");
+    });
+</script>
+
+<style is:global>
+  @layer components {
+    .hours_table {
+      width: 100%;
+      max-width: 32rem;
+      margin-inline: auto;
+      padding: var(--space-4) var(--space-5);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-main);
+      background-color: color-mix(in lab, var(--text) 2%, transparent);
+      text-align: left;
+    }
+
+    .hours_rows {
+      display: grid;
+      gap: 0.15rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hours_row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: 0.6rem 0.75rem;
+      margin-inline: -0.75rem;
+      border-radius: var(--radius-small);
+    }
+
+    .hours_day {
+      font-family: var(--display-family);
+      font-size: 1.0625rem;
+    }
+
+    .hours_time {
+      font-family: var(--mono-family);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: color-mix(in lab, currentcolor 60%, transparent);
+      white-space: nowrap;
+    }
+
+    .hours_row.is-closed .hours_day,
+    .hours_row.is-closed .hours_time {
+      color: color-mix(in lab, currentcolor 42%, transparent);
+    }
+
+    .hours_row.is-today {
+      background-color: rgba(255, 46, 136, 0.09);
+      box-shadow: inset 0 0 0 var(--border-width) rgba(255, 46, 136, 0.22);
+    }
+
+    /* A closed day can still be today, and then the time must keep reading
+       as "closed" rather than picking up the open-tonight accent. */
+    .hours_row.is-today:not(.is-closed) .hours_time {
+      color: var(--brand-500);
+    }
+  }
+</style>

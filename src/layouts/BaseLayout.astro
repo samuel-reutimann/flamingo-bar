@@ -1,9 +1,19 @@
 ---
+/* Selbst gehostete Schriften: kein Render-Blocking über fonts.googleapis.com,
+   keine Drittanbieter-Verbindung. Nur die Subsets und Schnitte, die wirklich
+   verwendet werden (latin, kein Italic). */
+/* Das Variable-Paket liefert nur eine CSS-Datei für alle Subsets. Über
+   `unicode-range` lädt der Browser trotzdem nur die Latin-Datei. */
+import "@fontsource-variable/manrope/wght.css";
+import "@fontsource/instrument-serif/latin-400.css";
+import "@fontsource/space-mono/latin-400.css";
+import "@fontsource/space-mono/latin-700.css";
 import "@/styles/global.css";
 import BaseHead from "@/components/BaseHead.astro";
 import SkipLink from "@/components/SkipLink.astro";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import { SITE_LOCALE } from "@/consts.ts";
 import type { SeoProps } from "@/types.ts";
 
 type Props = SeoProps & {
@@ -21,7 +31,7 @@ const { theme = "inherit", overlap = false, ...seo } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class:list={[theme !== "inherit" && `theme-${theme}`]}>
+<html lang={SITE_LOCALE} class:list={[theme !== "inherit" && `theme-${theme}`]}>
   <head>
     <BaseHead {...seo} />
     <slot name="head" />

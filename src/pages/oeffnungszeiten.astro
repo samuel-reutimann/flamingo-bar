@@ -1,0 +1,210 @@
+---
+import Layout from "@/layouts/BaseLayout.astro";
+import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import HoursTable from "@/components/HoursTable.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import Button from "@/components/Button.astro";
+import ButtonWrapper from "@/components/ButtonWrapper.astro";
+import Grid from "@/components/Grid.astro";
+import Schema from "@/components/Schema.astro";
+import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
+---
+
+<Layout
+  title="Öffnungszeiten – Do bis So ab 20 Uhr"
+  description="Flamingo Bar Langenthal: Donnerstag bis Sonntag ab 20 Uhr, Montag bis Mittwoch geschlossen. Alle Zeiten, der letzte Einlass und ob gerade offen ist."
+  theme="dark"
+>
+  <Schema
+    slot="head"
+    data={[
+      barSchema,
+      faqSchema([
+        {
+          question: "Wann ist die Flamingo Bar Langenthal offen?",
+          answer:
+            "Donnerstag 20 bis 03 Uhr, Freitag und Samstag 20 bis 04 Uhr, Sonntag 20 bis 01 Uhr. Montag bis Mittwoch ist die Bar geschlossen.",
+        },
+        {
+          question: "Wann ist der letzte Einlass?",
+          answer:
+            "Eine Stunde vor Schluss. Einlass ab 18 Jahren, Ausweis mitbringen.",
+        },
+        {
+          question: "Wann ist Happy Hour?",
+          answer:
+            "Donnerstag von 20 bis 22 Uhr, mit vergünstigten Cocktails und Longdrinks.",
+        },
+        {
+          question: "Braucht es eine Reservation?",
+          answer:
+            "Ab sechs Personen ist ein reservierter Tisch sinnvoll, ebenso für Flaschenservice, Geburtstage und Gruppen. Sonst kommt man ohne Anmeldung.",
+        },
+      ]),
+      breadcrumbSchema([{ name: "Öffnungszeiten", path: "/oeffnungszeiten" }]),
+    ]}
+  />
+  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
+    <PageHeader
+      eyebrow="Öffnungszeiten"
+      heading="Donnerstag bis Sonntag, ab 20 Uhr"
+      text="An vier Abenden pro Woche offen. Montag bis Mittwoch bleibt die Bar geschlossen."
+    />
+    <div class="status_pill" data-open-status hidden>
+      <span class="status_dot" aria-hidden="true"></span>
+      <span class="status_text"></span>
+      <span class="status_sep" aria-hidden="true"></span>
+      <span data-open-hours></span>
+    </div>
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="medium" align="center">
+    <HoursTable />
+    <Paragraph variant="small" maxWidth={44} class="section-note">
+      An Events kann später geschlossen werden, der Einlass endet dann eine
+      Stunde vor Schluss. Abweichende Zeiten kündigen wir auf Instagram an.
+    </Paragraph>
+  </Section>
+
+  <Section paddingTop="small" paddingBottom="large" align="center">
+    <Grid medium={3} class="hours_facts">
+      <div class="hours_fact">
+        <p class="hours_fact-label text-style-small">Letzter Einlass</p>
+        <p class="hours_fact-value">Eine Stunde vor Schluss</p>
+        <Paragraph variant="small" class="section-note">
+          Einlass ab 18 Jahren, Ausweis mitbringen.
+        </Paragraph>
+      </div>
+      <div class="hours_fact">
+        <p class="hours_fact-label text-style-small">Happy Hour</p>
+        <p class="hours_fact-value">Donnerstag, 20 – 22 Uhr</p>
+        <Paragraph variant="small" class="section-note">
+          Ausgewählte Cocktails und Longdrinks vergünstigt.
+        </Paragraph>
+      </div>
+      <div class="hours_fact">
+        <p class="hours_fact-label text-style-small">Tisch reserviert</p>
+        <p class="hours_fact-value">Ab 6 Personen sinnvoll</p>
+        <Paragraph variant="small" class="section-note">
+          Für Flaschenservice, Geburtstage und Gruppen.
+        </Paragraph>
+      </div>
+    </Grid>
+    <ButtonWrapper>
+      <Button element="link" href="/getraenkekarte"
+        >Getränkekarte ansehen</Button
+      >
+      <Button element="link" href="/reservation" variant="secondary"
+        >Tisch anfragen</Button
+      >
+    </ButtonWrapper>
+  </Section>
+
+  <Section paddingTop="none" paddingBottom="large" align="center">
+    <div class="section-header">
+      <Heading tag="h2" variant="h3">Geplant für heute Abend?</Heading>
+      <Paragraph variant="main" class="section-note">
+        Marktgasse 34B, 4900 Langenthal. Fünf Minuten zu Fuss vom Bahnhof.
+      </Paragraph>
+      <ButtonWrapper>
+        <Button element="link" href="/kontakt" variant="secondary"
+          >Anfahrt und Kontakt</Button
+        >
+      </ButtonWrapper>
+    </div>
+  </Section>
+</Layout>
+
+<script>
+  // Live-Status aus derselben Quelle wie Hero, Strip und Footer.
+  import { isOpenAt, todayHoursLabel } from "@/utils/hours.ts";
+
+  const status = document.querySelector<HTMLElement>("[data-open-status]");
+  const label = status?.querySelector<HTMLElement>(".status_text");
+  const hours = status?.querySelector<HTMLElement>("[data-open-hours]");
+
+  function renderStatus() {
+    if (!status || !label) return;
+    const now = new Date();
+    const open = isOpenAt(now);
+    status.classList.toggle("is-closed", !open);
+    label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
+    if (hours) hours.textContent = todayHoursLabel(now.getDay());
+    status.hidden = false;
+  }
+
+  renderStatus();
+  setInterval(renderStatus, 60000);
+</script>
+
+<style is:global>
+  .status_pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-inline: auto;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-round);
+    border: var(--border-width) solid rgba(255, 46, 136, 0.28);
+    background-color: rgba(255, 46, 136, 0.07);
+    font-family: var(--mono-family);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .status_pill[hidden] {
+    display: none;
+  }
+
+  .status_pill.is-closed {
+    border-color: var(--border);
+    background-color: color-mix(in lab, var(--text) 3%, transparent);
+  }
+
+  .status_dot {
+    flex: none;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: var(--radius-round);
+    background-color: var(--brand-500);
+    box-shadow: var(--shadow-accent-glow);
+  }
+
+  .status_pill.is-closed .status_dot {
+    background-color: color-mix(in lab, currentcolor 40%, transparent);
+    box-shadow: none;
+  }
+
+  .status_sep {
+    width: 1px;
+    height: 0.7rem;
+    background-color: color-mix(in lab, currentcolor 18%, transparent);
+  }
+
+  .status_pill [data-open-hours] {
+    color: color-mix(in lab, currentcolor 55%, transparent);
+  }
+
+  .hours_facts {
+    text-align: center;
+  }
+
+  .hours_fact {
+    display: grid;
+    gap: 0.4rem;
+    justify-items: center;
+  }
+
+  .hours_fact-label {
+    color: color-mix(in lab, currentcolor 48%, transparent);
+  }
+
+  .hours_fact-value {
+    font-family: var(--display-family);
+    font-size: 1.0625rem;
+    margin: 0;
+  }
+</style>
