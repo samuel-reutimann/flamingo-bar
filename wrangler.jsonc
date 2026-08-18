@@ -20,18 +20,24 @@
     "not_found_handling": "404-page"
   },
 
-  // Vorläufige Adresse: https://flamingo-bar.<dein-subdomain>.workers.dev
+  // Die Seite antwortet auf https://flamingo.resa.dev. `custom_domain` lässt
+  // Cloudflare den DNS-Eintrag anlegen und pflegen — die Zone `resa.dev` muss
+  // dafür in diesem Account liegen.
   //
-  // Hier stand die Domain des Lumos-Starters (`lumosframework.timothyricks.com`).
-  // Die Zone gehört einem fremden Account, deshalb konnte Cloudflare den
-  // DNS-Eintrag nicht anlegen und der Deploy brach mit Fehler 10082 ab.
-  //
-  // Sobald `flamingobar-langenthal.ch` als Zone in diesem Cloudflare-Account
-  // liegt, hier ergänzen — dann verschwindet die workers.dev-Adresse:
-  //
-  //     "routes": [
-  //       { "pattern": "www.flamingobar-langenthal.ch", "custom_domain": true }
-  //     ]
+  // Hier stand ursprünglich die Domain des Lumos-Starters
+  // (`lumosframework.timothyricks.com`). Die Zone gehört einem fremden
+  // Account, deshalb konnte Cloudflare den DNS-Eintrag nicht anlegen und der
+  // Deploy brach mit Fehler 10082 ab.
+  "routes": [
+    {
+      "pattern": "flamingo.resa.dev",
+      "custom_domain": true
+    }
+  ],
+
+  // Zusätzliche workers.dev-Adresse als Rückfallebene, solange die Domain
+  // frisch ist. Auf `false` setzen, sobald flamingo.resa.dev sicher steht —
+  // dann ist auch `/keystatic` nur noch über die eigene Domain erreichbar.
   "workers_dev": true,
 
   "observability": {
