@@ -67,6 +67,18 @@ last pass). Don't trust `curl` for anything CSS/JS-related — dev-mode Vite
 injects styles via JS, invisible to a raw HTML fetch; use a real browser
 (Playwright) or check computed styles with `page.evaluate`.
 
+**For refactors, screenshots are the wrong tool** — photographic regions
+re-rasterise slightly between runs, so a pixel diff shows a few percent of
+noise on any page with a large image and you can't tell that from a real
+regression. What worked instead: walk the DOM of every route at 1280 and
+390, record each element's path, box, text and ~40 computed properties, and
+diff the two JSON dumps by path. That is fully deterministic — two runs of
+the same build produce zero differences — so any output at all is a real
+change, and it names the property. Serve `dist/client` with a **threaded**
+server (`ThreadingHTTPServer`); the single-threaded `python3 -m
+http.server` drops concurrent image requests and fakes up diffs. Freeze
+`Date` in an init script, or the today-highlight moves under you.
+
 ## Brand tokens (`src/styles/base.css`)
 
 Lumos ships its own generic design tokens (lime-green `--brand-500`, a
@@ -81,9 +93,10 @@ not Lumos defaults**:
 - **Fonts**: `--primary-family` = Manrope (body), `--display-family` =
   Instrument Serif (all headings h1–h6 + `.text-style-display`),
   `--mono-family` = Space Mono (labels, prices, the `.link` button variant,
-  hours-row day labels). Loaded via Google Fonts `<link>` tags in
-  `BaseHead.astro` — don't switch this to a CSS `@import`, it was
-  deliberately done as preconnect + stylesheet links for performance.
+  hours-row day labels). **Self-hosted** via `@fontsource` imports in
+  `BaseLayout.astro`, only the latin subsets and the weights in use. Don't
+  move this back to Google Fonts — no third-party connection is what
+  `/datenschutz` now states, so the two would disagree.
 - **Type scale**: h1 42–84px, h2 34–62px, body text 14px (fixed, not
   fluid), small text 12.5px (fixed), body line-height 1.7. These match the
   mockup's literal rem values, not Lumos's original fluid-clamp defaults —
@@ -103,6 +116,20 @@ not Lumos defaults**:
 - Effect tokens added wholesale for the glass nav pill / glows / scrims:
   `--shadow-nav`, `--shadow-accent-glow`, `--blur-glass`,
   `--gradient-glass`, `--gradient-card-scrim`, `--glow-accent-radial`.
+
+## The cascade
+
+`global.css` declares `@layer base, patterns, components, utilities`. **Every
+`<style is:global>` block — in a component *and* in a page — must wrap its
+rules in `@layer components`.** Unlayered CSS outranks every layer no matter
+the specificity, so a page that forgets it silently beats the whole design
+system, including the `utilities` layer that is supposed to win. All seven
+pages were unlayered until this was fixed; if a page rule starts behaving
+strangely, check for a missing `@layer` first.
+
+Colours come from the tokens via `color-mix`, never as literal `rgba()`.
+There used to be a second near-black (`rgba(10, 7, 8, …)`) blended straight
+into `var(--dark-900)` in the same gradient.
 
 ## Component changes vs. stock Lumos
 
@@ -132,15 +159,18 @@ service) → Anfahrt/Kontakt (visit) → final CTA.
 A few structural things worth knowing before editing:
 
 - **`.section-header` wrapper**: every section's heading + subhead + CTA
-  button is wrapped in a `<div class="section-header">`. This is
-  deliberate — Lumos's `<Section>` puts a large `gap` between *all* of its
-  direct children (heading, paragraph, button, grid), which stacks on top
-  of each component's own margin and produces way too much whitespace
-  between a heading and its subhead. Grouping them into one plain-flow div
-  sidesteps that; only *between* logical blocks (header → grid, grid →
-  note) should you rely on the Section's own `gap`. If you add a new
-  section, follow the same pattern — don't drop a bare `<Heading>` +
-  `<Paragraph>` directly as siblings in a `<Section>`, wrap them.
+  button sits inside one `<div class="section-header">` — in practice, use
+  `<PageHeader>`, which emits exactly that. This is deliberate: Lumos's
+  `<Section>` puts a large `gap` between *all* of its direct children
+  (heading, paragraph, button, grid), which stacks on top of each
+  component's own margin and produces way too much whitespace between a
+  heading and its subhead. Grouping them into one plain-flow div sidesteps
+  that; only *between* logical blocks (header → grid, grid → note) should
+  you rely on the Section's own `gap`. If you add a new section, use
+  `PageHeader` — don't drop a bare `<Heading>` + `<Paragraph>` in as
+  siblings, and don't hand-write the wrapper div either: doing that on
+  `index.astro` meant `PageHeader`'s styles never shipped there, so the
+  homepage's spacing quietly differed from every other page.
 - **`align="center"` ambient alignment**: `<Section align="center">` sets
   `text-align`/`--_alignment: center` on *everything* inside it, including
   things that need to stay left-aligned (the hours list) or full-width (the
@@ -174,7 +204,7 @@ into the contact page. Here they are split on request — `reservation.astro`
 owns the form, `kontakt.astro` owns the direct channels, address and hours,
 and each links to the other. Don't duplicate the form onto Kontakt.
 
-Three project components carry the patterns the subpages share:
+Six project components carry the patterns the subpages share:
 
 - **`PageHeader.astro`** — the `.section-header` block (eyebrow, heading,
   subhead, optional buttons via the default slot) as a component, so every
@@ -182,7 +212,18 @@ Three project components carry the patterns the subpages share:
   for the outline level and `variant` for the size; pass markup through the
   `heading` slot when a plain string isn't enough. `.section-header` and
   `.section-note` themselves now live in `patterns.css` — don't redeclare
-  them per page.
+  them per page. Use it for the closing CTA blocks too: eleven pages
+  hand-wrote the same markup, and because `index.astro` never imported
+  `PageHeader`, its styles were never bundled there and the homepage's
+  heading rhythm differed from every other page. `maxWidth="none"` drops the
+  measure cap for one-line subheads.
+
+`patterns.css` also carries the recipes that used to be copied between
+pages: `.split_layout` (image beside text; `.is-top` aligns the columns at
+the top), `.def_rows`/`.def_row` (labelled rows with dividers),
+`.label_mono`, and the `.events_grid` cover-card overrides. Reach for those
+before writing a new page-local rule — each of them had already drifted
+apart between its copies.
 - **`HoursTable.astro`** — the week's opening hours as one list, used by
   Öffnungszeiten, Kontakt and Reservation. Rows carry `data-day`
   (`0`=Sunday…`6`=Saturday) and an **`is:inline`** script marks today.
@@ -190,6 +231,18 @@ Three project components carry the patterns the subpages share:
   by Astro when the component is rendered inside a `<Section>` slot, so the
   hoisted version silently never shipped on any of the three pages. The
   times come from the `hours` collection — see below.
+- **`BottleOptions.astro`** — the Flaschenservice tiers, over the
+  `bottleService` collection. `variant="rows"` is the price list beside the
+  image on the homepage, `variant="cards"` the centred trio on Karte and
+  Reservation. This block used to exist four times in markup plus once more
+  as prose inside the Karte's JSON-LD, and the copies had drifted.
+- **`OpenStatusPill.astro`** — „Jetzt geöffnet · Heute 20 – 04 Uhr“.
+  `variant="eyebrow"` in the hero, `variant="pill"` on Öffnungszeiten. It
+  renders markup only; the text is filled in by the one script in
+  `BaseLayout.astro`, which drives every pill and every `[data-today-line]`
+  on the page. Put new client logic for it there, not in the component — a
+  bundled component script is dropped when the component sits in a
+  `<Section>` slot, which is where this pill sits.
 - **`LegalText.astro`** — long-form legal copy (Impressum, Datenschutz).
   Wraps `RichText` and supplies the paragraph/list spacing, because this
   project's `RichText` ships no `.rich-text` descendant styles and the
@@ -203,12 +256,17 @@ set it as the form's `action` and drop the `window.open` call.
 `getraenkekarte.astro` carries the sticky category chips. Which chip is
 current is *calculated* in a scroll handler, not observed with an
 IntersectionObserver — the measurement is six `getBoundingClientRect` calls
-per event and stays in step during fast scrolling.
+per event and stays in step during fast scrolling. The chip bar is nudged
+with its own `scrollLeft`, never `scrollIntoView`: that walks every
+scrollport ancestor and can scroll the page from inside a scroll handler.
 
-Placeholders that still need real data from the bar: the phone number
-(`062 000 00 00`) and e-mail across all pages, the Instagram URL, the
-spirits prices on the drink menu, the event dates, and everything in square
-brackets on the Impressum plus the hosting line on Datenschutz.
+Phone, e-mail and address are real. What is still open is listed once, in
+the comment above `BUSINESS` in `src/consts.ts`: the legal form and the
+CHE numbers for the Impressum (those lines are omitted until they exist —
+don't reintroduce bracket placeholders on a page the law requires), the
+never-confirmed Instagram URL, and the deliberately absent `geo` block.
+Event dates and spirits prices are sample content the bar replaces in
+Keystatic.
 
 ## Images
 
@@ -221,8 +279,15 @@ plain `<img src="/...">` or drop new photos into `public/` — import from
 ## SEO / metadata
 
 `src/consts.ts` holds `SITE_NAME` ("Flamingo Bar"), `SITE_URL`
-(`https://www.flamingobar-langenthal.ch`), and `SITE_DESCRIPTION` — these
-feed `BaseHead.astro`'s title/meta tags and `astro.config.mjs`'s sitemap.
+(`https://flamingobar.ch`), `SITE_DESCRIPTION`, the `BUSINESS` master data
+and the derived `ADDRESS_LINE` / `ADDRESS_SHORT` / `OWNER` — these feed
+`BaseHead.astro`'s title/meta tags and `astro.config.mjs`'s sitemap. Never
+retype the address, phone number or Instagram handle into a page; they were
+scattered across ten files and drifted.
+
+`robots.txt.ts` is server-rendered (`prerender = false`) so it can read the
+request host: only `SITE_URL`'s host gets `Allow: /`, every other host the
+Worker answers to (`flamingo.resa.dev`, `*.workers.dev`) gets `Disallow: /`.
 `index.astro` also carries a `BarOrPub` JSON-LD block (address, phone,
 opening hours, price range) injected via `slot="head"` — keep this in sync
 if the address/hours/phone ever change for real.
@@ -237,7 +302,8 @@ Events, the drink menu and the opening hours live in
 | `events`        | `src/content/events/*.yaml`   | ein Abend pro Datei |
 | `drinks`        | `src/content/drinks/*.yaml`   | ein Getränk pro Datei, `category` bestimmt den Abschnitt |
 | `spirits`       | `src/content/spirits/*.yaml`  | Sorte mit 4-cl- und Flaschenpreis |
-| `menuSections`  | `src/content/menu-sections/*.yaml` | Überschrift + Einleitung je Abschnitt |
+| `bottleService` | `src/content/bottle-service/*.yaml` | eine Flaschenservice-Stufe pro Datei |
+| `menuSections`  | `src/content/menu-sections/*.yaml` | Überschrift + Einleitung je Abschnitt, `section` bestimmt die Stelle |
 | `hours`         | `src/content/hours.yaml`      | ein Block pro Wochentag |
 | `settings`      | `src/content/settings.yaml`   | Preisstand der Karte |
 
@@ -248,10 +314,28 @@ Three tools read and write the same files:
 - **Stacki** — reads `src/content.config.ts` and renders matching fields.
 - **The build** — pages call the helpers in `src/utils/content.ts`.
 
-Two rules:
+The rules:
 
 - A field added to `keystatic.config.ts` must be added to
   `src/content.config.ts` too, or the build fails with a Zod error.
+- The **option lists live in `src/content/options.ts`** and nowhere else.
+  Keystatic needs `{ label, value }` for its dropdowns, Zod needs the bare
+  values for `z.enum()`; both derive from that one file. They used to be
+  typed out separately in the two configs, so a new category broke one side
+  or silently never appeared on the other.
+- Event `start`/`end` are **local time without an offset**
+  (`2026-08-21T21:00`) — the only format Keystatic's `fields.datetime`
+  accepts. Read them with `parseLocal()` from `src/utils/dates.ts`, which
+  resolves them in `Europe/Zurich`; plain `new Date()` would read them as
+  the build machine's time, which is UTC on Cloudflare. `isoWithOffset()`
+  produces the full form for structured data. The Zod field is a regex, so a
+  wrong format stops the build instead of shifting every event by an hour.
+- Optional text fields go through `optionalText`, which turns Keystatic's
+  empty string into `undefined`. Without it `opens: ""` reaches `toMinutes()`
+  and yields `NaN`.
+- `menuSections` entries are found by their `section` field, not by
+  filename — Keystatic derives the filename from the heading, so renaming a
+  heading would otherwise drop the intro text.
 - `price` is the display string (`"CHF 14.–"`, `"Auf Anfrage"`) and may be
   absent; `priceCHF` is the same amount as a number and is set **only** when
   the price is fixed. Structured data uses `priceCHF`, so it never claims a
@@ -261,10 +345,17 @@ Prices, event dates and opening times must not be written into `.astro`
 markup again. `getraenkekarte.astro` derives its JSON-LD from the same
 entries it renders, `events.astro` computes "Ab 21 Uhr, Eintritt frei." from
 the start time and the entry price, and `HoursTable.astro` loops the hours
-collection.
+collection. The homepage teasers read the same collections as `/events` and
+`/getraenkekarte`; they used to be hand-written cards with dates baked in.
+
+"Ab" prices are **computed**, never typed: `minPriceCHF("cocktails")` and
+`bottleFromCHF()` in `src/utils/content.ts`. The site claimed "Cocktails ab
+CHF 12.–" in four places while the cheapest cocktail was CHF 14. Likewise
+`openDaysLabel()` and `hoursSentence()` in `utils/hours.ts` build "Do – So,
+ab 20 Uhr" and the FAQ sentence from the hours collection.
 
 `src/utils/hours.ts` runs in the **browser** (hero pill, hours strip,
-footer), where `getCollection()` does not exist. `BaseLayout.astro` therefore
+footer table), where `getCollection()` does not exist. `BaseLayout.astro` therefore
 serializes the hours into a `<script type="application/json" id="hours-data">`
 tag on every page and `hours.ts` reads that. Its exported function
 signatures are unchanged; don't inline the times back into it.
@@ -293,7 +384,14 @@ npx wrangler deploy --config dist/server/wrangler.json
 ```
 
 The adapter merges the root `wrangler.jsonc` into that generated config —
-don't add `main` to the root file by hand.
+don't add `main` to the root file by hand. `.github/workflows/deploy.yml`
+runs the same two steps on every push to `main`; the `--config` flag matters
+there too, without it wrangler falls back to the root file, which has no
+`main` and deploys nothing.
+
+`src/pages/robots.txt.ts` is the one route that is **not** prerendered, so
+that it can read the request host and keep the staging domain out of the
+index. Keep `prerender = false` on it.
 
 ## Documentation
 
