@@ -9,14 +9,71 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
 import Img from "@/components/Img.astro";
-import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
-import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
-import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
-import { EVENTS } from "@/data/events.ts";
+import { getUpcomingEvents } from "@/utils/content.ts";
 import { BUSINESS } from "@/consts.ts";
+
+/* Termine aus der Collection `src/content/events` — der Betrieb pflegt sie in
+   Keystatic. Vergangene Abende fallen raus, damit weder die Seite noch Google
+   abgelaufene Einträge zeigt. */
+const events = await getUpcomingEvents();
+
+/* Oben die hervorgehobenen Abende als Poster, darunter der Rest als Liste.
+   Ohne Bild kann ein Termin keine Karte werden, sonst bliebe der Poster leer. */
+const featured = events.filter((event) => event.data.featured && event.data.image);
+const listed = events.filter((event) => !featured.includes(event));
+
+/* Alle Zeiten in Zürich formatieren, nicht in der Zeitzone des Build-Rechners. */
+const zone = "Europe/Zurich";
+const fmt = (date: Date, options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("de-CH", { timeZone: zone, ...options }).format(date);
+
+/** Karten-Eyebrow: „Freitag, 21. August 2026“. */
+const longDate = (iso: string) =>
+  fmt(new Date(iso), {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+/** Listen-Datum: „Fr, 28. Aug“ — ohne die Punkte, die `de-CH` anhängt. */
+const shortDate = (iso: string) => {
+  const date = new Date(iso);
+  const weekday = fmt(date, { weekday: "short" }).replace(".", "");
+  const day = fmt(date, { day: "numeric" });
+  const month = fmt(date, { month: "short" }).replace(".", "");
+  return `${weekday}, ${day}. ${month}`;
+};
+
+/**
+ * Zeile unter dem Titel: „Ab 21 Uhr, Eintritt frei.“ Wird aus Startzeit und
+ * Eintritt gerechnet statt als zweites Feld gepflegt — so kann sie nicht von
+ * der Uhrzeit abweichen. Volle Stunden ohne Minuten: „Ab 20.30 Uhr“, „Ab 21 Uhr“.
+ */
+const timeNote = (event: (typeof events)[number]) => {
+  const start = new Date(event.data.start);
+  /* Über `formatToParts`, weil `de-CH` an eine einzeln formatierte Stunde
+     " Uhr" anhängt und die Minute nicht auf zwei Stellen auffüllt. */
+  const parts = new Intl.DateTimeFormat("de-CH", {
+    timeZone: zone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(start);
+  const part = (type: string) =>
+    parts.find((entry) => entry.type === type)?.value ?? "";
+  const hour = String(Number(part("hour")));
+  const minute = part("minute");
+  const clock = minute === "00" ? hour : `${hour}.${minute}`;
+  const entry =
+    event.data.priceCHF === 0
+      ? "Eintritt frei."
+      : `Eintritt CHF ${event.data.priceCHF}.–`;
+  return `Ab ${clock} Uhr, ${entry}`;
+};
 ---
 
 <Layout
@@ -27,7 +84,16 @@ import { BUSINESS } from "@/consts.ts";
   <Schema
     slot="head"
     data={[
-      ...eventsSchema(EVENTS),
+      ...eventsSchema(
+        events.map((event) => ({
+          name: event.data.name,
+          start: event.data.start,
+          end: event.data.end,
+          description: event.data.description,
+          image: event.data.image?.src,
+          price: String(event.data.priceCHF),
+        }))
+      ),
       breadcrumbSchema([{ name: "Events", path: "/events" }]),
     ]}
   />
@@ -51,61 +117,31 @@ import { BUSINESS } from "@/consts.ts";
   <Section paddingTop="small" paddingBottom="large" align="center">
     <PageHeader headingTag="h2" variant="h3" heading="Als Nächstes" />
     <Grid medium={3} class="events_grid">
-      <Card
-        variant="cover"
-        image={djMixerImage}
-        imageAlt="DJane am Pult, pinke Lichtstrahlen über der Menge"
-        eyebrow="Freitag, 21. August 2026"
-        heading="Pink Friday mit DJ Nael"
-        text="Ab 21 Uhr, Eintritt frei."
-        cardTag="article"
-      />
-      <Card
-        variant="cover"
-        image={crowdImage}
-        imageAlt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
-        eyebrow="Samstag, 22. August 2026"
-        heading="Latin Night"
-        text="Ab 21 Uhr, Eintritt frei."
-        cardTag="article"
-      />
-      <Card
-        variant="cover"
-        image={liveSessionImage}
-        imageAlt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
-        eyebrow="Donnerstag, 27. August 2026"
-        heading="Live Session"
-        text="Ab 20.30 Uhr, Eintritt frei."
-        cardTag="article"
-      />
+      {
+        featured.map((event) => (
+          <Card
+            variant="cover"
+            image={event.data.image}
+            imageAlt={event.data.imageAlt}
+            eyebrow={longDate(event.data.start)}
+            heading={event.data.name}
+            text={timeNote(event)}
+            cardTag="article"
+          />
+        ))
+      }
     </Grid>
 
     <ul class="event_list">
-      <li class="event_row">
-        <span class="event_date">Fr, 28. Aug</span>
-        <span class="event_title">Pink Friday mit DJ Nael</span>
-        <span class="event_tag">DJ-Abend</span>
-      </li>
-      <li class="event_row">
-        <span class="event_date">Sa, 29. Aug</span>
-        <span class="event_title">Latin Night</span>
-        <span class="event_tag">Motto-Party</span>
-      </li>
-      <li class="event_row">
-        <span class="event_date">Do, 3. Sep</span>
-        <span class="event_title">Live Session</span>
-        <span class="event_tag">Live-Musik</span>
-      </li>
-      <li class="event_row">
-        <span class="event_date">Fr, 4. Sep</span>
-        <span class="event_title">Flamingo Friday</span>
-        <span class="event_tag">DJ-Abend</span>
-      </li>
-      <li class="event_row">
-        <span class="event_date">Sa, 5. Sep</span>
-        <span class="event_title">90s &amp; 2000s Night</span>
-        <span class="event_tag">Motto-Party</span>
-      </li>
+      {
+        listed.map((event) => (
+          <li class="event_row">
+            <span class="event_date">{shortDate(event.data.start)}</span>
+            <span class="event_title">{event.data.name}</span>
+            <span class="event_tag">{event.data.tag}</span>
+          </li>
+        ))
+      }
     </ul>
 
     <ButtonWrapper>

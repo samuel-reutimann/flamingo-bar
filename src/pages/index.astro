@@ -23,7 +23,11 @@ import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema } from "@/utils/schema.ts";
+import { getHours } from "@/utils/content.ts";
 import { BUSINESS } from "@/consts.ts";
+
+/* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
+const hours = await getHours();
 ---
 
 <Layout
@@ -31,7 +35,7 @@ import { BUSINESS } from "@/consts.ts";
   description="Flamingo Bar an der Marktgasse 34B in Langenthal: Cocktails ab CHF 12.–, DJ-Abende, Live-Musik und Flaschenservice. Donnerstag bis Sonntag ab 20 Uhr offen."
   theme="dark"
 >
-  <Schema slot="head" data={barSchema} />
+  <Schema slot="head" data={barSchema(hours)} />
   <script is:inline slot="head">
     // Blendet den Hero vor dem ersten Paint aus, damit die Ladeanimation nicht
     // ruckelt. Ohne JS oder bei prefers-reduced-motion passiert nichts – die

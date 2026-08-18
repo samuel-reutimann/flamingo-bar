@@ -8,18 +8,130 @@ import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
-import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
-import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
-import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
-import { MENU_SECTIONS } from "@/data/menu.ts";
-import { BUSINESS } from "@/consts.ts";
+import {
+  getDrinksByCategory,
+  getSpiritsByGroup,
+  getMenuSection,
+  getPriceDate,
+} from "@/utils/content.ts";
+import { BUSINESS, SITE_LOCALE } from "@/consts.ts";
 
-/** Stand der Preise. Beim Aktualisieren der Karte hier mitziehen. */
-const PRICE_DATE = "18. August 2026";
-/** Derselbe Stand für `Menu.dateModified`, das ein ISO-Datum braucht. */
-const PRICE_DATE_ISO = "2026-08-18";
+/* Karte aus den Collections `drinks`, `spirits` und `menu-sections` — der
+   Betrieb pflegt sie in Keystatic. Früher stand jede Position zweimal da
+   (Markup plus eine Zweitfassung für Structured Data); beides liest jetzt
+   dieselben Dateien. */
+const cocktails = await getDrinksByCategory("cocktails");
+const longdrinks = await getDrinksByCategory("longdrinks");
+const alkoholfrei = await getDrinksByCategory("alkoholfrei");
+const weitere = await getDrinksByCategory("weitere");
+
+/* Cocktails mit Bild stehen oben als Karten, der Rest in der Preisliste. */
+const cocktailCards = cocktails.filter((drink) => drink.data.image);
+const cocktailRows = cocktails.filter((drink) => !drink.data.image);
+
+const spiritGroups = [
+  { label: "Whisky", entries: await getSpiritsByGroup("whisky") },
+  { label: "Vodka", entries: await getSpiritsByGroup("vodka") },
+  { label: "Rum", entries: await getSpiritsByGroup("rum") },
+  { label: "Gin", entries: await getSpiritsByGroup("gin") },
+];
+
+const sections = {
+  cocktails: await getMenuSection("cocktails"),
+  longdrinks: await getMenuSection("longdrinks"),
+  spirituosen: await getMenuSection("spirituosen"),
+  alkoholfrei: await getMenuSection("alkoholfrei"),
+  flaschen: await getMenuSection("flaschen"),
+  weitere: await getMenuSection("weitere"),
+};
+
+/** Stand der Preise. ISO für `Menu.dateModified`, ausgeschrieben für die Seite. */
+const priceDateIso = (await getPriceDate()) ?? "";
+const priceDate = priceDateIso
+  ? new Intl.DateTimeFormat(SITE_LOCALE, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Europe/Zurich",
+    }).format(new Date(priceDateIso))
+  : "";
+
+/* Structured Data aus denselben Einträgen. `price` ist dort der reine Betrag
+   ohne Währung, deshalb `priceCHF` statt des Anzeigetexts — und nur, wo der
+   Preis wirklich fest ist. */
+const toMenuItems = (entries: typeof cocktails) =>
+  entries.map((drink) => ({
+    name: drink.data.name,
+    ...(drink.data.description ? { description: drink.data.description } : {}),
+    ...(drink.data.priceCHF !== undefined
+      ? { price: String(drink.data.priceCHF) }
+      : {}),
+  }));
+
+const menuSections = [
+  {
+    name: sections.cocktails.title,
+    description: sections.cocktails.intro,
+    items: toMenuItems(cocktails),
+  },
+  {
+    name: sections.longdrinks.title,
+    description: sections.longdrinks.intro,
+    items: toMenuItems(longdrinks),
+  },
+  {
+    name: sections.spirituosen.title,
+    description: sections.spirituosen.intro,
+    items: [],
+    sections: spiritGroups.map((group) => ({
+      name: group.label,
+      items: group.entries.flatMap((spirit) => [
+        {
+          name: `${spirit.data.name}, 4 cl`,
+          ...(spirit.data.glassCHF !== undefined
+            ? { price: String(spirit.data.glassCHF) }
+            : { description: spirit.data.glass }),
+        },
+        {
+          name: `${spirit.data.name}, Flasche`,
+          ...(spirit.data.bottleCHF !== undefined
+            ? { price: String(spirit.data.bottleCHF) }
+            : { description: spirit.data.bottle }),
+        },
+      ]),
+    })),
+  },
+  {
+    name: sections.alkoholfrei.title,
+    description: sections.alkoholfrei.intro,
+    items: toMenuItems(alkoholfrei),
+  },
+  {
+    name: sections.flaschen.title,
+    description: sections.flaschen.intro,
+    items: [
+      {
+        name: "Flasche mit Mineral",
+        description: "Rum, Vodka, Whisky oder Gin. CHF 105.– bis 150.–",
+      },
+      {
+        name: "Flasche mit 2 Zusätzen",
+        description: "Zum Beispiel Cola und Red Bull. Preis auf Anfrage.",
+      },
+      {
+        name: "Gruppen und Geburtstage",
+        description: "Ab 6 Personen, Tisch reserviert. Auf Anfrage.",
+      },
+    ],
+  },
+  {
+    name: sections.weitere.title,
+    description: sections.weitere.intro,
+    items: toMenuItems(weitere),
+  },
+];
 ---
 
 <Layout
@@ -30,7 +142,7 @@ const PRICE_DATE_ISO = "2026-08-18";
   <Schema
     slot="head"
     data={[
-      menuSchema(MENU_SECTIONS, PRICE_DATE_ISO),
+      menuSchema(menuSections, priceDateIso),
       breadcrumbSchema([{ name: "Getränkekarte", path: "/getraenkekarte" }]),
     ]}
   />
@@ -65,57 +177,32 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Cocktails"
-      text="Ab CHF 12.–, alle frisch gemixt."
+      heading={sections.cocktails.title}
+      text={sections.cocktails.intro}
     />
     <Grid medium={3} class="menu_grid">
-      <Card
-        variant="stacked"
-        image={aperolImage}
-        imageAlt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
-        heading="Aperol Spritz"
-        text="Aperol, Prosecco, Mineral, Orange."
-      />
-      <Card
-        variant="stacked"
-        image={longIslandImage}
-        imageAlt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe"
-        heading="Long Island Iced Tea"
-        text="Der Klassiker, stark und kalt."
-      />
-      <Card
-        variant="stacked"
-        image={pinaColadaImage}
-        imageAlt="Piña Colada mit Ananas und Cocktailkirsche an der Bar"
-        heading="Piña Colada"
-        text="Rum, Kokos, Ananas."
-      />
+      {
+        cocktailCards.map((drink) => (
+          <Card
+            variant="stacked"
+            image={drink.data.image}
+            imageAlt={drink.data.imageAlt}
+            heading={drink.data.name}
+            text={drink.data.description}
+          />
+        ))
+      }
     </Grid>
     <ul class="drink_list">
-      <li class="drink_row">
-        <span class="drink_name">Mojito</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 14.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Cosmopolitan</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 15.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Whiskey Sour</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 15.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Espresso Martini</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 16.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Negroni</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 15.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Moscow Mule</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 14.–</span>
-      </li>
+      {
+        cocktailRows.map((drink) => (
+          <li class="drink_row">
+            <span class="drink_name">{drink.data.name}</span>
+            <span class="drink_dots" />
+            <span class="drink_price">{drink.data.price}</span>
+          </li>
+        ))
+      }
     </ul>
   </Section>
 
@@ -128,34 +215,19 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Longdrinks"
-      text="Ab CHF 12.–"
+      heading={sections.longdrinks.title}
+      text={sections.longdrinks.intro}
     />
     <ul class="drink_list">
-      <li class="drink_row">
-        <span class="drink_name">Vodka Energy</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 13.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Gin Tonic</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 14.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Rum Cola</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 12.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Whisky Cola</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 13.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Jägermeister, 4 cl</span><span
-          class="drink_dots"></span><span class="drink_price">CHF 6.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Tequila, 4 cl</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 6.–</span>
-      </li>
+      {
+        longdrinks.map((drink) => (
+          <li class="drink_row">
+            <span class="drink_name">{drink.data.name}</span>
+            <span class="drink_dots" />
+            <span class="drink_price">{drink.data.price}</span>
+          </li>
+        ))
+      }
     </ul>
   </Section>
 
@@ -172,8 +244,8 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Spirituosen und Flaschen"
-      text="Preis pro 4 cl und für die ganze Flasche. Flaschen kommen mit Mineral an den Tisch."
+      heading={sections.spirituosen.title}
+      text={sections.spirituosen.intro}
     />
     <div class="price_table">
       <div class="price_head">
@@ -182,81 +254,22 @@ const PRICE_DATE_ISO = "2026-08-18";
         <span>Flasche</span>
       </div>
 
-      <h3 class="price_group">Whisky</h3>
-      <ul class="price_rows">
-        <li class="price_row">
-          <span class="price_name">Jack Daniel’s</span><span class="price_value"
-            >CHF 14.–</span
-          ><span class="price_value">CHF 120.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Chivas Regal 12</span><span
-            class="price_value">CHF 15.–</span
-          ><span class="price_value">CHF 135.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Ballantine’s</span><span class="price_value"
-            >CHF 13.–</span
-          ><span class="price_value">CHF 105.–</span>
-        </li>
-      </ul>
-
-      <h3 class="price_group">Vodka</h3>
-      <ul class="price_rows">
-        <li class="price_row">
-          <span class="price_name">Absolut</span><span class="price_value"
-            >CHF 13.–</span
-          ><span class="price_value">CHF 105.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Grey Goose</span><span class="price_value"
-            >CHF 16.–</span
-          ><span class="price_value">CHF 150.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Belvedere</span><span class="price_value"
-            >CHF 16.–</span
-          ><span class="price_value">CHF 150.–</span>
-        </li>
-      </ul>
-
-      <h3 class="price_group">Rum</h3>
-      <ul class="price_rows">
-        <li class="price_row">
-          <span class="price_name">Havana Club 3</span><span class="price_value"
-            >CHF 13.–</span
-          ><span class="price_value">CHF 105.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Bacardi Carta Blanca</span><span
-            class="price_value">CHF 13.–</span
-          ><span class="price_value">CHF 105.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Zacapa 23</span><span class="price_value"
-            >Auf Anfrage</span
-          ><span class="price_value">Auf Anfrage</span>
-        </li>
-      </ul>
-
-      <h3 class="price_group">Gin</h3>
-      <ul class="price_rows">
-        <li class="price_row">
-          <span class="price_name">Bombay Sapphire</span><span
-            class="price_value">CHF 14.–</span
-          ><span class="price_value">CHF 120.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Gordon’s</span><span class="price_value"
-            >CHF 13.–</span
-          ><span class="price_value">CHF 105.–</span>
-        </li>
-        <li class="price_row">
-          <span class="price_name">Tanqueray</span><span class="price_value"
-            >CHF 14.–</span
-          ><span class="price_value">CHF 125.–</span>
-        </li>
-      </ul>
+      {
+        spiritGroups.map((group) => (
+          <>
+            <h3 class="price_group">{group.label}</h3>
+            <ul class="price_rows">
+              {group.entries.map((spirit) => (
+                <li class="price_row">
+                  <span class="price_name">{spirit.data.name}</span>
+                  <span class="price_value">{spirit.data.glass}</span>
+                  <span class="price_value">{spirit.data.bottle}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ))
+      }
     </div>
   </Section>
 
@@ -269,25 +282,19 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Alkoholfrei und Getränke"
+      heading={sections.alkoholfrei.title}
+      text={sections.alkoholfrei.intro}
     />
     <ul class="drink_list">
-      <li class="drink_row">
-        <span class="drink_name">Virgin Mojito</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 9.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Mineral, Cola, Red Bull</span><span
-          class="drink_dots"></span><span class="drink_price">CHF 5.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Bier vom Fass</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 6.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Prosecco, 1 dl</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 8.–</span>
-      </li>
+      {
+        alkoholfrei.map((drink) => (
+          <li class="drink_row">
+            <span class="drink_name">{drink.data.name}</span>
+            <span class="drink_dots" />
+            <span class="drink_price">{drink.data.price}</span>
+          </li>
+        ))
+      }
     </ul>
   </Section>
 
@@ -295,8 +302,8 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Flaschenservice"
-      text="Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein Mixgetränk wie Cola, Red Bull oder Tonic."
+      heading={sections.flaschen.title}
+      text={sections.flaschen.intro}
     />
     <Grid medium={3} class="bottle_options">
       <div class="bottle_option">
@@ -335,26 +342,19 @@ const PRICE_DATE_ISO = "2026-08-18";
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading="Weitere Getränke"
-      text="Was nicht auf der Karte steht, gibt es oft trotzdem. Frag an der Bar."
+      heading={sections.weitere.title}
+      text={sections.weitere.intro}
     />
     <ul class="drink_list">
-      <li class="drink_row">
-        <span class="drink_name">Vodka Red Bull</span><span class="drink_dots"
-        ></span><span class="drink_price">CHF 15.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Spirituose mit Mineral, 4 cl</span><span
-          class="drink_dots"></span><span class="drink_price">Ab CHF 13.–</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Belvedere mit Zusatz</span><span
-          class="drink_dots"></span><span class="drink_price">Auf Anfrage</span>
-      </li>
-      <li class="drink_row">
-        <span class="drink_name">Shots, ab 4 Stück</span><span
-          class="drink_dots"></span><span class="drink_price">Auf Anfrage</span>
-      </li>
+      {
+        weitere.map((drink) => (
+          <li class="drink_row">
+            <span class="drink_name">{drink.data.name}</span>
+            <span class="drink_dots" />
+            <span class="drink_price">{drink.data.price}</span>
+          </li>
+        ))
+      }
     </ul>
   </Section>
 
@@ -362,7 +362,7 @@ const PRICE_DATE_ISO = "2026-08-18";
     <div class="menu_note">
       <p class="menu_note-label text-style-small">Stand der Preise</p>
       <Paragraph variant="small" maxWidth={52} class="section-note">
-        Preise aktualisiert am {PRICE_DATE}. «Auf Anfrage» heisst: der Preis
+        Preise aktualisiert am {priceDate}. «Auf Anfrage» heisst: der Preis
         hängt von der Sorte oder der Menge ab, wir sagen ihn dir vor der
         Bestellung. Einzelne Sorten können ausgehen — dann nennen wir eine
         Alternative.

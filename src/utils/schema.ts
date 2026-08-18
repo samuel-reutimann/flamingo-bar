@@ -1,10 +1,10 @@
 /**
- * Structured Data (JSON-LD) für die Seiten. Alles wird aus `consts.ts` und
- * `hours.ts` aufgebaut, damit Öffnungszeiten und NAP-Angaben nicht zwischen
- * Markup und Schema auseinanderlaufen.
+ * Structured Data (JSON-LD) für die Seiten. NAP-Angaben kommen aus
+ * `consts.ts`, Öffnungszeiten und Karte aus den Collections — damit Markup
+ * und Schema nicht auseinanderlaufen.
  */
 import { BUSINESS, SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "../consts.ts";
-import { SCHEDULE } from "./hours.ts";
+import { scheduleFrom, type DayHours } from "./hours.ts";
 
 /** Wochentage in schema.org-Schreibweise, Index wie `Date.prototype.getDay()`. */
 const SCHEMA_DAYS = [
@@ -25,12 +25,13 @@ const toClock = (minutes: number) => {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 };
 
-const openingHours = Object.entries(SCHEDULE).map(([day, [opens, closes]]) => ({
-  "@type": "OpeningHoursSpecification",
-  dayOfWeek: SCHEMA_DAYS[Number(day)],
-  opens: toClock(opens),
-  closes: toClock(closes),
-}));
+const openingHoursFrom = (days: DayHours[]) =>
+  Object.entries(scheduleFrom(days)).map(([day, [opens, closes]]) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: SCHEMA_DAYS[Number(day)],
+    opens: toClock(opens),
+    closes: toClock(closes),
+  }));
 
 /** `@id` der Bar. Andere Schemas referenzieren die Bar damit statt sie zu wiederholen. */
 export const BAR_ID = `${SITE_URL}/#bar`;
@@ -42,7 +43,7 @@ export const BAR_ID = `${SITE_URL}/#bar`;
  * Sobald die exakten Werte für die Marktgasse 34B feststehen, hier als
  * `geo: { "@type": "GeoCoordinates", latitude: …, longitude: … }` ergänzen.
  */
-export const barSchema = {
+export const barSchema = (days: DayHours[]) => ({
   "@context": "https://schema.org",
   "@type": "BarOrPub",
   "@id": BAR_ID,
@@ -62,12 +63,12 @@ export const barSchema = {
     addressCountry: BUSINESS.country,
   },
   hasMap: BUSINESS.mapsUrl,
-  openingHoursSpecification: openingHours,
+  openingHoursSpecification: openingHoursFrom(days),
   hasMenu: absoluteUrl("/getraenkekarte"),
   sameAs: [BUSINESS.instagram],
   publicAccess: true,
   smokingAllowed: false,
-};
+});
 
 /** Breadcrumb-Pfad. `Startseite` wird immer vorangestellt. */
 export function breadcrumbSchema(

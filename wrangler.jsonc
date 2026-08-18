@@ -2,11 +2,21 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "lumos-for-astro",
   "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
 
-  // The built site. There is no `main`, so this deploys as an assets-only
-  // Worker: Cloudflare serves the files and no script runs per request.
+  // Seit Keystatic ist das kein reiner Asset-Worker mehr: die Redaktion unter
+  // `/keystatic` und ihre API-Routen laufen serverseitig. Alle Inhaltsseiten
+  // bleiben vorgerendert und kommen weiterhin als Datei aus `assets`.
+  //
+  // `main` steht bewusst nicht hier — `@astrojs/cloudflare` liest diese Datei
+  // beim Build, ergänzt Einstiegspunkt und Asset-Pfad und schreibt das
+  // Ergebnis nach `dist/server/wrangler.json`. Das ist die Datei, die
+  // deployt wird:
+  //
+  //     npx astro build
+  //     npx wrangler deploy --config dist/server/wrangler.json
   "assets": {
-    "directory": "./dist",
+    "directory": "./dist/client",
     "not_found_handling": "404-page"
   },
 

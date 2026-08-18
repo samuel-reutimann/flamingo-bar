@@ -13,7 +13,8 @@
  * `.map()` verstand. Das ist vorbei — Stacki hat eigene Loop-Knoten. Beide
  * Fassungen sind hier zusammengeführt; bitte nicht wieder aufspalten.
  */
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "zod";
 import { glob, file } from "astro/loaders";
 
 /** Kategorien der Getränkekarte. Reihenfolge = Reihenfolge auf der Seite. */
@@ -28,12 +29,15 @@ export const DRINK_CATEGORIES = [
 export const SPIRIT_GROUPS = ["whisky", "vodka", "rum", "gin"] as const;
 
 /**
- * `price` ist der Anzeigetext ("CHF 14.–", "Auf Anfrage", "Ab CHF 13.–").
+ * `price` ist der Anzeigetext ("CHF 14.–", "Auf Anfrage", "Ab CHF 13.–") und
+ * darf fehlen — die drei Karten oben in den Cocktails stehen absichtlich ohne
+ * Betrag, weil dort "Ab CHF 12.–" über dem Abschnitt gilt.
  * `priceCHF` ist derselbe Betrag als Zahl und nur gesetzt, wenn der Preis
  * fix ist — Structured Data darf keinen Betrag behaupten, den es nicht gibt.
  */
 const priceFields = {
-  price: z.string(),
+  /** Weglassen, wenn die Position bewusst ohne Preis dasteht. */
+  price: z.string().optional(),
   priceCHF: z.number().optional(),
 };
 

@@ -5,8 +5,9 @@ The Flamingo Bar website — Marktgasse 34B, Langenthal. A bar/cocktail site
 Built on the **Lumos** Astro starter framework, reskinned to a dark
 neon-pink/black brand instead of Lumos's default lime-green look.
 
-German (`de-CH`) content throughout. No CMS — all copy is hardcoded directly
-in `.astro` files.
+German (`de-CH`) content throughout. Events, the drink menu and the opening
+hours come from content collections and are edited in Keystatic (`/keystatic`)
+or Stacki; the remaining page copy is hardcoded in `.astro` files.
 
 The design source of truth is the static HTML/CSS mockup at
 `../Website UI mockups project/` (sibling directory, `index.html` +
@@ -41,25 +42,20 @@ Stacki also writes a temporary marker config to
 custom Vite plugin injected) — that's normal, ignore it, don't edit it, it
 regenerates each time Stacki opens the project.
 
-### The Stacki marker-parser gotcha
+### Loops are fine now
 
-Stacki's Vite plugin (`avb-node-markers`) parses every `.astro` file with
-its **own** hand-rolled parser (not the real `@astrojs/compiler`) to inject
-`<template data-avb-s>` marker comments for its visual editor's node
-outline. That parser **cannot handle `array.map()`-generated JSX** —
-dynamically looped markup breaks it with a `CompilerError: Unexpected token`
-that only shows up in Stacki's preview (not in `astro build`, not in a
-plain `astro dev` you start yourself).
+Earlier versions of this project banned `array.map()` in `.astro` files:
+Stacki's old marker parser choked on looped JSX. That is no longer true —
+Stacki has native **Loop** nodes, generates `.map()` itself, and outlines
+every iteration on the canvas.
 
-Consequence: **never use `.map()` to render repeated JSX in this project.**
-Write repeated blocks out literally instead (see `Nav.astro`'s nav links,
-`Footer.astro`'s link list, or the hours list / gallery track in
-`index.astro` for the pattern — plain arrays of objects were unrolled into
-individual `<li>`/`<a>`/`<div>` tags by hand). This is more verbose but it's
-the only form Stacki's parser reliably accepts. If a `CompilerError:
-Unexpected token` shows up in Stacki with a stack trace mentioning
-`vite.ssrFixStacktrace`, look for a `.map()` you just added before anything
-else.
+The ban had a real cost, so don't reintroduce it: every price, event and
+opening time used to exist **twice** — once as hand-unrolled markup and once
+as a second copy for structured data — and the two drifted apart. Both
+copies are now merged into content collections (see below).
+
+`Nav.astro` and `Footer.astro` still list their links literally. That is
+just leftover shape, not a rule.
 
 ### Verifying changes visually
 
@@ -116,8 +112,7 @@ probably one of these, and it's intentional:
 
 - **`Nav.astro`** — fully rewritten. Stock Lumos has a sticky in-flow bar;
   this is a `position: fixed` floating glass pill with a hamburger-driven
-  slide-down menu, matching the mockup's `navbar_component`. Nav links are
-  written out literally (see the Stacki `.map()` gotcha above).
+  slide-down menu, matching the mockup's `navbar_component`.
 - **`Footer.astro`** — fully rewritten to match the mockup's brand block +
   link list + giant `Flamingo` wordmark + bottom legal bar, instead of
   Lumos's plain link-list footer.
@@ -193,9 +188,8 @@ Three project components carry the patterns the subpages share:
   (`0`=Sunday…`6`=Saturday) and an **`is:inline`** script marks today.
   It has to be `is:inline`: a normally bundled component script is dropped
   by Astro when the component is rendered inside a `<Section>` slot, so the
-  hoisted version silently never shipped on any of the three pages. Keep
-  the times in sync with `src/utils/hours.ts`, which stays the single
-  source for hero pill, status pill and footer.
+  hoisted version silently never shipped on any of the three pages. The
+  times come from the `hours` collection — see below.
 - **`LegalText.astro`** — long-form legal copy (Impressum, Datenschutz).
   Wraps `RichText` and supplies the paragraph/list spacing, because this
   project's `RichText` ships no `.rich-text` descendant styles and the
@@ -232,6 +226,73 @@ feed `BaseHead.astro`'s title/meta tags and `astro.config.mjs`'s sitemap.
 `index.astro` also carries a `BarOrPub` JSON-LD block (address, phone,
 opening hours, price range) injected via `slot="head"` — keep this in sync
 if the address/hours/phone ever change for real.
+
+## Content collections (`src/content.config.ts`)
+
+Events, the drink menu and the opening hours live in
+`src/content/`, not in page markup:
+
+| Collection      | Files                        | Was ist drin |
+| --------------- | ---------------------------- | ------------ |
+| `events`        | `src/content/events/*.yaml`   | ein Abend pro Datei |
+| `drinks`        | `src/content/drinks/*.yaml`   | ein Getränk pro Datei, `category` bestimmt den Abschnitt |
+| `spirits`       | `src/content/spirits/*.yaml`  | Sorte mit 4-cl- und Flaschenpreis |
+| `menuSections`  | `src/content/menu-sections/*.yaml` | Überschrift + Einleitung je Abschnitt |
+| `hours`         | `src/content/hours.yaml`      | ein Block pro Wochentag |
+| `settings`      | `src/content/settings.yaml`   | Preisstand der Karte |
+
+Three tools read and write the same files:
+
+- **Keystatic** at `/keystatic` — this is what the bar owner uses.
+  Configured in `keystatic.config.ts`, labels in German.
+- **Stacki** — reads `src/content.config.ts` and renders matching fields.
+- **The build** — pages call the helpers in `src/utils/content.ts`.
+
+Two rules:
+
+- A field added to `keystatic.config.ts` must be added to
+  `src/content.config.ts` too, or the build fails with a Zod error.
+- `price` is the display string (`"CHF 14.–"`, `"Auf Anfrage"`) and may be
+  absent; `priceCHF` is the same amount as a number and is set **only** when
+  the price is fixed. Structured data uses `priceCHF`, so it never claims a
+  price the bar doesn't actually charge.
+
+Prices, event dates and opening times must not be written into `.astro`
+markup again. `getraenkekarte.astro` derives its JSON-LD from the same
+entries it renders, `events.astro` computes "Ab 21 Uhr, Eintritt frei." from
+the start time and the entry price, and `HoursTable.astro` loops the hours
+collection.
+
+`src/utils/hours.ts` runs in the **browser** (hero pill, hours strip,
+footer), where `getCollection()` does not exist. `BaseLayout.astro` therefore
+serializes the hours into a `<script type="application/json" id="hours-data">`
+tag on every page and `hours.ts` reads that. Its exported function
+signatures are unchanged; don't inline the times back into it.
+
+## Keystatic
+
+Admin UI at `/keystatic`. It needs server-side code, which is why the
+project now has `@astrojs/cloudflare` and deploys as a Worker instead of a
+flat asset bundle. Content pages stay prerendered.
+
+Storage is `local` — it writes straight to the files on this machine. For
+the client to edit in a browser, create a project at keystatic.cloud and
+switch `keystatic.config.ts` to:
+
+```ts
+storage: { kind: "cloud" },
+cloud: { project: "team-slug/projekt-slug" },
+```
+
+Deploy with:
+
+```
+npx astro build
+npx wrangler deploy --config dist/server/wrangler.json
+```
+
+The adapter merges the root `wrangler.jsonc` into that generated config —
+don't add `main` to the root file by hand.
 
 ## Documentation
 

@@ -12,7 +12,11 @@ import Img from "@/components/Img.astro";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema } from "@/utils/schema.ts";
+import { getHours } from "@/utils/content.ts";
 import { BUSINESS } from "@/consts.ts";
+
+/* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
+const hours = await getHours();
 ---
 
 <Layout
@@ -23,7 +27,7 @@ import { BUSINESS } from "@/consts.ts";
   <Schema
     slot="head"
     data={[
-      barSchema,
+      barSchema(hours),
       breadcrumbSchema([{ name: "Kontakt", path: "/kontakt" }]),
     ]}
   />

@@ -1,0 +1,45 @@
+# Öffnungszeiten. Ein Block pro Wochentag, Reihenfolge = Reihenfolge in der Tabelle.
+# `weekday` folgt Date.getDay() (Sonntag = 0) und darf nicht geändert werden.
+montag:
+  label: Montag
+  time: Geschlossen
+  closed: true
+  weekday: 1
+dienstag:
+  label: Dienstag
+  time: Geschlossen
+  closed: true
+  weekday: 2
+mittwoch:
+  label: Mittwoch
+  time: Geschlossen
+  closed: true
+  weekday: 3
+donnerstag:
+  label: Donnerstag
+  time: 20 – 03 Uhr
+  closed: false
+  weekday: 4
+  opens: "20:00"
+  closes: "03:00"
+freitag:
+  label: Freitag
+  time: 20 – 04 Uhr
+  closed: false
+  weekday: 5
+  opens: "20:00"
+  closes: "04:00"
+samstag:
+  label: Samstag
+  time: 20 – 04 Uhr
+  closed: false
+  weekday: 6
+  opens: "20:00"
+  closes: "04:00"
+sonntag:
+  label: Sonntag
+  time: 20 – 01 Uhr
+  closed: false
+  weekday: 0
+  opens: "20:00"
+  closes: "01:00"

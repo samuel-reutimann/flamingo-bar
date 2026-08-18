@@ -10,6 +10,10 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
+import { getHours } from "@/utils/content.ts";
+
+/* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
+const hours = await getHours();
 ---
 
 <Layout
@@ -20,7 +24,7 @@ import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
   <Schema
     slot="head"
     data={[
-      barSchema,
+      barSchema(hours),
       faqSchema([
         {
           question: "Wann ist die Flamingo Bar Langenthal offen?",
