@@ -74,6 +74,7 @@ const isCurrent = (href: string) =>
       max-height: none;
       opacity: 1;
       margin-top: 1.5rem;
+      visibility: visible;
     }
   </style>
 </noscript>
@@ -82,12 +83,21 @@ const isCurrent = (href: string) =>
   const nav = document.querySelector<HTMLElement>("[data-nav]");
   const pill = nav?.querySelector<HTMLElement>(".nav_pill");
   const toggle = nav?.querySelector<HTMLButtonElement>(".nav_toggle");
+  const menu = nav?.querySelector<HTMLElement>(".nav_menu");
 
-  if (nav && pill && toggle) {
+  if (nav && pill && toggle && menu) {
     const setOpen = (open: boolean) => {
       pill.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", String(open));
+      // `aria-label` stand fest auf "Menü öffnen" — bei offenem Menü las ein
+      // Screenreader also "Menü öffnen, erweitert".
+      toggle.setAttribute("aria-label", open ? "Menü schliessen" : "Menü öffnen");
+      // `inert` nimmt die Links zusätzlich aus dem Accessibility-Tree; die
+      // CSS-Sichtbarkeit allein greift erst nach der Übergangszeit.
+      menu.inert = !open;
     };
+
+    setOpen(false);
 
     toggle.addEventListener("click", () => {
       setOpen(toggle.getAttribute("aria-expanded") !== "true");
@@ -166,16 +176,24 @@ const isCurrent = (href: string) =>
       overflow: hidden;
       max-height: 0;
       opacity: 0;
+      /* Ohne `visibility` blieben die fünf Links im Tab-Fokus und im
+         Accessibility-Tree, obwohl das Menü zu ist — auf jeder Seite. Die
+         Verzögerung lässt die Klappbewegung zu Ende laufen, bevor sie
+         verschwinden. */
+      visibility: hidden;
       transition:
         max-height 0.4s ease,
         opacity 0.3s ease,
-        margin-top 0.4s ease;
+        margin-top 0.4s ease,
+        visibility 0s linear 0.4s;
     }
 
     .nav_pill.is-open .nav_menu {
       max-height: 22rem;
       opacity: 1;
       margin-top: 1.5rem;
+      visibility: visible;
+      transition-delay: 0s;
     }
 
     .nav_link {

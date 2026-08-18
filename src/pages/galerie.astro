@@ -172,11 +172,16 @@ const tiles: Tile[] = [
 
         target.src = image.currentSrc || image.src;
         target.alt = image.alt;
-        if (caption) {
-          caption.textContent =
-            button.closest("figure")?.querySelector(".gallery_caption")
-              ?.textContent ?? "";
-        }
+        const label =
+          button.closest("figure")?.querySelector(".gallery_caption")
+            ?.textContent ?? "";
+        if (caption) caption.textContent = label;
+        // Der Dialog hieß fest "Bild in Grossansicht" — er sagte also nie,
+        // welches Bild gerade offen ist.
+        dialog.setAttribute(
+          "aria-label",
+          label ? `${label} — Grossansicht` : "Bild in Grossansicht",
+        );
         dialog.showModal();
       });
     });

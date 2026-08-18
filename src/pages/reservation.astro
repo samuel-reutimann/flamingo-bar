@@ -147,9 +147,9 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         </ButtonWrapper>
         <p
           class="form_status"
+          id="res-status"
           data-form-status
           role="status"
-          aria-live="polite"
         >
         </p>
         <noscript>
@@ -227,11 +227,34 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
 
+    const fields = Array.from(
+      form.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >("input, select, textarea"),
+    );
+
+    // Aufräumen, bevor neu geprüft wird — sonst bleibt die Markierung eines
+    // inzwischen ausgefüllten Feldes stehen.
+    fields.forEach((field) => {
+      field.removeAttribute("aria-invalid");
+      field.removeAttribute("aria-describedby");
+    });
+
     if (!form.checkValidity()) {
+      // Ohne diese beiden Attribute bekam ein Screenreader nur den einen Satz
+      // am Formularende zu hören, ohne Bezug zum betroffenen Feld.
+      fields
+        .filter((field) => !field.checkValidity())
+        .forEach((field) => {
+          field.setAttribute("aria-invalid", "true");
+          field.setAttribute("aria-describedby", "res-status");
+        });
+
       form.reportValidity();
       if (status) {
-        status.textContent =
-          "Bitte Name, Telefon, Datum und Personenzahl ausfüllen.";
+        status.replaceChildren(
+          "Bitte Name, Telefon, Datum und Personenzahl ausfüllen.",
+        );
         status.classList.add("is-error");
       }
       return;
