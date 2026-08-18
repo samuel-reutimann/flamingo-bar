@@ -15,9 +15,18 @@
   //
   //     npx astro build
   //     npx wrangler deploy --config dist/server/wrangler.json
+  // `not_found_handling` steht bewusst nicht hier (Standard: "none").
+  //
+  // Mit "404-page" beantwortet Cloudflares Asset-Router jede *Navigation* auf
+  // einen Pfad ohne passende Datei direkt mit `404.html` — der Worker läuft
+  // dann gar nicht. `/keystatic` ist keine Datei, sondern wird vom Worker
+  // gerendert, und war deshalb im Browser tot (per `curl` dagegen erreichbar,
+  // weil das keine Navigation ist).
+  //
+  // Ohne den Schlüssel fällt alles, was keine Datei ist, an den Worker. Astro
+  // rendert die eigene 404-Seite dort weiterhin selbst.
   "assets": {
-    "directory": "./dist/client",
-    "not_found_handling": "404-page"
+    "directory": "./dist/client"
   },
 
   // Die Seite antwortet auf https://flamingo.resa.dev. `custom_domain` lässt
