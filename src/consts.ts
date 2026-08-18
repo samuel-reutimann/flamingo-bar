@@ -4,7 +4,7 @@ export const SITE_NAME = "Flamingo Bar";
 export const SITE_DESCRIPTION =
   "Flamingo Bar in Langenthal, Marktgasse 34B: Cocktails, DJ-Abende und Flaschenservice. Getränkekarte mit allen Preisen jetzt online ansehen.";
 /** Canonical origin. Resolves canonical URLs, social images, and the sitemap. */
-export const SITE_URL = "https://www.flamingobar-langenthal.ch";
+export const SITE_URL = "https://flamingobar.ch";
 /** BCP 47 locale tag used to format dates and numbers. */
 export const SITE_LOCALE = "de-CH";
 /**
@@ -23,17 +23,23 @@ export const NOINDEX_ROUTES: string[] = ["/404"];
  * dem Google-Business-Profil; Abweichungen kosten Sichtbarkeit in der lokalen
  * Suche.
  *
- * TODO: `PHONE`, `PHONE_DISPLAY` und `WHATSAPP` sind noch Platzhalter
- * (062 000 00 00). Vor dem Livegang durch die echte Nummer ersetzen.
+ * OFFEN vor dem Livegang — die einzige Liste, die es dafür gibt:
+ *
+ * 1. Impressum: Rechtsform (Einzelfirma, GmbH, AG) und, falls im
+ *    Handelsregister bzw. MWST-Register eingetragen, die CHE-Nummern.
+ *    Solange sie fehlen, nennt `/impressum` diese Punkte gar nicht — leere
+ *    eckige Klammern auf einer Pflichtseite wären schlimmer als ihr Fehlen.
+ * 2. `instagram` / `instagramHandle` sind nie bestätigt worden.
+ * 3. `geo` im Structured Data fehlt bewusst (siehe `utils/schema.ts`).
  */
 export const BUSINESS = {
   /** E.164, für `tel:`-Links und Structured Data. */
-  phone: "+41620000000",
+  phone: "+41764019466",
   /** Wie die Nummer im Text erscheint. */
-  phoneDisplay: "062 000 00 00",
+  phoneDisplay: "076 401 94 66",
   /** Nur Ziffern, für `wa.me`-Links. */
-  whatsapp: "41620000000",
-  email: "hallo@flamingobar-langenthal.ch",
+  whatsapp: "41764019466",
+  email: "negasi.gebretnsa@icloud.com",
   instagram: "https://www.instagram.com/flamingobar.langenthal/",
   instagramHandle: "@flamingobar.langenthal",
   street: "Marktgasse 34B",
@@ -54,3 +60,12 @@ export const BUSINESS = {
 export const ADDRESS_LINE = `${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`;
 /** „Marktgasse 34B, Langenthal“ — Fließtext, wo die PLZ nur stört. */
 export const ADDRESS_SHORT = `${BUSINESS.street}, ${BUSINESS.city}`;
+
+/**
+ * Inhaberschaft — im Impressum als Vertretung und als verantwortliche Person.
+ *
+ * Rechtsform und CHE-Nummern fehlen noch (siehe die offene Liste bei
+ * `BUSINESS`); die betreffenden Zeilen stehen deshalb gar nicht auf der Seite,
+ * statt mit leeren eckigen Klammern in Produktion zu gehen.
+ */
+export const OWNER = "Negasi Gebretnsa";

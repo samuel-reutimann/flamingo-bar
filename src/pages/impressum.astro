@@ -7,7 +7,7 @@ import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema } from "@/utils/schema.ts";
-import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
+import { ADDRESS_LINE, BUSINESS, OWNER } from "@/consts.ts";
 ---
 
 <Layout
@@ -44,16 +44,11 @@ import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
         </a>
       </p>
 
-      <h2>Rechtsform und Vertretung</h2>
-      <p>
-        Rechtsform: [Rechtsform eintragen]<br />
-        Vertreten durch: [Vor- und Nachname der Inhaberschaft]<br />
-        Handelsregister-Nummer: [CHE-Nummer]<br />
-        Mehrwertsteuer-Nummer: [CHE-Nummer MWST]
-      </p>
+      <h2>Vertretung</h2>
+      <p>Vertreten durch: {OWNER}</p>
 
       <h2>Verantwortlich für den Inhalt</h2>
-      <p>[Vor- und Nachname], Marktgasse 34B, 4900 Langenthal</p>
+      <p>{OWNER}, {ADDRESS_LINE}</p>
 
       <h2>Haftung für Inhalte</h2>
       <p>
