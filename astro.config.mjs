@@ -10,6 +10,18 @@ import { isNoindexRoute } from "./src/utils/seo.ts";
 export default defineConfig({
   site: SITE_URL,
 
+  // `trailingSlash` steht bewusst auf dem Standard ("ignore").
+  //
+  // Der Build legt jede Seite als `<route>/index.html` ab, und Cloudflares
+  // Asset-Router beantwortet `/kontakt` mit einer 307 auf `/kontakt/`.
+  // Interne Links, Canonicals und Structured Data nennen deshalb überall die
+  // Form mit Schrägstrich — damit entsteht die Weiterleitung gar nicht erst.
+  //
+  // `trailingSlash: "always"` wäre der naheliegende Riegel dafür, gilt aber
+  // auch für die API-Routen, die Keystatic einhängt: `/api/keystatic/…`
+  // bekäme dann eine 301, und die Schreibvorgänge der Redaktion liefen über
+  // eine Weiterleitung. Nicht wert.
+
   // Keystatic's admin UI (`/keystatic`) and its API routes run server-side, so
   // the project needs an adapter. Every content page stays prerendered — only
   // the routes Keystatic injects are rendered on demand, which is why

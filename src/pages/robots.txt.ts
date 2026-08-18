@@ -26,6 +26,10 @@ export const GET: APIRoute = ({ request, site }) => {
     ? [
         "User-agent: *",
         "Allow: /",
+        /* Die Redaktion ist erreichbar, aber kein Suchergebnis. Sie steht
+           nicht in der Sitemap; ohne diese Zeile bliebe sie trotzdem
+           crawlbar, weil sie serverseitig mit 200 antwortet. */
+        "Disallow: /keystatic",
         "",
         `Sitemap: ${new URL("sitemap-index.xml", site ?? SITE_URL).href}`,
       ]

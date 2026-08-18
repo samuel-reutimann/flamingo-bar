@@ -964,6 +964,8 @@
 
 .display-inline-flex {
   display: inline-flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
 .display-inline-grid {

@@ -21,11 +21,14 @@ const hours = await getHours();
    vierte Fassung derselben Zeiten, direkt neben der Tabelle. Jetzt gerechnet. */
 const openSentence = hoursSentence(hours);
 const openDaysLong = openDaysLabel(hours, { long: true });
+/* Kurzform für die Meta-Description: die ausgeschriebene Wochen-Fassung
+   (`openSentence`) sprengte mit 210 Zeichen die Anzeige in der Suche. */
+const openDaysShort = openDaysLabel(hours);
 ---
 
 <Layout
-  title={`Öffnungszeiten – ${openDaysLong}`}
-  description={`Flamingo Bar Langenthal: ${openSentence} Alle Zeiten, der letzte Einlass und ob gerade offen ist.`}
+  title="Öffnungszeiten Langenthal"
+  description={`Flamingo Bar Langenthal: ${openDaysShort} geöffnet. Alle Zeiten pro Wochentag, letzter Einlass eine Stunde vor Schluss und ob gerade offen ist.`}
   theme="dark"
 >
   <Schema
@@ -98,10 +101,10 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       </div>
     </Grid>
     <ButtonWrapper>
-      <Button element="link" href="/getraenkekarte"
+      <Button element="link" href="/getraenkekarte/"
         >Getränkekarte ansehen</Button
       >
-      <Button element="link" href="/reservation" variant="secondary"
+      <Button element="link" href="/reservation/" variant="secondary"
         >Tisch anfragen</Button
       >
     </ButtonWrapper>
@@ -116,7 +119,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       text={`${ADDRESS_LINE}. Fünf Minuten zu Fuss vom Bahnhof.`}
     >
       <ButtonWrapper>
-        <Button element="link" href="/kontakt" variant="secondary"
+        <Button element="link" href="/kontakt/" variant="secondary"
           >Anfahrt und Kontakt</Button
         >
       </ButtonWrapper>

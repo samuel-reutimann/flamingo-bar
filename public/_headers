@@ -1,0 +1,14 @@
+# Sicherheits-Header für alle Antworten. Der Cloudflare-Adapter hängt beim
+# Build die Cache-Regel für /_astro/* an diese Datei an.
+#
+# Bewusst ohne Content-Security-Policy: die Seite nutzt Inline-Skripte
+# (Öffnungsstatus, JSON-LD, Theme). Eine strikte CSP braucht dafür Nonces
+# oder Hashes und würde ohne diese Vorarbeit die Seite lahmlegen.
+#
+# HSTS ohne `includeSubDomains`: die Direktive gälte sonst für alle
+# Subdomains der Zone, auch für solche, die nicht zu dieser Seite gehören.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Strict-Transport-Security: max-age=31536000

@@ -31,7 +31,6 @@ const bottleLine = bottleFrom
    Ohne Bild kann ein Termin keine Karte werden, sonst bliebe der Poster leer. */
 const featured = events.filter((event) => event.data.featured && event.data.image);
 const listed = events.filter((event) => !featured.includes(event));
-
 ---
 
 <Layout
@@ -62,7 +61,7 @@ const listed = events.filter((event) => !featured.includes(event));
       text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram."
     >
       <ButtonWrapper>
-        <Button element="link" href="/reservation"
+        <Button element="link" href="/reservation/"
           >Tisch für einen Abend anfragen</Button
         >
         <Button element="link" href={BUSINESS.instagram} variant="secondary">
@@ -103,16 +102,14 @@ const listed = events.filter((event) => !featured.includes(event));
     </ul>
 
     <ButtonWrapper>
-      <Button element="link" href="/reservation"
+      <Button element="link" href="/reservation/"
         >Tisch für diesen Abend anfragen</Button
       >
     </ButtonWrapper>
   </Section>
 
-  {
-    /* Wiederkehrendes braucht keinen Eintrag pro Woche, aber einen festen
-       Platz — sonst fragt jeder einzeln nach der Happy Hour. */
-  }
+  {/* Wiederkehrendes braucht keinen Eintrag pro Woche, aber einen festen
+       Platz — sonst fragt jeder einzeln nach der Happy Hour. */}
   <Section
     paddingTop="none"
     paddingBottom="large"
@@ -160,12 +157,7 @@ const listed = events.filter((event) => !featured.includes(event));
         />
       </div>
       <div class="private_text">
-        <Heading tag="h2" variant="h3">Geburtstage und private Abende</Heading>
-        <Paragraph maxWidth={34} class="section-note">
-          Ab 6 Personen reservieren wir einen Tisch, ab 20 Personen einen
-          eigenen Bereich. Flaschenservice mit Mineral oder zwei Zusätzen,
-          Wunschmusik nach Absprache.
-        </Paragraph>
+        <PageHeader heading="Geburtstage und private Abende" headingTag="h2" variant="h3" text=" Ab 6 Personen reservieren wir einen Tisch, ab 20 Personen einen eigenen Bereich. Flaschenservice mit Mineral oder zwei Zusätzen, Wunschmusik nach Absprache. " />
         <div class="def_rows private_rows">
           <div class="def_row private_row">
             <span class="private_row-label">Ab wie vielen Personen</span>
@@ -185,7 +177,7 @@ const listed = events.filter((event) => !featured.includes(event));
           </div>
         </div>
         <ButtonWrapper>
-          <Button element="link" href="/reservation">Anfrage senden</Button>
+          <Button element="link" href="/reservation/">Anfrage senden</Button>
           <Button
             element="link"
             href={`https://wa.me/${BUSINESS.whatsapp}`}
@@ -210,7 +202,7 @@ const listed = events.filter((event) => !featured.includes(event));
         <Button element="link" href={BUSINESS.instagram}
           >{BUSINESS.instagramHandle}</Button
         >
-        <Button element="link" href="/getraenkekarte" variant="secondary">
+        <Button element="link" href="/getraenkekarte/" variant="secondary">
           Getränkekarte ansehen
         </Button>
       </ButtonWrapper>
@@ -306,9 +298,9 @@ const listed = events.filter((event) => !featured.includes(event));
     /* --------------------------------------------------------------- private */
     .private_visual {
       width: 100%;
-      aspect-ratio: 4 / 5;
       border-radius: var(--radius-main);
       overflow: clip;
+      height: 100%;
     }
 
     .private_visual img {

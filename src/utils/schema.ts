@@ -17,7 +17,19 @@ const SCHEMA_DAYS = [
   "Saturday",
 ] as const;
 
-export const absoluteUrl = (path: string) => new URL(path, SITE_URL).href;
+/**
+ * Pfad zur absoluten URL. Verzeichnispfade bekommen den Schrägstrich am Ende,
+ * damit Structured Data exakt die kanonische Form nennt — der Build legt die
+ * Seiten als `/kontakt/index.html` ab, und `/kontakt` beantwortet der
+ * Asset-Router nur mit einer 307-Weiterleitung. Pfade mit Dateiendung
+ * (`/og-image.jpg`) bleiben unverändert.
+ */
+export const absoluteUrl = (path: string) => {
+  const hasExtension = /\.[a-z0-9]+$/i.test(path);
+  const normalized =
+    hasExtension || path.endsWith("/") ? path : `${path}/`;
+  return new URL(normalized, SITE_URL).href;
+};
 
 /** Minuten seit Mitternacht als `HH:MM`; Werte über 24 h laufen in den Folgetag. */
 const toClock = (minutes: number) => {
@@ -147,7 +159,7 @@ export function menuSchema(sections: MenuSectionInput[], dateModified: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Menu",
-    "@id": `${SITE_URL}/getraenkekarte#menu`,
+    "@id": `${SITE_URL}/getraenkekarte/#menu`,
     name: "Getränkekarte",
     url: absoluteUrl("/getraenkekarte"),
     inLanguage: "de-CH",

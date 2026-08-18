@@ -24,6 +24,7 @@ import { getHours, getDrinksByCategory, getUpcomingEvents, minPriceCHF, bottleFr
 import { longDate } from "@/utils/dates.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
+import bottle_service_lounge from '@/assets/flamingo/bottle-service-lounge.jpeg';
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
@@ -82,9 +83,9 @@ const openDays = openDaysLabel(hours);
   <!-- HERO -->
   <section class="hero_section">
     <div class="hero_content">
-      <OpenStatusPill variant="eyebrow" class="hero_status" />
+      <OpenStatusPill class="hero_status" />
       <Heading tag="h1" variant="h1" class="hero_heading"
-        >Deine Bar in Langenthal<br />für Cocktails und lange Nächte</Heading
+        >Deine Bar in Langenthal <br />für Cocktails und lange Nächte</Heading
       >
       <Paragraph maxWidth={38} class="hero_text"
         >{cocktailLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
@@ -369,7 +370,9 @@ const openDays = openDaysLabel(hours);
   <!-- FLASCHENSERVICE -->
   <Section paddingTop="medium" paddingBottom="medium" id="flaschenservice">
     <div class="split_layout bottle_layout">
-      <div class="bottle_visual"></div>
+      <div class="bottle_visual">
+        <Img src={bottle_service_lounge} />
+      </div>
       <div class="bottle_text">
         <div>
           <Eyebrow>Flaschenservice</Eyebrow>
@@ -499,6 +502,7 @@ const openDays = openDaysLabel(hours);
 
     .hero_text {
       margin-inline: auto;
+      margin-top: var(--space-3);
       margin-bottom: var(--space-5);
       color: color-mix(in lab, currentcolor 48%, transparent);
     }

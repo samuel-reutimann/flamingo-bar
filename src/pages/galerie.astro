@@ -23,8 +23,13 @@ import { breadcrumbSchema } from "@/utils/schema.ts";
 import { BUSINESS } from "@/consts.ts";
 
 /**
- * Die Kacheln der Galerie. `span` steuert, wie viel Platz eine Kachel im
- * Raster einnimmt — `wide` zwei Spalten, `tall` zwei Zeilen.
+ * Die Kacheln der Galerie. Sie laufen als Mosaik in Spalten (CSS
+ * `columns`), nicht in einem Zeilenraster — deshalb steuert `ratio` nur das
+ * Seitenverhältnis der einzelnen Kachel, nicht ihre Spannweite. Die
+ * unterschiedlichen Höhen sind das, was das Mosaik dicht wirken lässt.
+ *
+ * `caption` steht nicht mehr unter dem Bild, sondern beschriftet nur noch den
+ * Button (`aria-label`) und die Grossansicht.
  *
  * Stand als elf ausgeschriebene <figure>-Blöcke im Markup, weil Stackis alter
  * Marker-Parser kein `.map()` verstand. Stacki hat inzwischen eigene
@@ -34,34 +39,34 @@ type Tile = {
   image: ImageMetadata;
   alt: string;
   caption: string;
-  /** `wide` belegt zwei Spalten, `tall` zwei Zeilen. */
-  span?: "wide" | "tall";
-  /** Nur die beiden Kacheln über der Falz laden sofort. */
+  /** Seitenverhältnis der Kachel. Ohne Angabe: Quadrat. */
+  ratio?: "portrait" | "tall" | "landscape";
+  /** Nur die Kacheln über der Falz laden sofort. */
   eager?: boolean;
 };
 
 const tiles: Tile[] = [
-  { image: barGuestsImage, caption: "Die Bar", span: "wide", eager: true,
+  { image: barGuestsImage, caption: "Die Bar", ratio: "portrait", eager: true,
     alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" },
-  { image: neonGlassesImage, caption: "Neonlicht", eager: true,
+  { image: neonGlassesImage, caption: "Neonlicht", ratio: "landscape", eager: true,
     alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" },
-  { image: aperolImage, caption: "Aperol Spritz",
+  { image: aperolImage, caption: "Aperol Spritz", ratio: "tall", eager: true,
     alt: "Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze" },
-  { image: cocktailHandImage, caption: "Cocktails",
+  { image: cocktailHandImage, caption: "Cocktails", ratio: "portrait", eager: true,
     alt: "Hand hält einen Tumbler mit Cocktail und Eiswürfel" },
-  { image: djKnobsImage, caption: "Am Pult", span: "tall",
+  { image: djKnobsImage, caption: "Am Pult", ratio: "tall",
     alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" },
   { image: longIslandImage, caption: "Long Island Iced Tea",
     alt: "Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe" },
-  { image: crowdImage, caption: "Tanzfläche", span: "wide",
+  { image: crowdImage, caption: "Tanzfläche", ratio: "landscape",
     alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party" },
-  { image: djMixerImage, caption: "DJ-Abend",
+  { image: djMixerImage, caption: "DJ-Abend", ratio: "portrait",
     alt: "DJane am Pult, pinke Lichtstrahlen über der Menge" },
-  { image: liveSessionImage, caption: "Live Session",
+  { image: liveSessionImage, caption: "Live Session", ratio: "tall",
     alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht" },
-  { image: pinaColadaImage, caption: "Piña Colada",
+  { image: pinaColadaImage, caption: "Piña Colada", ratio: "portrait",
     alt: "Piña Colada mit Ananas und Cocktailkirsche an der Bar" },
-  { image: bottleImage, caption: "Flaschenservice", span: "wide",
+  { image: bottleImage, caption: "Flaschenservice", ratio: "landscape",
     alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" },
 ];
 ---
@@ -87,10 +92,11 @@ const tiles: Tile[] = [
     <div class="gallery_grid">
       {
         tiles.map((tile) => (
-          <figure class:list={["gallery_tile", tile.span && `is-${tile.span}`]}>
+          <figure class:list={["gallery_tile", tile.ratio && `is-${tile.ratio}`]}>
             <button
               class="gallery_button"
               type="button"
+              data-caption={tile.caption}
               aria-label={`${tile.caption} vergrössern`}
             >
               <Img
@@ -99,9 +105,6 @@ const tiles: Tile[] = [
                 loading={tile.eager ? "eager" : undefined}
               />
             </button>
-            <figcaption class="gallery_caption text-style-small">
-              {tile.caption}
-            </figcaption>
           </figure>
         ))
       }
@@ -140,7 +143,7 @@ const tiles: Tile[] = [
         <Button element="link" href={BUSINESS.instagram}
           >{BUSINESS.instagramHandle}</Button
         >
-        <Button element="link" href="/getraenkekarte" variant="secondary">
+        <Button element="link" href="/getraenkekarte/" variant="secondary">
           Getränkekarte ansehen
         </Button>
       </ButtonWrapper>
@@ -172,9 +175,9 @@ const tiles: Tile[] = [
 
         target.src = image.currentSrc || image.src;
         target.alt = image.alt;
-        const label =
-          button.closest("figure")?.querySelector(".gallery_caption")
-            ?.textContent ?? "";
+        // Die Beschriftung steht nur noch am Button — unter den Kacheln
+        // erscheint sie nicht mehr, in der Grossansicht schon.
+        const label = button.dataset.caption ?? "";
         if (caption) caption.textContent = label;
         // Der Dialog hieß fest "Bild in Grossansicht" — er sagte also nie,
         // welches Bild gerade offen ist.
@@ -196,44 +199,49 @@ const tiles: Tile[] = [
 
 <style is:global>
   @layer components {
+    /* Mosaik in Spalten statt Zeilenraster: die Kacheln behalten ihr eigenes
+       Seitenverhältnis und stapeln sich lückenlos, statt sich an eine
+       gemeinsame Zeilenhöhe zu binden. `columns` reicht dafür — ein Grid
+       bräuchte `masonry`, das noch nicht überall ausgeliefert wird.
+       Reihenfolge ist dadurch spaltenweise; für eine Bildergalerie ohne
+       inhaltliche Abfolge ist das kein Verlust. */
     .gallery_grid {
+      --_gallery-gap: 0.5rem;
+
       width: 100%;
       max-width: var(--max-width-main);
       margin-inline: auto;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--site-gutter);
+      columns: 2;
+      column-gap: var(--_gallery-gap);
     }
 
     @media (min-width: 48rem) {
       .gallery_grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        columns: 4;
       }
+    }
 
-      .gallery_tile.is-wide {
-        grid-column: span 2;
-      }
-
-      .gallery_tile.is-tall {
-        grid-row: span 2;
+    @media (min-width: 64rem) {
+      .gallery_grid {
+        columns: 5;
       }
     }
 
     .gallery_tile {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      margin: 0 0 var(--_gallery-gap);
+      /* Sonst zerschneidet der Spaltenumbruch eine Kachel mitten im Bild. */
+      break-inside: avoid;
       min-width: 0;
     }
 
     .gallery_button {
-      flex: 1 1 auto;
       display: block;
       width: 100%;
       padding: 0;
       border: 0;
-      border-radius: var(--radius-main);
+      /* Kleiner als --radius-main: bei fünf Spalten frisst der Karten-Radius
+         die Ecke des Bildes sichtbar an. */
+      border-radius: 0.5rem;
       background-color: transparent;
       cursor: pointer;
       overflow: clip;
@@ -242,27 +250,24 @@ const tiles: Tile[] = [
     }
 
     .gallery_button img {
+      display: block;
       width: 100%;
-      height: 100%;
-      min-height: 0;
+      height: auto;
       aspect-ratio: 1 / 1;
       object-fit: cover;
       transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .gallery_tile.is-wide .gallery_button img {
-      aspect-ratio: 2 / 1;
+    .gallery_tile.is-portrait .gallery_button img {
+      aspect-ratio: 4 / 5;
     }
 
     .gallery_tile.is-tall .gallery_button img {
-      aspect-ratio: 1 / 2;
+      aspect-ratio: 3 / 4;
     }
 
-    @media (max-width: 47.999rem) {
-      .gallery_tile.is-wide .gallery_button img,
-      .gallery_tile.is-tall .gallery_button img {
-        aspect-ratio: 1 / 1;
-      }
+    .gallery_tile.is-landscape .gallery_button img {
+      aspect-ratio: 4 / 3;
     }
 
     @media (hover: hover) {
@@ -275,11 +280,6 @@ const tiles: Tile[] = [
       .gallery_button img {
         transition: none;
       }
-    }
-
-    .gallery_caption {
-      color: color-mix(in lab, currentcolor 48%, transparent);
-      margin: 0;
     }
 
     /* -------------------------------------------------------------- lightbox */
