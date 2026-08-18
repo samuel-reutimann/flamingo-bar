@@ -71,6 +71,19 @@ const openDays = openDaysLabel(hours);
     // Klasse wird nie gesetzt und der Hero ist von Anfang an sichtbar.
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("hero-preload");
+
+      // Sicherheitsnetz. Aufgehoben wird der Haltezustand sonst nur vom
+      // GSAP-Skript; kommt dessen Bundle nicht an (Netzfehler, CSP, ein
+      // Fehler weiter oben im Modulgraph), blieben Subline, beide CTAs, die
+      // Status-Pille und die Nav-Pille dauerhaft auf `opacity: 0` — auf der
+      // wichtigsten Seite der Site.
+      //
+      // Läuft GSAP später doch noch an, findet es die Klasse nicht mehr vor
+      // und überspringt die Animation. Genau richtig: nach vier Sekunden hat
+      // die Seite längst gestanden, eine Einblendung wäre dann ein Zucken.
+      setTimeout(function () {
+        document.documentElement.classList.remove("hero-preload");
+      }, 4000);
     }
   </script>
   <!-- HERO -->

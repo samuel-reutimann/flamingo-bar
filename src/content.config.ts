@@ -16,28 +16,50 @@
 import { defineCollection } from "astro:content";
 import { z } from "zod";
 import { glob, file } from "astro/loaders";
+import * as options from "./content/options.ts";
 
-/** Kategorien der Getränkekarte. Reihenfolge = Reihenfolge auf der Seite. */
-export const DRINK_CATEGORIES = [
-  "cocktails",
-  "longdrinks",
-  "alkoholfrei",
-  "weitere",
-] as const;
+/* Die Auswahllisten stehen in `src/content/options.ts`, weil
+   `keystatic.config.ts` dieselben Werte braucht — nur als `{label, value}`
+   für die Dropdowns. Vorher standen beide Fassungen getrennt da. */
+export const DRINK_CATEGORIES = options.values(options.DRINK_CATEGORIES);
+export const SPIRIT_GROUPS = options.values(options.SPIRIT_GROUPS);
+export const MENU_SECTIONS = options.values(options.MENU_SECTIONS);
+export const EVENT_TAGS = options.values(options.EVENT_TAGS);
 
-/** Gruppen im Spirituosen-Block. */
-export const SPIRIT_GROUPS = ["whisky", "vodka", "rum", "gin"] as const;
+/**
+ * Datum mit Uhrzeit, ohne Zeitzone: genau das, was Keystatic schreibt.
+ * `2026-08-21T21:00`.
+ */
+const localDateTime = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+    "Erwartet YYYY-MM-DDTHH:MM ohne Zeitzone, z. B. 2026-08-21T21:00"
+  );
+
+/**
+ * Ein Textfeld, das leer sein darf. Keystatic schreibt ein nicht ausgefülltes
+ * `fields.text` als `""` in die Datei, nicht als fehlenden Schlüssel — und ein
+ * leerer String kommt durch jedes `.optional()` durch. Ohne diese Umwandlung
+ * landet `opens: ""` in `toMinutes()` und ergibt `NaN`, und ein leerer Preis
+ * rendert als leere Zelle statt übersprungen zu werden.
+ */
+const optionalText = z
+  .string()
+  .optional()
+  .transform((value) => (value?.trim() ? value : undefined));
 
 /**
  * `price` ist der Anzeigetext ("CHF 14.–", "Auf Anfrage", "Ab CHF 13.–") und
  * darf fehlen — die drei Karten oben in den Cocktails stehen absichtlich ohne
- * Betrag, weil dort "Ab CHF 12.–" über dem Abschnitt gilt.
+ * Betrag, weil der "ab"-Preis über dem Abschnitt gilt. Der wird aus
+ * `priceCHF` gerechnet (`minPriceCHF()`), nicht getippt.
  * `priceCHF` ist derselbe Betrag als Zahl und nur gesetzt, wenn der Preis
  * fix ist — Structured Data darf keinen Betrag behaupten, den es nicht gibt.
  */
 const priceFields = {
   /** Weglassen, wenn die Position bewusst ohne Preis dasteht. */
-  price: z.string().optional(),
+  price: optionalText,
   priceCHF: z.number().optional(),
 };
 
@@ -46,14 +68,24 @@ const events = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string(),
-      /** Beginn mit Zeitzonen-Offset: Sommerzeit `+02:00`, Winter `+01:00`. */
-      start: z.string(),
-      end: z.string(),
+      /**
+       * Lokale Zeit ohne Offset, `YYYY-MM-DDTHH:MM` — das Format, das
+       * Keystatics `fields.datetime` schreibt und als einziges akzeptiert.
+       * Gelesen wird es mit `parseLocal()` aus `src/utils/dates.ts`, das den
+       * Wert als Zürcher Zeit auflöst statt als Zeit des Build-Rechners.
+       *
+       * Das Muster ist Absicht: früher stand hier ein Offset (`+02:00`), den
+       * Keystatic nicht öffnen konnte, und beim Speichern kam ein Wert zurück,
+       * den `new Date()` still um ein bis zwei Stunden verschob. Ein falsches
+       * Format soll den Build anhalten, nicht die Uhrzeiten verrutschen.
+       */
+      start: localDateTime,
+      end: localDateTime,
       description: z.string(),
       /** Art des Abends — erscheint als Tag in der Terminliste. */
-      tag: z.enum(["DJ-Abend", "Live-Musik", "Motto-Party", "Sport", "Special"]),
+      tag: z.enum(EVENT_TAGS),
       image: image().optional(),
-      imageAlt: z.string().optional(),
+      imageAlt: optionalText,
       /**
        * Hervorgehobene Termine stehen oben als große Karte. Ein Termin ohne
        * Bild kann nicht hervorgehoben werden, das prüft `events.astro`.
@@ -72,9 +104,9 @@ const drinks = defineCollection({
       category: z.enum(DRINK_CATEGORIES),
       ...priceFields,
       /** Zutaten oder Hinweis. Nur Karten mit Bild zeigen ihn an. */
-      description: z.string().optional(),
+      description: optionalText,
       image: image().optional(),
-      imageAlt: z.string().optional(),
+      imageAlt: optionalText,
       /** Kleinere Zahl steht weiter oben. */
       order: z.number().default(0),
     }),
@@ -106,7 +138,7 @@ const bottleService = defineCollection({
   schema: z.object({
     name: z.string(),
     /** Was in der Stufe enthalten ist. Eine Zeile. */
-    description: z.string().optional(),
+    description: optionalText,
     ...priceFields,
     /**
      * Untergrenze der Stufe als Zahl. Nur gesetzt, wenn es einen echten
@@ -119,14 +151,21 @@ const bottleService = defineCollection({
 });
 
 /**
- * Einleitungstexte der Kategorien. Ein Eintrag pro Abschnitt, `id` = Slug aus
- * `DRINK_CATEGORIES` oder `spirituosen` / `flaschen`.
+ * Einleitungstexte der Abschnitte, einer pro Eintrag.
+ *
+ * Gesucht wird über `section`, nicht über den Dateinamen. Vorher war der
+ * Dateiname der Schlüssel, und weil Keystatic ihn aus der Überschrift bildet,
+ * hätte eine umbenannte Überschrift den Einleitungstext still verschwinden
+ * lassen — `flaschen.yaml` hieß bereits „Flaschenservice“, die beiden waren
+ * also schon auseinander.
  */
 const menuSections = defineCollection({
   loader: glob({ pattern: "**/*.yaml", base: "./src/content/menu-sections" }),
   schema: z.object({
+    /** Welcher Abschnitt der Karte. Bestimmt, wo der Text erscheint. */
+    section: z.enum(MENU_SECTIONS),
     title: z.string(),
-    intro: z.string().optional(),
+    intro: optionalText,
     order: z.number().default(0),
   }),
 });
@@ -145,8 +184,8 @@ const hours = defineCollection({
     closed: z.boolean().default(false),
     weekday: z.number().min(0).max(6),
     /** `HH:MM` für Structured Data. Bei `closed` weglassen. */
-    opens: z.string().optional(),
-    closes: z.string().optional(),
+    opens: optionalText,
+    closes: optionalText,
   }),
 });
 
@@ -155,7 +194,7 @@ const settings = defineCollection({
   loader: file("src/content/settings.yaml"),
   schema: z.object({
     /** Stand der Preise, ISO. Erscheint formatiert unter der Karte. */
-    priceDate: z.string().optional(),
+    priceDate: optionalText,
   }),
 });
 

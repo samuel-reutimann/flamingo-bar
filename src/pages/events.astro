@@ -13,7 +13,7 @@ import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
 import { getUpcomingEvents, bottleFromCHF } from "@/utils/content.ts";
-import { longDate, shortDate, timeNote } from "@/utils/dates.ts";
+import { isoWithOffset, longDate, shortDate, timeNote } from "@/utils/dates.ts";
 import { BUSINESS } from "@/consts.ts";
 
 /* Termine aus der Collection `src/content/events` — der Betrieb pflegt sie in
@@ -45,8 +45,8 @@ const listed = events.filter((event) => !featured.includes(event));
       ...eventsSchema(
         events.map((event) => ({
           name: event.data.name,
-          start: event.data.start,
-          end: event.data.end,
+          start: isoWithOffset(event.data.start),
+          end: isoWithOffset(event.data.end),
           description: event.data.description,
           image: event.data.image?.src,
           price: String(event.data.priceCHF),

@@ -25,27 +25,12 @@
  */
 import { config, collection, singleton, fields } from "@keystatic/core";
 
-const EVENT_TAGS = [
-  { label: "DJ-Abend", value: "DJ-Abend" },
-  { label: "Live-Musik", value: "Live-Musik" },
-  { label: "Motto-Party", value: "Motto-Party" },
-  { label: "Sport", value: "Sport" },
-  { label: "Special", value: "Special" },
-] as const;
-
-const DRINK_CATEGORIES = [
-  { label: "Cocktails", value: "cocktails" },
-  { label: "Longdrinks", value: "longdrinks" },
-  { label: "Alkoholfrei und Getränke", value: "alkoholfrei" },
-  { label: "Weitere Getränke", value: "weitere" },
-] as const;
-
-const SPIRIT_GROUPS = [
-  { label: "Whisky", value: "whisky" },
-  { label: "Vodka", value: "vodka" },
-  { label: "Rum", value: "rum" },
-  { label: "Gin", value: "gin" },
-] as const;
+import {
+  DRINK_CATEGORIES,
+  EVENT_TAGS,
+  MENU_SECTIONS,
+  SPIRIT_GROUPS,
+} from "./src/content/options.ts";
 
 /** Bilder liegen bei den übrigen Assets, nicht im Content-Ordner. */
 const imageField = (description: string) =>
@@ -191,6 +176,7 @@ export default config({
         glass: fields.text({
           label: "Preis 4 cl",
           description: 'Z. B. "CHF 14.–" oder "Auf Anfrage".',
+          validation: { isRequired: true },
         }),
         glassCHF: fields.number({
           label: "4 cl als Zahl (für Google)",
@@ -200,6 +186,7 @@ export default config({
         bottle: fields.text({
           label: "Preis Flasche",
           description: 'Z. B. "CHF 120.–" oder "Auf Anfrage".',
+          validation: { isRequired: true },
         }),
         bottleCHF: fields.number({
           label: "Flasche als Zahl (für Google)",
@@ -223,10 +210,16 @@ export default config({
       columns: ["title", "intro"],
       schema: {
         title: fields.slug({
-          name: {
-            label: "Überschrift",
-            description: "Der Dateiname darf nicht geändert werden — die Seite sucht die Abschnitte darüber.",
-          },
+          name: { label: "Überschrift" },
+        }),
+        // Bestimmt, an welcher Stelle der Karte der Text erscheint. Früher
+        // übernahm das der Dateiname, den Keystatic aus der Überschrift
+        // bildet — eine umbenannte Überschrift ließ den Text verschwinden.
+        section: fields.select({
+          label: "Abschnitt",
+          description: "An welcher Stelle der Getränkekarte dieser Text steht.",
+          options: [...MENU_SECTIONS],
+          defaultValue: "cocktails",
         }),
         intro: fields.text({
           label: "Einleitung",

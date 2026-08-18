@@ -395,6 +395,10 @@ const menuSections = [
         entry !== null,
     );
 
+  // Die Chip-Leiste selbst — sie ist der einzige Container, der scrollen darf.
+  const bar = chips[0]?.closest<HTMLElement>(".chips");
+  let lastIndex = -1;
+
   if (entries.length) {
     const update = () => {
       // Messlinie: ein Drittel unter dem oberen Rand, also unterhalb der Chips.
@@ -408,10 +412,23 @@ const menuSections = [
 
       entries.forEach((entry, index) => {
         const isCurrent = index === currentIndex;
-        if (entry.chip.classList.contains("is-current") === isCurrent) return;
         entry.chip.classList.toggle("is-current", isCurrent);
-        if (isCurrent)
-          entry.chip.scrollIntoView({ block: "nearest", inline: "center" });
+        entry.chip.setAttribute("aria-current", isCurrent ? "true" : "false");
+      });
+
+      if (currentIndex === lastIndex) return;
+      lastIndex = currentIndex;
+
+      // Die Leiste selbst nachführen, nicht die Seite: `scrollIntoView` würde
+      // die ganze Vorfahrenkette durchgehen und könnte aus dem Scroll-Handler
+      // heraus die Seite mitscrollen. `scrollLeft` rührt nur die Leiste an.
+      const chip = entries[currentIndex]?.chip;
+      if (!chip || !bar) return;
+      const target =
+        chip.offsetLeft - (bar.clientWidth - chip.offsetWidth) / 2;
+      bar.scrollTo({
+        left: Math.max(0, target),
+        behavior: "instant" as ScrollBehavior,
       });
     };
 

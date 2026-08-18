@@ -69,7 +69,12 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
 
   <Section paddingTop="small" paddingBottom="medium">
     <div class="split_layout is-top reservation_layout">
-      <form class="form" data-reservation-form novalidate>
+      <form
+        class="form"
+        data-reservation-form
+        data-whatsapp={BUSINESS.whatsapp}
+        novalidate
+      >
         <div class="form_field">
           <label class="form_label" for="res-name">Name</label>
           <input
@@ -201,13 +206,13 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
   // Kein Backend: die Anfrage wird als WhatsApp-Nachricht zusammengesetzt und
   // der Chat geöffnet. Validierung bleibt beim Browser, nur die Meldung ist
   // eigen, damit sie zum Rest der Seite passt.
-  import { BUSINESS } from "@/consts.ts";
-
-  const WHATSAPP_NUMBER = BUSINESS.whatsapp;
-
   const form = document.querySelector<HTMLFormElement>(
     "[data-reservation-form]",
   );
+
+  // Am Formular statt importiert: ein `import { BUSINESS }` zöge das ganze
+  // Konstantenmodul in den Browser-Bundle, für eine Telefonnummer.
+  const WHATSAPP_NUMBER = form?.dataset.whatsapp ?? "";
   const status = document.querySelector<HTMLElement>("[data-form-status]");
 
   const formatDateTime = (value: string) => {
@@ -244,17 +249,31 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
     ];
     if (message) lines.push(`Bemerkung: ${message}`);
 
-    if (status) {
-      status.textContent =
-        "WhatsApp wird geöffnet. Die Anfrage ist bereits vorbereitet.";
-      status.classList.remove("is-error");
-    }
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+    const chat = window.open(url, "_blank", "noopener");
 
-    window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`,
-      "_blank",
-      "noopener",
-    );
+    if (status) {
+      status.classList.remove("is-error");
+      if (chat) {
+        status.replaceChildren(
+          "WhatsApp wird geöffnet. Die Anfrage ist bereits vorbereitet.",
+        );
+      } else {
+        // Safari und jeder Popup-Blocker geben hier `null` zurück. Vorher
+        // stand die Erfolgsmeldung schon vor dem Aufruf da: der Gast las
+        // "wird geöffnet", und es passierte nichts.
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "Anfrage in WhatsApp öffnen";
+        status.replaceChildren(
+          "Der Browser hat das Fenster blockiert. ",
+          link,
+          " — oder ruf uns einfach an.",
+        );
+      }
+    }
   });
 </script>
 

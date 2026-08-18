@@ -6,13 +6,20 @@
  * dieselbe Reihenfolge sehen.
  */
 import { getCollection, getEntry } from "astro:content";
-import type { DRINK_CATEGORIES, SPIRIT_GROUPS } from "../content.config.ts";
+import type {
+  DRINK_CATEGORIES,
+  MENU_SECTIONS,
+  SPIRIT_GROUPS,
+} from "../content.config.ts";
+import { parseLocal } from "./dates.ts";
 import type { DayHours } from "./hours.ts";
 
 /** Eine der in `content.config.ts` deklarierten Kategorien. */
 export type DrinkCategory = (typeof DRINK_CATEGORIES)[number];
 /** Eine der in `content.config.ts` deklarierten Spirituosen-Gruppen. */
 export type SpiritGroup = (typeof SPIRIT_GROUPS)[number];
+/** Einer der Abschnitte der Getränkekarte. */
+export type MenuSection = (typeof MENU_SECTIONS)[number];
 
 /** Termine, älteste zuerst. */
 export async function getEvents() {
@@ -28,7 +35,9 @@ export async function getEvents() {
  */
 export async function getUpcomingEvents(now = new Date()) {
   const events = await getEvents();
-  return events.filter((event) => new Date(event.data.end) >= now);
+  /* `parseLocal`, weil in der Datei keine Zeitzone steht — `new Date()`
+     würde sie als Zeit des Build-Rechners lesen (auf Cloudflare UTC). */
+  return events.filter((event) => parseLocal(event.data.end) >= now);
 }
 
 /** Getränke eines Abschnitts, nach `order` und dann Namen. */
@@ -81,10 +90,14 @@ export async function bottleFromCHF() {
   return prices.length ? Math.min(...prices) : undefined;
 }
 
-/** Einleitungstext eines Abschnitts. Fehlt der Eintrag, bleibt der Text leer. */
-export async function getMenuSection(id: string) {
-  const section = await getEntry("menuSections", id);
-  return section?.data ?? { title: id, intro: undefined, order: 0 };
+/**
+ * Überschrift und Einleitung eines Abschnitts. Gesucht wird über das Feld
+ * `section`, nicht über den Dateinamen — den bildet Keystatic aus der
+ * Überschrift, eine Umbenennung würde den Text sonst still verlieren.
+ */
+export async function getMenuSection(section: MenuSection) {
+  const entries = await getCollection("menuSections", (e) => e.data.section === section);
+  return entries[0]?.data ?? { section, title: section, intro: undefined, order: 0 };
 }
 
 /**

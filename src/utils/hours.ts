@@ -187,13 +187,30 @@ export function dayTimesFrom(days: DayHours[]): Record<number, string> {
  */
 let cached: DayHours[] | null = null;
 
+/** Sieht der Eintrag aus wie ein Wochentag? */
+function isDayHours(value: unknown): value is DayHours {
+  if (typeof value !== "object" || value === null) return false;
+  const day = value as Record<string, unknown>;
+  return (
+    typeof day.label === "string" &&
+    typeof day.time === "string" &&
+    typeof day.weekday === "number" &&
+    (day.opens === undefined || typeof day.opens === "string") &&
+    (day.closes === undefined || typeof day.closes === "string")
+  );
+}
+
 function days(): DayHours[] {
   if (cached) return cached;
   if (typeof document === "undefined") return [];
   const tag = document.getElementById("hours-data");
   if (!tag?.textContent) return [];
   try {
-    cached = JSON.parse(tag.textContent) as DayHours[];
+    const parsed: unknown = JSON.parse(tag.textContent);
+    // Die Form wird geprüft, nicht nur die Syntax: gültiges JSON mit falschem
+    // Aufbau kam vorher durch und ließ `scheduleFrom()` auf `undefined.split`
+    // laufen — die halbe Seite hätte still nichts mehr angezeigt.
+    cached = Array.isArray(parsed) && parsed.every(isDayHours) ? parsed : [];
   } catch {
     // Kaputtes JSON darf die Seite nicht mitnehmen — ohne Zeiten bleibt der
     // Status-Pill einfach verborgen.
