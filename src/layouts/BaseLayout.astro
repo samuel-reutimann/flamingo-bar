@@ -53,6 +53,49 @@ const hours = await getHours();
       <slot />
     </main>
     <Footer />
+    <script>
+      // Öffnungsstatus für jede `OpenStatusPill` und jede „Heute“-Zeile auf
+      // der Seite. Stand vorher zweimal fast gleich in index.astro und
+      // oeffnungszeiten.astro, jeweils mit eigenem setInterval. Hier im
+      // Layout, weil ein gebündeltes Komponenten-Skript verlorengeht, sobald
+      // die Komponente in einem `<Section>`-Slot steckt.
+      import {
+        isOpenAt,
+        todayHoursLabel,
+        todayLineLabel,
+      } from "@/utils/hours.ts";
+
+      const pills = document.querySelectorAll<HTMLElement>("[data-open-status]");
+      const todayLines =
+        document.querySelectorAll<HTMLElement>("[data-today-line]");
+
+      if (pills.length || todayLines.length) {
+        const render = () => {
+          const now = new Date();
+          const open = isOpenAt(now);
+          const hours = todayHoursLabel(now.getDay());
+
+          pills.forEach((pill) => {
+            const label = pill.querySelector<HTMLElement>(".status_text");
+            const time = pill.querySelector<HTMLElement>("[data-open-hours]");
+            pill.classList.toggle("is-closed", !open);
+            if (label)
+              label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
+            if (time) time.textContent = hours;
+            pill.hidden = false;
+          });
+
+          const line = todayLineLabel(now.getDay());
+          todayLines.forEach((el) => {
+            el.textContent = line;
+          });
+        };
+
+        render();
+        // Damit die Pille über Mitternacht hinweg nicht falsch stehenbleibt.
+        setInterval(render, 60000);
+      }
+    </script>
     <script is:inline>
       // Heutigen Tag in jeder Öffnungszeiten-Tabelle markieren — der Footer
       // steht auf jeder Seite, Kontakt und Reservation zeigen zusätzlich eine

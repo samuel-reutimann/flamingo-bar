@@ -2,12 +2,12 @@
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
-import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
+import BottleOptions from "@/components/BottleOptions.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
 import {
@@ -313,29 +313,7 @@ const menuSections = [
       heading={sections.flaschen.title}
       text={sections.flaschen.intro}
     />
-    <Grid medium={3} class="bottle_options">
-      <div class="bottle_option">
-        <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
-        <Paragraph variant="small" class="section-note"
-          >Rum, Vodka, Whisky oder Gin</Paragraph
-        >
-        <p class="bottle_option-price">CHF 105.– bis 150.–</p>
-      </div>
-      <div class="bottle_option">
-        <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
-        <Paragraph variant="small" class="section-note"
-          >Zum Beispiel Cola und Red Bull</Paragraph
-        >
-        <p class="bottle_option-price">Preis auf Anfrage</p>
-      </div>
-      <div class="bottle_option">
-        <Heading tag="h3" variant="h6">Gruppen und Geburtstage</Heading>
-        <Paragraph variant="small" class="section-note"
-          >Ab 6 Personen, Tisch reserviert</Paragraph
-        >
-        <p class="bottle_option-price">Auf Anfrage</p>
-      </div>
-    </Grid>
+    <BottleOptions class="bottle_options-spaced" />
     <ButtonWrapper>
       <Button element="link" href="/reservation">Tisch anfragen</Button>
       <Button
@@ -379,18 +357,20 @@ const menuSections = [
   </Section>
 
   <Section paddingTop="none" paddingBottom="large" align="center">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Heute Abend hier?</Heading>
-      <Paragraph variant="main" class="section-note">
-        {openDaysLong}, {BUSINESS.street}.
-      </Paragraph>
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      maxWidth="none"
+      heading="Heute Abend hier?"
+      text={`${openDaysLong}, ${BUSINESS.street}.`}
+    >
       <ButtonWrapper>
         <Button element="link" href="/reservation">Tisch anfragen</Button>
         <Button element="link" href="/events" variant="secondary"
           >Events ansehen</Button
         >
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 </Layout>
 
@@ -446,6 +426,11 @@ const menuSections = [
 
 <style is:global>
   @layer components {
+    /* Nur hier folgt direkt ein weiterer Abschnitt. */
+    .bottle_options-spaced {
+      margin-bottom: var(--space-6);
+    }
+
     .menu_grid {
       margin-bottom: var(--space-6);
     }
@@ -648,24 +633,8 @@ const menuSections = [
     }
 
     /* --------------------------------------------------------------- bottles */
-    .bottle_options {
-      text-align: center;
-      margin-bottom: var(--space-6);
-    }
 
-    .bottle_option {
-      display: grid;
-      gap: 0.45rem;
-      justify-items: center;
-    }
 
-    .bottle_option-price {
-      font-family: var(--mono-family);
-      font-size: 0.6875rem;
-      letter-spacing: 0.1em;
-      color: var(--brand-500);
-      margin: 0;
-    }
 
     /* ------------------------------------------------------------------ note */
     .menu_note {

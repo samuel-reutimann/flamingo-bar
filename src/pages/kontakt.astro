@@ -79,13 +79,13 @@ const openDaysLong = openDaysLabel(hours, { long: true });
   </Section>
 
   <Section paddingTop="small" paddingBottom="medium">
-    <div class="contact_layout">
+    <div class="split_layout contact_layout">
       <div class="contact_text">
         <Heading tag="h2" variant="h3">{ADDRESS_SHORT}</Heading>
         <Paragraph maxWidth={34} class="section-note">
           Mitten in der Altstadt, fünf Minuten zu Fuss vom Bahnhof Langenthal.
         </Paragraph>
-        <div class="contact_rows">
+        <div class="def_rows contact_rows">
           <div class="contact_row">
             <div>
               <Heading tag="h3" variant="h6">Mit dem ÖV</Heading>
@@ -127,12 +127,13 @@ const openDaysLong = openDaysLabel(hours, { long: true });
   </Section>
 
   <Section paddingTop="medium" paddingBottom="large" align="center">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Öffnungszeiten</Heading>
-      <Paragraph variant="main" class="section-note">
-        {openDaysLong}.
-      </Paragraph>
-    </div>
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      maxWidth="none"
+      heading="Öffnungszeiten"
+      text={`${openDaysLong}.`}
+    />
     <HoursTable />
     <ButtonWrapper>
       <Button element="link" href="/oeffnungszeiten" variant="secondary">
@@ -144,6 +145,13 @@ const openDaysLong = openDaysLabel(hours, { long: true });
 
 <style is:global>
   @layer components {
+    /* Anders als die anderen `.def_rows` stehen Label und Wert hier
+       untereinander, nicht gegenüber — die Werte sind ganze Sätze. */
+    .contact_row {
+      padding-block: 1.1rem;
+      border-bottom: var(--border-width) solid var(--border);
+    }
+
     .contact_channels {
       text-align: center;
     }
@@ -167,27 +175,6 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       font-size: 1.0625rem;
       margin: 0;
       overflow-wrap: anywhere;
-    }
-
-    .contact_layout {
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-      gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-      align-items: center;
-    }
-
-    .contact_rows {
-      display: grid;
-      margin-top: var(--space-5);
-      border-top: var(--border-width) solid var(--border);
-    }
-
-    .contact_row {
-      padding-block: 1.1rem;
-      border-bottom: var(--border-width) solid var(--border);
     }
 
     .contact_map {

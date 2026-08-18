@@ -2,8 +2,6 @@
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
-import Heading from "@/components/Heading.astro";
-import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Img from "@/components/Img.astro";
@@ -23,6 +21,49 @@ import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema } from "@/utils/schema.ts";
 import { BUSINESS } from "@/consts.ts";
+
+/**
+ * Die Kacheln der Galerie. `span` steuert, wie viel Platz eine Kachel im
+ * Raster einnimmt — `wide` zwei Spalten, `tall` zwei Zeilen.
+ *
+ * Stand als elf ausgeschriebene <figure>-Blöcke im Markup, weil Stackis alter
+ * Marker-Parser kein `.map()` verstand. Stacki hat inzwischen eigene
+ * Loop-Knoten (siehe AGENTS.md), also ist die Liste wieder eine Liste.
+ */
+type Tile = {
+  image: ImageMetadata;
+  alt: string;
+  caption: string;
+  /** `wide` belegt zwei Spalten, `tall` zwei Zeilen. */
+  span?: "wide" | "tall";
+  /** Nur die beiden Kacheln über der Falz laden sofort. */
+  eager?: boolean;
+};
+
+const tiles: Tile[] = [
+  { image: barGuestsImage, caption: "Die Bar", span: "wide", eager: true,
+    alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" },
+  { image: neonGlassesImage, caption: "Neonlicht", eager: true,
+    alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" },
+  { image: aperolImage, caption: "Aperol Spritz",
+    alt: "Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze" },
+  { image: cocktailHandImage, caption: "Cocktails",
+    alt: "Hand hält einen Tumbler mit Cocktail und Eiswürfel" },
+  { image: djKnobsImage, caption: "Am Pult", span: "tall",
+    alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" },
+  { image: longIslandImage, caption: "Long Island Iced Tea",
+    alt: "Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe" },
+  { image: crowdImage, caption: "Tanzfläche", span: "wide",
+    alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party" },
+  { image: djMixerImage, caption: "DJ-Abend",
+    alt: "DJane am Pult, pinke Lichtstrahlen über der Menge" },
+  { image: liveSessionImage, caption: "Live Session",
+    alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht" },
+  { image: pinaColadaImage, caption: "Piña Colada",
+    alt: "Piña Colada mit Ananas und Cocktailkirsche an der Bar" },
+  { image: bottleImage, caption: "Flaschenservice", span: "wide",
+    alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" },
+];
 ---
 
 <Layout
@@ -42,179 +83,28 @@ import { BUSINESS } from "@/consts.ts";
     />
   </Section>
 
-  {
-    /* Die Kacheln stehen einzeln im Markup statt aus einer Liste gemappt —
-       Stackis Marker-Parser verträgt kein `.map()` (siehe AGENTS.md). */
-  }
   <Section paddingTop="small" paddingBottom="medium">
     <div class="gallery_grid">
-      <figure class="gallery_tile is-wide">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={barGuestsImage}
-            alt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet"
-            loading="eager"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Die Bar
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={neonGlassesImage}
-            alt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund"
-            loading="eager"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Neonlicht
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={aperolImage}
-            alt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Aperol Spritz
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={cocktailHandImage}
-            alt="Hand hält einen Tumbler mit Cocktail und Eiswürfel"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Cocktails
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile is-tall">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={djKnobsImage}
-            alt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Am Pult
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={longIslandImage}
-            alt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Long Island Iced Tea
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile is-wide">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={crowdImage}
-            alt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Tanzfläche
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={djMixerImage}
-            alt="DJane am Pult, pinke Lichtstrahlen über der Menge"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          DJ-Abend
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={liveSessionImage}
-            alt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Live Session
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={pinaColadaImage}
-            alt="Piña Colada mit Ananas und Cocktailkirsche an der Bar"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Piña Colada
-        </figcaption>
-      </figure>
-      <figure class="gallery_tile is-wide">
-        <button
-          class="gallery_button"
-          type="button"
-          aria-label="Bild vergrössern"
-        >
-          <Img
-            src={bottleImage}
-            alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze"
-          />
-        </button>
-        <figcaption class="gallery_caption text-style-small">
-          Flaschenservice
-        </figcaption>
-      </figure>
+      {
+        tiles.map((tile) => (
+          <figure class:list={["gallery_tile", tile.span && `is-${tile.span}`]}>
+            <button
+              class="gallery_button"
+              type="button"
+              aria-label={`${tile.caption} vergrössern`}
+            >
+              <Img
+                src={tile.image}
+                alt={tile.alt}
+                loading={tile.eager ? "eager" : undefined}
+              />
+            </button>
+            <figcaption class="gallery_caption text-style-small">
+              {tile.caption}
+            </figcaption>
+          </figure>
+        ))
+      }
     </div>
   </Section>
 
@@ -239,12 +129,13 @@ import { BUSINESS } from "@/consts.ts";
   </dialog>
 
   <Section paddingTop="medium" paddingBottom="large" align="center">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Aktueller geht Instagram</Heading>
-      <Paragraph variant="main" class="section-note">
-        Kurzfristige Ankündigungen und Bilder vom letzten Wochenende laufen
-        dort.
-      </Paragraph>
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      maxWidth="none"
+      heading="Aktueller geht Instagram"
+      text="Kurzfristige Ankündigungen und Bilder vom letzten Wochenende laufen dort."
+    >
       <ButtonWrapper>
         <Button element="link" href={BUSINESS.instagram}
           >{BUSINESS.instagramHandle}</Button
@@ -253,7 +144,7 @@ import { BUSINESS } from "@/consts.ts";
           Getränkekarte ansehen
         </Button>
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 </Layout>
 

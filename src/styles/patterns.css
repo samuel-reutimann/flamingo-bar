@@ -67,20 +67,10 @@
   }
 }
 
-.video {
-  background-color: var(--background-skeleton);
-  height: auto;
-
-  &.transparent {
-    background-color: transparent;
-    object-fit: contain;
-  }
-}
-
 /* Card visual children — media fills its box, be that the whole card or the
    band across its top. Here rather than in the component so it outranks the
    `height: auto` every image and video starts from. */
-.card_visual > :is(.image, .video) {
+.card_visual > .image {
   width: 100%;
   height: 100%;
 }
@@ -228,4 +218,77 @@ a:not([class]) {
   color: var(--brand-500-soft);
   text-decoration-thickness: var(--border-width);
   text-underline-offset: 0.2em;
+}
+
+/* --------------------------------------------------------------- Flamingo */
+/* Wiederkehrende Rezepte, die vorher auf drei bis vier Seiten wortgleich
+   standen — mit Werten, die zwischen den Kopien schon auseinandergelaufen
+   waren. Hier statt pro Seite, damit sie es nicht wieder tun. */
+
+/* Bild neben Text. Stand als .bottle_layout, .private_layout, .contact_layout
+   und .reservation_layout je einmal da; die Spaltenbreite war zweimal 21rem
+   und zweimal 20rem. */
+.split_layout {
+  width: 100%;
+  max-width: var(--max-width-main);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+  gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+  align-items: center;
+}
+
+/* Für Spalten unterschiedlicher Höhe, die oben bündig stehen sollen. */
+.split_layout.is-top {
+  align-items: start;
+}
+
+/* Beschriftete Zeilen mit Trennlinien — „Ab wie vielen Personen | 6 für einen
+   Tisch“. Stand als .bottle_rows, .private_rows und .contact_rows da, mit
+   1rem bzw. 1.1rem Innenabstand. */
+.def_rows {
+  display: grid;
+  margin-top: var(--space-5);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.def_row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem var(--space-5);
+  padding-block: 1.1rem;
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+/* Mono-Versalien mit Sperrung: Labels, Preise, Tags. Stand an 21 Stellen in
+   vier verschiedenen Größen; zwei reichen. */
+.label_mono {
+  font-family: var(--mono-family);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.6875rem;
+}
+
+.label_mono.is-small {
+  font-size: 0.625rem;
+}
+
+/* Die Terminkarten sind ein 3:4-Poster mit Datum und Titel unten über dem
+   Verlauf, nicht Lumos' 20rem-Kasten mit Inhalt oben. Bewusst auf
+   .events_grid begrenzt — andere Cover-Karten sollen die Vorgabe behalten.
+   Stand wortgleich auf der Startseite und auf /events. */
+.events_grid {
+  --_alignment: start;
+  text-align: start;
+}
+
+.events_grid .card_wrap.cover {
+  aspect-ratio: 3 / 4;
+  min-height: 0;
+}
+
+.events_grid .card_content {
+  justify-content: flex-end;
 }

@@ -3,7 +3,7 @@ import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import HoursTable from "@/components/HoursTable.astro";
-import Heading from "@/components/Heading.astro";
+import OpenStatusPill from "@/components/OpenStatusPill.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
@@ -62,12 +62,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       heading={openDaysLong}
       text="An vier Abenden pro Woche offen. Montag bis Mittwoch bleibt die Bar geschlossen."
     />
-    <div class="status_pill" data-open-status hidden>
-      <span class="status_dot" aria-hidden="true"></span>
-      <span class="status_text"></span>
-      <span class="status_sep" aria-hidden="true"></span>
-      <span data-open-hours></span>
-    </div>
+    <OpenStatusPill />
   </Section>
 
   <Section paddingTop="small" paddingBottom="medium" align="center">
@@ -113,87 +108,33 @@ const openDaysLong = openDaysLabel(hours, { long: true });
   </Section>
 
   <Section paddingTop="none" paddingBottom="large" align="center">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Geplant für heute Abend?</Heading>
-      <Paragraph variant="main" class="section-note">
-        {ADDRESS_LINE}. Fünf Minuten zu Fuss vom Bahnhof.
-      </Paragraph>
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      maxWidth="none"
+      heading="Geplant für heute Abend?"
+      text={`${ADDRESS_LINE}. Fünf Minuten zu Fuss vom Bahnhof.`}
+    >
       <ButtonWrapper>
         <Button element="link" href="/kontakt" variant="secondary"
           >Anfahrt und Kontakt</Button
         >
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 </Layout>
 
-<script>
-  // Live-Status aus derselben Quelle wie Hero, Strip und Footer.
-  import { isOpenAt, todayHoursLabel } from "@/utils/hours.ts";
-
-  const status = document.querySelector<HTMLElement>("[data-open-status]");
-  const label = status?.querySelector<HTMLElement>(".status_text");
-  const hours = status?.querySelector<HTMLElement>("[data-open-hours]");
-
-  function renderStatus() {
-    if (!status || !label) return;
-    const now = new Date();
-    const open = isOpenAt(now);
-    status.classList.toggle("is-closed", !open);
-    label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
-    if (hours) hours.textContent = todayHoursLabel(now.getDay());
-    status.hidden = false;
-  }
-
-  renderStatus();
-  setInterval(renderStatus, 60000);
-</script>
 
 <style is:global>
   @layer components {
-    .status_pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      margin-inline: auto;
-      padding: 0.55rem 1rem;
-      border-radius: var(--radius-round);
-      border: var(--border-width) solid color-mix(in srgb, var(--brand-500) 28%, transparent);
-      background-color: color-mix(in srgb, var(--brand-500) 7%, transparent);
-      font-family: var(--mono-family);
-      font-size: 0.6875rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
 
     .status_pill[hidden] {
       display: none;
     }
 
-    .status_pill.is-closed {
-      border-color: var(--border);
-      background-color: color-mix(in lab, var(--text) 3%, transparent);
-    }
 
-    .status_dot {
-      flex: none;
-      width: 0.35rem;
-      height: 0.35rem;
-      border-radius: var(--radius-round);
-      background-color: var(--brand-500);
-      box-shadow: var(--shadow-accent-glow);
-    }
 
-    .status_pill.is-closed .status_dot {
-      background-color: color-mix(in lab, currentcolor 40%, transparent);
-      box-shadow: none;
-    }
 
-    .status_sep {
-      width: 1px;
-      height: 0.7rem;
-      background-color: color-mix(in lab, currentcolor 18%, transparent);
-    }
 
     .status_pill [data-open-hours] {
       color: color-mix(in lab, currentcolor 55%, transparent);

@@ -20,8 +20,12 @@ interface Props extends HTMLAttributes<"div"> {
   variant?: HeadingStyle;
   /** Supporting line under the heading. */
   text?: string;
-  /** Measure of the supporting line, in characters. */
-  maxWidth?: number;
+  /**
+   * Measure of the supporting line, in characters. `"none"` lets it run the
+   * full width of the section — some closing blocks are one short line and
+   * look lopsided inside a 38ch box.
+   */
+  maxWidth?: number | "none";
 }
 
 const {
@@ -45,7 +49,11 @@ const {
         {heading}
         <slot name="heading" />
       </Heading>
-      <Paragraph variant="main" maxWidth={maxWidth} class="section-note">
+      <Paragraph
+        variant="main"
+        maxWidth={maxWidth === "none" ? undefined : maxWidth}
+        class="section-note"
+      >
         {text}
         <slot name="text" />
       </Paragraph>

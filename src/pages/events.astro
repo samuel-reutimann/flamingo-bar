@@ -152,7 +152,7 @@ const listed = events.filter((event) => !featured.includes(event));
   </Section>
 
   <Section paddingTop="none" paddingBottom="medium" id="private-events">
-    <div class="private_layout">
+    <div class="split_layout private_layout">
       <div class="private_visual">
         <Img
           src={bottleImage}
@@ -166,18 +166,18 @@ const listed = events.filter((event) => !featured.includes(event));
           eigenen Bereich. Flaschenservice mit Mineral oder zwei Zusätzen,
           Wunschmusik nach Absprache.
         </Paragraph>
-        <div class="private_rows">
-          <div class="private_row">
+        <div class="def_rows private_rows">
+          <div class="def_row private_row">
             <span class="private_row-label">Ab wie vielen Personen</span>
             <span class="private_row-value"
               >6 für einen Tisch, 20 für einen Bereich</span
             >
           </div>
-          <div class="private_row">
+          <div class="def_row private_row">
             <span class="private_row-label">Vorlaufzeit</span>
             <span class="private_row-value">Mindestens eine Woche</span>
           </div>
-          <div class="private_row">
+          <div class="def_row private_row">
             <span class="private_row-label">Preis</span>
             <span class="private_row-value"
               >{bottleLine}</span
@@ -199,11 +199,13 @@ const listed = events.filter((event) => !featured.includes(event));
   </Section>
 
   <Section paddingTop="medium" paddingBottom="large" align="center">
-    <div class="section-header">
-      <Heading tag="h2" variant="h3">Kurzfristiges steht auf Instagram</Heading>
-      <Paragraph variant="main" class="section-note">
-        Zusätzliche Abende, Gästelisten und Absagen kündigen wir dort an.
-      </Paragraph>
+    <PageHeader
+      headingTag="h2"
+      variant="h3"
+      maxWidth="none"
+      heading="Kurzfristiges steht auf Instagram"
+      text="Zusätzliche Abende, Gästelisten und Absagen kündigen wir dort an."
+    >
       <ButtonWrapper>
         <Button element="link" href={BUSINESS.instagram}
           >{BUSINESS.instagramHandle}</Button
@@ -212,29 +214,19 @@ const listed = events.filter((event) => !featured.includes(event));
           Getränkekarte ansehen
         </Button>
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 </Layout>
 
 <style is:global>
   @layer components {
+    /* Nur hier folgt direkt die Terminliste darunter. */
     .events_grid {
-      --_alignment: start;
-      text-align: start;
       margin-bottom: var(--space-6);
     }
 
     /* Lumos' Cover-Card ist ein 20rem hoher Kasten mit Inhalt oben. Hier soll
        sie ein hohes Poster sein, Datum und Titel am Fuss über dem Scrim. */
-    .events_grid .card_wrap.cover {
-      aspect-ratio: 3 / 4;
-      min-height: 0;
-    }
-
-    .events_grid .card_content {
-      justify-content: flex-end;
-    }
-
     .event_list {
       display: grid;
       gap: 0.25rem;
@@ -312,16 +304,6 @@ const listed = events.filter((event) => !featured.includes(event));
     }
 
     /* --------------------------------------------------------------- private */
-    .private_layout {
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-      gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-      align-items: center;
-    }
-
     .private_visual {
       width: 100%;
       aspect-ratio: 4 / 5;
@@ -333,22 +315,6 @@ const listed = events.filter((event) => !featured.includes(event));
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
-
-    .private_rows {
-      display: grid;
-      margin-top: var(--space-5);
-      border-top: var(--border-width) solid var(--border);
-    }
-
-    .private_row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.35rem var(--space-5);
-      padding-block: 1rem;
-      border-bottom: var(--border-width) solid var(--border);
     }
 
     .private_row-label {

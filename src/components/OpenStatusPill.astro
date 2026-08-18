@@ -1,0 +1,142 @@
+---
+/**
+ * „Jetzt geöffnet · Heute 20 – 04 Uhr“.
+ *
+ * Stand zweimal da — als Eyebrow im Hero und als eigenständige Pille auf
+ * `/oeffnungszeiten` — mit doppeltem Markup, doppeltem CSS und zweimal
+ * derselben `renderStatus()`-Funktion samt eigenem `setInterval`.
+ *
+ * Den Text setzt das Skript in `BaseLayout.astro`: es sucht jede
+ * `[data-open-status]` auf der Seite. Absichtlich dort und nicht hier — ein
+ * gebündeltes Komponenten-Skript verliert Astro, sobald die Komponente in
+ * einem `<Section>`-Slot steckt, und genau dort steht diese Pille.
+ *
+ * Ohne JS bleibt sie `hidden`: lieber gar keine Angabe als eine, die auf dem
+ * Stand des letzten Builds stehengeblieben ist.
+ */
+import type { HTMLAttributes } from "astro/types";
+import Eyebrow from "@/components/Eyebrow.astro";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+  /**
+   * `eyebrow` ist die Zeile über der H1 im Hero — sie erbt die Eyebrow-Optik.
+   * `pill` ist die freistehende, umrandete Pille auf `/oeffnungszeiten`.
+   */
+  variant?: "eyebrow" | "pill";
+}
+
+const {
+  render = true,
+  variant = "pill",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+{
+  render &&
+    (variant === "eyebrow" ? (
+      <Eyebrow class:list={["status_pill", "is-eyebrow", className]} data-open-status hidden {...rest}>
+        <span class="status_dot" aria-hidden="true" />
+        <span class="status_text">Öffnungszeiten</span>
+        <span class="status_sep" aria-hidden="true" />
+        <span class="status_hours" data-open-hours />
+      </Eyebrow>
+    ) : (
+      <div class:list={["status_pill", className]} data-open-status hidden {...rest}>
+        <span class="status_dot" aria-hidden="true" />
+        <span class="status_text" />
+        <span class="status_sep" aria-hidden="true" />
+        <span class="status_hours" data-open-hours />
+      </div>
+    ))
+}
+
+<style is:global>
+  @layer components {
+    .status_pill:not(.is-eyebrow) {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-inline: auto;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-round);
+      border: var(--border-width) solid
+        color-mix(in srgb, var(--brand-500) 28%, transparent);
+      background-color: color-mix(in srgb, var(--brand-500) 7%, transparent);
+      font-family: var(--mono-family);
+      font-size: 0.6875rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .status_pill:not(.is-eyebrow).is-closed {
+      border-color: var(--border);
+      background-color: color-mix(in lab, var(--text) 3%, transparent);
+    }
+
+    /* Im Hero liefert Eyebrow die Typografie; nur die Innenausrichtung fehlt. */
+    .status_pill.is-eyebrow {
+      margin-bottom: var(--space-4);
+    }
+
+    .status_pill.is-eyebrow .eyebrow_text {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .status_dot {
+      flex: none;
+      width: 0.35rem;
+      height: 0.35rem;
+      border-radius: var(--radius-round);
+      background-color: var(--brand-500);
+      box-shadow: var(--shadow-accent-glow);
+    }
+
+    /* Nur der Hero pulsiert — auf `/oeffnungszeiten` steht die Pille still,
+       dort ist sie die Hauptaussage und kein Blickfang. */
+    .status_pill.is-eyebrow .status_dot {
+      animation: dot-pulse 2.4s ease-in-out infinite;
+    }
+
+    .status_pill.is-closed .status_dot {
+      background-color: color-mix(in lab, currentcolor 40%, transparent);
+      box-shadow: none;
+      animation: none;
+    }
+
+    /* Die Uhrzeit steht eine Stufe leiser als „Jetzt geöffnet“ — nur im
+       Hero, wo sie neben der Aussage steht statt sie zu sein. */
+    .status_pill.is-eyebrow .status_hours {
+      color: color-mix(in lab, currentcolor 55%, transparent);
+    }
+
+    .status_sep {
+      width: 1px;
+      height: 0.7rem;
+      background-color: color-mix(in lab, currentcolor 18%, transparent);
+    }
+
+    @keyframes dot-pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.55;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .status_pill .status_dot {
+        animation: none;
+      }
+    }
+  }
+</style>

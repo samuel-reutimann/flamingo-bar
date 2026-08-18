@@ -1,14 +1,17 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Img from "@/components/Img.astro";
 import Eyebrow from "@/components/Eyebrow.astro";
+import OpenStatusPill from "@/components/OpenStatusPill.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
+import BottleOptions from "@/components/BottleOptions.astro";
 import heroImage from "@/assets/flamingo/bar-guests-night.jpeg";
 import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
 import neonGlassesImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
@@ -73,13 +76,7 @@ const openDays = openDaysLabel(hours);
   <!-- HERO -->
   <section class="hero_section">
     <div class="hero_content">
-      <Eyebrow class="hero_status" data-open-status hidden>
-        <span class="hero_status-dot" aria-hidden="true"></span><span
-          class="hero_status-text">Öffnungszeiten</span
-        ><span class="hero_status-sep" aria-hidden="true"></span><span
-          class="hero_status-hours"
-          data-open-hours></span>
-      </Eyebrow>
+      <OpenStatusPill variant="eyebrow" class="hero_status" />
       <Heading tag="h1" variant="h1" class="hero_heading"
         >Deine Bar in Langenthal<br />für Cocktails und lange Nächte</Heading
       >
@@ -125,35 +122,6 @@ const openDays = openDaysLabel(hours);
       </div>
     </div>
   </Section>
-  <script>
-    // Hero-Pill und Öffnungszeiten-Strip: Status, heutiges Zeitfenster und
-    // die Heute-Zeile. Tabelle und Öffnungslogik kommen aus der gemeinsamen
-    // Konstante, damit Hero, Strip und Footer nicht auseinanderlaufen.
-    import {
-      isOpenAt,
-      todayHoursLabel,
-      todayLineLabel,
-    } from "@/utils/hours.ts";
-
-    const status = document.querySelector<HTMLElement>("[data-open-status]");
-    const label = status?.querySelector<HTMLElement>(".hero_status-text");
-    const hours = status?.querySelector<HTMLElement>("[data-open-hours]");
-    const todayLine = document.querySelector<HTMLElement>("[data-today-line]");
-
-    function renderStatus() {
-      if (!status || !label) return;
-      const now = new Date();
-      const open = isOpenAt(now);
-      status.classList.toggle("is-closed", !open);
-      label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
-      if (hours) hours.textContent = todayHoursLabel(now.getDay());
-      if (todayLine) todayLine.textContent = todayLineLabel(now.getDay());
-      status.hidden = false;
-    }
-
-    renderStatus();
-    setInterval(renderStatus, 60000);
-  </script>
   <script>
     // Ladeanimation des Heros. Läuft genau einmal pro Seitenaufruf, deshalb
     // darf sie etwas länger sein als eine Interaktions-Animation.
@@ -257,7 +225,7 @@ const openDays = openDaysLabel(hours);
       // Karten und Listen: gleiche Staffelung, damit die Seite einen Takt hat.
       reveal(".menu_grid", { stagger: 0.08, y: 24 });
       reveal(".events_grid", { stagger: 0.08, y: 24 });
-      reveal(".bottle_rows", { stagger: 0.08 });
+      reveal(".bottle_options", { stagger: 0.08 });
       reveal(".visit_details", { stagger: 0.08 });
       // Grossflächige Bilder blenden ohne Versatz, nur mit leichtem Zoom ein.
       reveal(".bottle_visual", { y: 0, scale: 1.03 });
@@ -269,18 +237,18 @@ const openDays = openDaysLabel(hours);
   </script>
   <!-- KARTE-TEASER -->
   <Section paddingTop="medium" paddingBottom="large" align="center" id="karte">
-    <div class="section-header">
-      <Heading tag="h2" variant="h2">Was ein Abend<br />hier kostet</Heading>
-      <Paragraph variant="main" maxWidth={40} class="section-note"
-        >{cocktailLine}, {bottleLine}. Alle Preise stehen online, nicht nur auf
-        der Tafel an der Bar.</Paragraph
-      >
+    <PageHeader
+      headingTag="h2"
+      maxWidth={40}
+      text={`${cocktailLine}, ${bottleLine}. Alle Preise stehen online, nicht nur auf der Tafel an der Bar.`}
+    >
+      <Fragment slot="heading">Was ein Abend<br />hier kostet</Fragment>
       <ButtonWrapper>
         <Button element="link" href="/getraenkekarte"
           >Ganze Karte ansehen</Button
         >
       </ButtonWrapper>
-    </div>
+    </PageHeader>
     <Grid medium={3} class="menu_grid">
       {
         teaserDrinks.map((drink) => (
@@ -297,17 +265,18 @@ const openDays = openDaysLabel(hours);
   </Section>
   <!-- WAS LÄUFT -->
   <Section paddingTop="medium" paddingBottom="large" align="center" id="events">
-    <div class="section-header">
-      <Heading tag="h2" variant="h2">Was diese Woche<br />läuft</Heading>
-      <Paragraph variant="main" maxWidth={40} class="section-note"
-        >DJ-Abende, Live-Musik und Motto-Partys.</Paragraph
-      >
+    <PageHeader
+      headingTag="h2"
+      maxWidth={40}
+      text="DJ-Abende, Live-Musik und Motto-Partys."
+    >
+      <Fragment slot="heading">Was diese Woche<br />läuft</Fragment>
       <ButtonWrapper>
         <Button element="link" href="/events" variant="secondary"
           >Alle Events</Button
         >
       </ButtonWrapper>
-    </div>
+    </PageHeader>
     <div class="events_content">
       <Grid medium={3} class="events_grid">
         {
@@ -336,14 +305,9 @@ const openDays = openDaysLabel(hours);
     align="center"
     id="atmosphaere"
   >
-    <div class="section-header">
-      <Heading tag="h2" variant="h2"
-        >Licht, Musik<br />und späte Stunden</Heading
-      >
-      <Paragraph variant="main" class="section-note"
-        >So sieht ein Abend bei uns aus.</Paragraph
-      >
-    </div>
+    <PageHeader headingTag="h2" maxWidth="none" text="So sieht ein Abend bei uns aus.">
+      <Fragment slot="heading">Licht, Musik<br />und späte Stunden</Fragment>
+    </PageHeader>
   </Section>
   <div class="gallery_marquee">
     <div class="gallery_track">
@@ -398,7 +362,7 @@ const openDays = openDaysLabel(hours);
   </Section>
   <!-- FLASCHENSERVICE -->
   <Section paddingTop="medium" paddingBottom="medium" id="flaschenservice">
-    <div class="bottle_layout">
+    <div class="split_layout bottle_layout">
       <div class="bottle_visual">
         <Img
           src={bottleImage}
@@ -415,33 +379,7 @@ const openDays = openDaysLabel(hours);
           >Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein
           Mixgetränk wie Cola, Red Bull oder Tonic.</Paragraph
         >
-        <div class="bottle_rows">
-          <div class="bottle_row">
-            <div>
-              <Heading tag="h3" variant="h6">Flasche mit Mineral</Heading>
-              <Paragraph variant="small">Rum, Vodka, Whisky oder Gin</Paragraph>
-            </div>
-            <p class="bottle_price">CHF 105.– bis 150.–</p>
-          </div>
-          <div class="bottle_row">
-            <div>
-              <Heading tag="h3" variant="h6">Flasche mit 2 Zusätzen</Heading>
-              <Paragraph variant="small"
-                >Zum Beispiel Cola und Red Bull</Paragraph
-              >
-            </div>
-            <p class="bottle_price">Preis auf Anfrage</p>
-          </div>
-          <div class="bottle_row">
-            <div>
-              <Heading tag="h3" variant="h6">Gruppen und Geburtstage</Heading>
-              <Paragraph variant="small"
-                >Ab 6 Personen, Tisch reserviert</Paragraph
-              >
-            </div>
-            <p class="bottle_price">Auf Anfrage</p>
-          </div>
-        </div>
+        <BottleOptions variant="rows" />
         <ButtonWrapper>
           <Button element="link" href="/reservation">Tisch anfragen</Button>
           <Button
@@ -460,12 +398,12 @@ const openDays = openDaysLabel(hours);
     align="center"
     id="kontakt"
   >
-    <div class="section-header">
-      <Heading tag="h2" variant="h2">Mitten in Langenthal</Heading>
-      <Paragraph variant="main" class="section-note"
-        >Fünf Minuten zu Fuss vom Bahnhof.</Paragraph
-      >
-    </div>
+    <PageHeader
+      headingTag="h2"
+      maxWidth="none"
+      heading="Mitten in Langenthal"
+      text="Fünf Minuten zu Fuss vom Bahnhof."
+    />
     <Grid medium={3} class="visit_details">
       <div class="visit_detail-item">
         <p class="visit_label text-style-small">Adresse</p>
@@ -503,13 +441,11 @@ const openDays = openDaysLabel(hours);
     class="cta_section"
   >
     <div class="cta_glow"></div>
-    <div class="section-header">
-      <Heading tag="h2" variant="h2"
-        >Alles für heute Abend<br />an einem Ort</Heading
-      >
-      <Paragraph variant="main" maxWidth={38} class="section-note"
-        >Karte, Preise und Flaschenservice, immer aktuell.</Paragraph
-      >
+    <PageHeader
+      headingTag="h2"
+      text="Karte, Preise und Flaschenservice, immer aktuell."
+    >
+      <Fragment slot="heading">Alles für heute Abend<br />an einem Ort</Fragment>
       <ButtonWrapper>
         <Button element="link" href="/getraenkekarte"
           >Getränkekarte ansehen</Button
@@ -518,7 +454,7 @@ const openDays = openDaysLabel(hours);
           >Instagram folgen</Button
         >
       </ButtonWrapper>
-    </div>
+    </PageHeader>
   </Section>
 </Layout>
 <style is:global>
@@ -555,67 +491,23 @@ const openDays = openDaysLabel(hours);
       flex: 0 0 auto;
     }
 
-    .hero_status {
-      margin-bottom: var(--space-4);
-    }
 
     .hero_status[hidden] {
       display: none;
     }
 
-    .hero_status-dot {
-      flex: none;
-      width: 0.35rem;
-      height: 0.35rem;
-      border-radius: var(--radius-round);
-      background-color: var(--brand-500);
-      box-shadow: var(--shadow-accent-glow);
-    }
 
     /* Der Punkt pulsiert, solange offen ist. */
-    .hero_status-dot {
-      animation: dot-pulse 2.4s ease-in-out infinite;
-    }
 
-    .hero_status.is-closed .hero_status-dot {
-      background-color: color-mix(in lab, currentcolor 40%, transparent);
-      box-shadow: none;
-      animation: none;
-    }
 
-    @keyframes dot-pulse {
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.5);
-        opacity: 0.55;
-      }
-    }
 
     @media (prefers-reduced-motion: reduce) {
-      .hero_status-dot {
-        animation: none;
-      }
-    }
-
-    .hero_status-sep {
-      width: 1px;
-      height: 0.7rem;
-      background-color: color-mix(in lab, currentcolor 18%, transparent);
-    }
+  
 
     .hero_status-hours {
       color: color-mix(in lab, currentcolor 55%, transparent);
     }
 
-    .hero_status .eyebrow_text {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
 
     .hero_heading {
       max-width: 46rem;
@@ -743,23 +635,9 @@ const openDays = openDaysLabel(hours);
     }
 
     /* ----------------------------------------------------------- karte/events */
-    .events_grid {
-      --_alignment: start;
-      text-align: start;
-    }
-
     /* Lumos's cover card is a fixed 20rem-tall box with content pinned to the
        top. The mockup wants a tall 3:4 poster card with the date/title
        anchored to the bottom over the gradient scrim. */
-    .events_grid .card_wrap.cover {
-      aspect-ratio: 3 / 4;
-      min-height: 0;
-    }
-
-    .events_grid .card_content {
-      justify-content: flex-end;
-    }
-
     .events_note {
       margin-top: var(--space-6);
     }
@@ -818,16 +696,6 @@ const openDays = openDaysLabel(hours);
     }
 
     /* ------------------------------------------------------ flaschenservice */
-    .bottle_layout {
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-      gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-      align-items: center;
-    }
-
     .bottle_visual {
       position: relative;
       isolation: isolate;
@@ -859,30 +727,8 @@ const openDays = openDaysLabel(hours);
       text-align: left;
     }
 
-    .bottle_rows {
-      display: grid;
-      margin-top: var(--space-5);
-      border-top: var(--border-width) solid var(--border);
-    }
 
-    .bottle_row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.5rem var(--space-5);
-      padding-block: 1.1rem;
-      border-bottom: var(--border-width) solid var(--border);
-    }
 
-    .bottle_price {
-      margin: 0;
-      font-family: var(--mono-family);
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--brand-500);
-      white-space: nowrap;
-    }
 
     /* ------------------------------------------------------------------ visit */
     .visit_detail-item {

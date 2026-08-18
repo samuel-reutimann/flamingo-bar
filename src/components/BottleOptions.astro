@@ -1,0 +1,102 @@
+---
+/**
+ * Die Stufen des Flaschenservice.
+ *
+ * Stand vorher viermal ausgeschrieben im Markup (Startseite, Getränkekarte,
+ * Reservation) plus ein fünftes Mal als Text im Structured Data — mit drei
+ * verschiedenen Klassennamen, zwei verschiedenen Schriftgrößen für denselben
+ * Preis und einer Stufe, die auf der Reservation anders hieß als überall
+ * sonst. Inhalt kommt jetzt aus `src/content/bottle-service`.
+ */
+import type { HTMLAttributes } from "astro/types";
+import Grid from "@/components/Grid.astro";
+import Heading from "@/components/Heading.astro";
+import Paragraph from "@/components/Paragraph.astro";
+import { getBottleService } from "@/utils/content.ts";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+  /**
+   * `rows` ist die Preisliste neben dem Bild auf der Startseite: Name und
+   * Beschreibung links, Preis rechts, jede Stufe eine Zeile.
+   * `cards` ist der zentrierte Dreier-Block auf Getränkekarte und Reservation.
+   */
+  variant?: "rows" | "cards";
+}
+
+const {
+  render = true,
+  variant = "cards",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const tiers = await getBottleService();
+---
+
+{
+  render &&
+    (variant === "rows" ? (
+      <div class:list={["bottle_options", "is-rows", "def_rows", className]} {...rest}>
+        {tiers.map((tier) => (
+          <div class="bottle_option def_row">
+            <div class="bottle_option-text">
+              <Heading tag="h3" variant="h6">
+                {tier.data.name}
+              </Heading>
+              <Paragraph variant="small">{tier.data.description}</Paragraph>
+            </div>
+            <p class="bottle_option-price">{tier.data.price}</p>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <Grid medium={3} class:list={["bottle_options", "is-cards", className]}>
+        {tiers.map((tier) => (
+          <div class="bottle_option">
+            <Heading tag="h3" variant="h6">
+              {tier.data.name}
+            </Heading>
+            <Paragraph variant="small" class="section-note">
+              {tier.data.description}
+            </Paragraph>
+            <p class="bottle_option-price">{tier.data.price}</p>
+          </div>
+        ))}
+      </Grid>
+    ))
+}
+
+<style is:global>
+  @layer components {
+    .bottle_options.is-cards {
+      text-align: center;
+    }
+
+    .is-cards .bottle_option {
+      display: grid;
+      gap: 0.45rem;
+      justify-items: center;
+    }
+
+    .bottle_option-price {
+      margin: 0;
+      font-family: var(--mono-family);
+      letter-spacing: 0.1em;
+      color: var(--brand-500);
+      white-space: nowrap;
+    }
+
+    /* Die beiden Varianten hatten denselben Preis in zwei Größen stehen. Die
+       Zeilen-Variante bleibt bei 0.75rem, die Karten bei 0.6875rem — der
+       Unterschied ist gewollt, er folgt der Textgröße daneben. */
+    .is-rows .bottle_option-price {
+      font-size: 0.75rem;
+    }
+
+    .is-cards .bottle_option-price {
+      font-size: 0.6875rem;
+    }
+  }
+</style>
