@@ -5,9 +5,20 @@ import { getHours } from "@/utils/content.ts";
 interface Props extends HTMLAttributes<"div"> {
   /** Set to `false` to skip rendering this component and its children. */
   render?: boolean;
+  /**
+   * `card` ist die eigenständige Tabelle auf Öffnungszeiten, Kontakt und
+   * Reservation. `compact` ist die schmale Spalte im Footer — dieselben Daten
+   * und dieselben Klassen, nur ohne Rahmen und eine Spur kleiner.
+   */
+  variant?: "card" | "compact";
 }
 
-const { render = true, class: className, ...rest } = Astro.props;
+const {
+  render = true,
+  variant = "card",
+  class: className,
+  ...rest
+} = Astro.props;
 
 /* Zeiten aus `src/content/hours.yaml` — dieselbe Quelle, die Keystatic
    schreibt und aus der das Structured Data gebaut wird. */
@@ -16,7 +27,7 @@ const hours = await getHours();
 
 {
   render && (
-    <div class:list={["hours_table", className]} {...rest}>
+    <div class:list={["hours_table", `is-${variant}`, className]} {...rest}>
       <ul class="hours_rows">
         {hours.map((day) => (
           <li
@@ -34,29 +45,24 @@ const hours = await getHours();
   )
 }
 
-<script is:inline>
-  // Heutigen Tag markieren. Ohne JS bleibt die Tabelle vollständig lesbar,
-  // nur ohne Hervorhebung. `is:inline`, weil Astro ein gebündeltes
-  // Komponenten-Skript verliert, sobald die Komponente in einem Section-Slot
-  // steckt — das Skript käme dann auf keiner der drei Seiten mit.
-  document
-    .querySelectorAll('.hours_row[data-day="' + new Date().getDay() + '"]')
-    .forEach(function (row) {
-      row.classList.add("is-today");
-    });
-</script>
-
 <style is:global>
   @layer components {
     .hours_table {
       width: 100%;
+      text-align: left;
+    }
+
+    .hours_table.is-card {
       max-width: 32rem;
       margin-inline: auto;
       padding: var(--space-4) var(--space-5);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-main);
       background-color: color-mix(in lab, var(--text) 2%, transparent);
-      text-align: left;
+    }
+
+    .hours_table.is-compact {
+      max-width: 22rem;
     }
 
     .hours_rows {
@@ -77,6 +83,15 @@ const hours = await getHours();
       border-radius: var(--radius-small);
     }
 
+    .is-compact .hours_row {
+      align-items: center;
+      gap: var(--space-3);
+      padding: 0.35rem 0.6rem;
+      margin-inline: -0.6rem;
+      font-size: 0.8125rem;
+      color: color-mix(in lab, currentcolor 72%, transparent);
+    }
+
     .hours_day {
       font-family: var(--display-family);
       font-size: 1.0625rem;
@@ -95,9 +110,35 @@ const hours = await getHours();
       color: color-mix(in lab, currentcolor 42%, transparent);
     }
 
+    /* Im Footer stehen Tag und Zeit gleichwertig nebeneinander, nicht als
+       Überschrift plus Detail — beide erben deshalb die Zeilentypografie.
+       Die Selektoren sind absichtlich so spezifisch wie die Regeln darüber,
+       sonst dimmt der geschlossene Tag zweimal (Zeile 45 % × Text 42 %). */
+    .is-compact .hours_day,
+    .is-compact .hours_time,
+    .is-compact .hours_row.is-closed .hours_day,
+    .is-compact .hours_row.is-closed .hours_time {
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: normal;
+      color: inherit;
+    }
+
+    .is-compact .hours_row.is-closed {
+      color: color-mix(in lab, currentcolor 45%, transparent);
+    }
+
     .hours_row.is-today {
-      background-color: rgba(255, 46, 136, 0.09);
-      box-shadow: inset 0 0 0 var(--border-width) rgba(255, 46, 136, 0.22);
+      background-color: color-mix(in srgb, var(--brand-500) 9%, transparent);
+      box-shadow: inset 0 0 0 var(--border-width)
+        color-mix(in srgb, var(--brand-500) 22%, transparent);
+    }
+
+    /* Heute steht wieder in voller Deckkraft — `inherit` holt die Farbe des
+       umgebenden Blocks zurück, ohne dass die Tabelle wissen muss, ob sie im
+       dunklen Footer oder in einem hellen Abschnitt steht. */
+    .is-compact .hours_row.is-today {
+      color: inherit;
     }
 
     /* A closed day can still be today, and then the time must keep reading

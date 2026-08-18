@@ -11,14 +11,21 @@ import Grid from "@/components/Grid.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
+import { ADDRESS_LINE } from "@/consts.ts";
+import { hoursSentence, openDaysLabel } from "@/utils/hours.ts";
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
+
+/* Die FAQ-Antwort zählte die ganze Woche noch einmal als Text auf — eine
+   vierte Fassung derselben Zeiten, direkt neben der Tabelle. Jetzt gerechnet. */
+const openSentence = hoursSentence(hours);
+const openDaysLong = openDaysLabel(hours, { long: true });
 ---
 
 <Layout
-  title="Öffnungszeiten – Do bis So ab 20 Uhr"
-  description="Flamingo Bar Langenthal: Donnerstag bis Sonntag ab 20 Uhr, Montag bis Mittwoch geschlossen. Alle Zeiten, der letzte Einlass und ob gerade offen ist."
+  title={`Öffnungszeiten – ${openDaysLong}`}
+  description={`Flamingo Bar Langenthal: ${openSentence} Alle Zeiten, der letzte Einlass und ob gerade offen ist.`}
   theme="dark"
 >
   <Schema
@@ -28,8 +35,7 @@ const hours = await getHours();
       faqSchema([
         {
           question: "Wann ist die Flamingo Bar Langenthal offen?",
-          answer:
-            "Donnerstag 20 bis 03 Uhr, Freitag und Samstag 20 bis 04 Uhr, Sonntag 20 bis 01 Uhr. Montag bis Mittwoch ist die Bar geschlossen.",
+          answer: openSentence,
         },
         {
           question: "Wann ist der letzte Einlass?",
@@ -53,7 +59,7 @@ const hours = await getHours();
   <Section paddingTop="navoverlap" paddingBottom="small" align="center">
     <PageHeader
       eyebrow="Öffnungszeiten"
-      heading="Donnerstag bis Sonntag, ab 20 Uhr"
+      heading={openDaysLong}
       text="An vier Abenden pro Woche offen. Montag bis Mittwoch bleibt die Bar geschlossen."
     />
     <div class="status_pill" data-open-status hidden>
@@ -110,7 +116,7 @@ const hours = await getHours();
     <div class="section-header">
       <Heading tag="h2" variant="h3">Geplant für heute Abend?</Heading>
       <Paragraph variant="main" class="section-note">
-        Marktgasse 34B, 4900 Langenthal. Fünf Minuten zu Fuss vom Bahnhof.
+        {ADDRESS_LINE}. Fünf Minuten zu Fuss vom Bahnhof.
       </Paragraph>
       <ButtonWrapper>
         <Button element="link" href="/kontakt" variant="secondary"

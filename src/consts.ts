@@ -44,3 +44,13 @@ export const BUSINESS = {
   priceRange: "CHF 5–150",
   mapsUrl: "https://maps.google.com/?q=Marktgasse+34B+4900+Langenthal",
 } as const;
+
+/**
+ * Die Adresse als fertige Zeilen. Stand vorher auf zehn Seiten ausgeschrieben,
+ * teils mit und teils ohne Postleitzahl — bei einem Umzug wären einzelne
+ * Vorkommen stehen geblieben.
+ */
+/** „Marktgasse 34B, 4900 Langenthal“ — Impressum, Karten-Alt-Text, Kontakt. */
+export const ADDRESS_LINE = `${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`;
+/** „Marktgasse 34B, Langenthal“ — Fließtext, wo die PLZ nur stört. */
+export const ADDRESS_SHORT = `${BUSINESS.street}, ${BUSINESS.city}`;

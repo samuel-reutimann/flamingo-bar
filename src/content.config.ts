@@ -96,6 +96,29 @@ const spirits = defineCollection({
 });
 
 /**
+ * Die Stufen des Flaschenservice. Standen früher ausgeschrieben auf vier
+ * Seiten (Startseite, Karte, Events, Reservation) plus ein fünftes Mal im
+ * Structured Data — mit Preisen, die sich zwischen den Kopien schon
+ * unterschieden.
+ */
+const bottleService = defineCollection({
+  loader: glob({ pattern: "**/*.yaml", base: "./src/content/bottle-service" }),
+  schema: z.object({
+    name: z.string(),
+    /** Was in der Stufe enthalten ist. Eine Zeile. */
+    description: z.string().optional(),
+    ...priceFields,
+    /**
+     * Untergrenze der Stufe als Zahl. Nur gesetzt, wenn es einen echten
+     * Startpreis gibt — daraus wird das „Flaschen ab CHF 105.–“ gerechnet,
+     * das früher an vier Stellen von Hand stand.
+     */
+    fromCHF: z.number().optional(),
+    order: z.number().default(0),
+  }),
+});
+
+/**
  * Einleitungstexte der Kategorien. Ein Eintrag pro Abschnitt, `id` = Slug aus
  * `DRINK_CATEGORIES` oder `spirituosen` / `flaschen`.
  */
@@ -140,6 +163,7 @@ export const collections = {
   events,
   drinks,
   spirits,
+  bottleService,
   menuSections,
   hours,
   settings,

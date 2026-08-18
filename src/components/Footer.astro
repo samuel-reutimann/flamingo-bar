@@ -1,4 +1,5 @@
 ---
+import HoursTable from "@/components/HoursTable.astro";
 import { BUSINESS, SITE_NAME } from "@/consts.ts";
 ---
 
@@ -8,35 +9,13 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       <div class="footer_brand">
         <div class="footer_brand-label text-style-small">{SITE_NAME}</div>
         <p class="footer_brand-address text-style-small">
-          {BUSINESS.street}, {BUSINESS.postalCode}
-          {BUSINESS.city}<br />{BUSINESS.phoneDisplay}
+          {`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`}<br
+          />{BUSINESS.phoneDisplay}
         </p>
       </div>
-      <div id="alle-zeiten">
+      <div>
         <div class="footer_brand-label text-style-small">Öffnungszeiten</div>
-        <ul class="footer_hours">
-          <li class="footer_hours-row is-closed" data-day="1">
-            <span>Montag</span><span>Geschlossen</span>
-          </li>
-          <li class="footer_hours-row is-closed" data-day="2">
-            <span>Dienstag</span><span>Geschlossen</span>
-          </li>
-          <li class="footer_hours-row is-closed" data-day="3">
-            <span>Mittwoch</span><span>Geschlossen</span>
-          </li>
-          <li class="footer_hours-row" data-day="4">
-            <span>Donnerstag</span><span>20 – 03 Uhr</span>
-          </li>
-          <li class="footer_hours-row" data-day="5">
-            <span>Freitag</span><span>20 – 04 Uhr</span>
-          </li>
-          <li class="footer_hours-row" data-day="6">
-            <span>Samstag</span><span>20 – 04 Uhr</span>
-          </li>
-          <li class="footer_hours-row" data-day="0">
-            <span>Sonntag</span><span>20 – 01 Uhr</span>
-          </li>
-        </ul>
+        <HoursTable variant="compact" />
       </div>
       <nav aria-label="Footer">
         <div class="footer_brand-label text-style-small">Seiten</div>
@@ -67,9 +46,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
   <div class="footer_inner">
     <div class="footer_bottom">
       <p class="footer_copyright text-style-small">
-        &copy; <span id="year">{new Date().getFullYear()}</span>&#160;{
-          SITE_NAME
-        }, Langenthal
+        &copy; {new Date().getFullYear()}&#160;{SITE_NAME}, Langenthal
       </p>
       <ul class="footer_legal">
         <li><a class="footer_link" href="/impressum">Impressum</a></li>
@@ -78,19 +55,6 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
     </div>
   </div>
 </footer>
-
-<script>
-  const year = document.querySelector<HTMLSpanElement>("#year");
-
-  if (year) {
-    year.textContent = new Date().getFullYear().toString();
-  }
-
-  // Heutigen Tag in der Öffnungszeiten-Spalte markieren.
-  document
-    .querySelector(`.footer_hours-row[data-day="${new Date().getDay()}"]`)
-    ?.classList.add("is-today");
-</script>
 
 <style is:global>
   @layer components {
@@ -139,41 +103,6 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       list-style: none;
       margin: 0;
       padding: 0;
-    }
-
-    .footer_hours {
-      display: grid;
-      gap: 0.15rem;
-      max-width: 22rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .footer_hours-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-      padding: 0.35rem 0.6rem;
-      margin-inline: -0.6rem;
-      border-radius: var(--radius-small);
-      font-size: 0.8125rem;
-      color: color-mix(in lab, var(--light-100) 72%, transparent);
-    }
-
-    .footer_hours-row.is-closed {
-      color: color-mix(in lab, var(--light-100) 45%, transparent);
-    }
-
-    .footer_hours-row.is-today {
-      background-color: rgba(255, 46, 136, 0.09);
-      box-shadow: inset 0 0 0 1px rgba(255, 46, 136, 0.22);
-      color: var(--light-100);
-    }
-
-    .footer_hours-row.is-today span:last-child {
-      color: var(--brand-500);
     }
 
     .footer_link {

@@ -53,5 +53,17 @@ const hours = await getHours();
       <slot />
     </main>
     <Footer />
+    <script is:inline>
+      // Heutigen Tag in jeder Öffnungszeiten-Tabelle markieren — der Footer
+      // steht auf jeder Seite, Kontakt und Reservation zeigen zusätzlich eine
+      // eigene. Ein Skript im Layout trifft alle; in `HoursTable.astro` selbst
+      // käme es pro Instanz noch einmal mit. Ohne JS bleibt die Tabelle
+      // vollständig lesbar, nur ohne Hervorhebung.
+      document
+        .querySelectorAll('.hours_row[data-day="' + new Date().getDay() + '"]')
+        .forEach(function (row) {
+          row.classList.add("is-today");
+        });
+    </script>
   </body>
 </html>

@@ -6,7 +6,13 @@
  * dieselbe Reihenfolge sehen.
  */
 import { getCollection, getEntry } from "astro:content";
+import type { DRINK_CATEGORIES, SPIRIT_GROUPS } from "../content.config.ts";
 import type { DayHours } from "./hours.ts";
+
+/** Eine der in `content.config.ts` deklarierten Kategorien. */
+export type DrinkCategory = (typeof DRINK_CATEGORIES)[number];
+/** Eine der in `content.config.ts` deklarierten Spirituosen-Gruppen. */
+export type SpiritGroup = (typeof SPIRIT_GROUPS)[number];
 
 /** Termine, älteste zuerst. */
 export async function getEvents() {
@@ -26,19 +32,53 @@ export async function getUpcomingEvents(now = new Date()) {
 }
 
 /** Getränke eines Abschnitts, nach `order` und dann Namen. */
-export async function getDrinksByCategory(category: string) {
+export async function getDrinksByCategory(category: DrinkCategory) {
   const drinks = await getCollection("drinks", (d) => d.data.category === category);
   return drinks.sort(
     (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name)
   );
 }
 
+/**
+ * Günstigster fixer Preis einer Kategorie, als Zahl. `undefined`, wenn kein
+ * Getränk der Kategorie einen festen Betrag hat.
+ *
+ * Der „ab“-Preis stand früher als Text in Hero, Meta-Description und
+ * Abschnitts-Einleitung — und war falsch: „Cocktails ab CHF 12.–“, während
+ * der günstigste Cocktail CHF 14 kostete (CHF 12 war ein Longdrink).
+ * Gerechnet statt getippt kann das nicht wieder passieren.
+ */
+export async function minPriceCHF(category: DrinkCategory) {
+  const drinks = await getDrinksByCategory(category);
+  const prices = drinks
+    .map((drink) => drink.data.priceCHF)
+    .filter((price): price is number => typeof price === "number");
+  return prices.length ? Math.min(...prices) : undefined;
+}
+
 /** Spirituosen einer Gruppe, nach `order` und dann Namen. */
-export async function getSpiritsByGroup(group: string) {
+export async function getSpiritsByGroup(group: SpiritGroup) {
   const spirits = await getCollection("spirits", (s) => s.data.group === group);
   return spirits.sort(
     (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name)
   );
+}
+
+/** Stufen des Flaschenservice, nach `order` und dann Namen. */
+export async function getBottleService() {
+  const tiers = await getCollection("bottleService");
+  return tiers.sort(
+    (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name)
+  );
+}
+
+/** Günstigster Startpreis im Flaschenservice, oder `undefined`. */
+export async function bottleFromCHF() {
+  const tiers = await getBottleService();
+  const prices = tiers
+    .map((tier) => tier.data.fromCHF)
+    .filter((price): price is number => typeof price === "number");
+  return prices.length ? Math.min(...prices) : undefined;
 }
 
 /** Einleitungstext eines Abschnitts. Fehlt der Eintrag, bleibt der Text leer. */

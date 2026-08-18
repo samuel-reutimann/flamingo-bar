@@ -10,12 +10,7 @@ import Eyebrow from "@/components/Eyebrow.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
 import heroImage from "@/assets/flamingo/bar-guests-night.jpeg";
-import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
-import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
-import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
-import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
 import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
-import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
 import neonGlassesImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
 import cocktailHandImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
 import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
@@ -23,16 +18,47 @@ import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema } from "@/utils/schema.ts";
-import { getHours } from "@/utils/content.ts";
-import { BUSINESS } from "@/consts.ts";
+import {
+  getHours,
+  getDrinksByCategory,
+  getUpcomingEvents,
+  minPriceCHF,
+  bottleFromCHF,
+} from "@/utils/content.ts";
+import { longDate } from "@/utils/dates.ts";
+import { openDaysLabel } from "@/utils/hours.ts";
+import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
+
+/* Teaser aus denselben Collections, die `/getraenkekarte` und `/events`
+   zeigen. Standen hier früher ausgeschrieben im Markup — mit einbetonierten
+   Daten ("Freitag, 21. August 2026"), die nach dem Abend nie wieder stimmten,
+   und mit Getränketexten, die bei jeder Keystatic-Änderung auseinanderliefen. */
+const teaserDrinks = (await getDrinksByCategory("cocktails"))
+  .filter((drink) => drink.data.image)
+  .slice(0, 3);
+
+/* Nur Termine mit Bild — die `cover`-Karte wäre sonst leer. */
+const teaserEvents = (await getUpcomingEvents())
+  .filter((event) => event.data.image)
+  .slice(0, 3);
+
+/* „Ab“-Preise gerechnet, nicht getippt: die Karte behauptete an vier Stellen
+   „Cocktails ab CHF 12.–“, während der günstigste Cocktail CHF 14 kostete. */
+const cocktailFrom = await minPriceCHF("cocktails");
+const bottleFrom = await bottleFromCHF();
+const cocktailLine = cocktailFrom ? `Cocktails ab CHF ${cocktailFrom}.–` : "Cocktails";
+const bottleLine = bottleFrom ? `Flaschen ab CHF ${bottleFrom}.–` : "Flaschenservice";
+
+/* „Do – So, ab 20 Uhr“ aus den Öffnungszeiten statt als Text daneben. */
+const openDays = openDaysLabel(hours);
 ---
 
 <Layout
   title="Cocktailbar in Langenthal – Drinks & DJs"
-  description="Flamingo Bar an der Marktgasse 34B in Langenthal: Cocktails ab CHF 12.–, DJ-Abende, Live-Musik und Flaschenservice. Donnerstag bis Sonntag ab 20 Uhr offen."
+  description={`Flamingo Bar an der ${BUSINESS.street} in ${BUSINESS.city}: ${cocktailLine}, DJ-Abende, Live-Musik und Flaschenservice. ${openDays} offen.`}
   theme="dark"
 >
   <Schema slot="head" data={barSchema(hours)} />
@@ -58,8 +84,9 @@ const hours = await getHours();
         >Deine Bar in Langenthal<br />für Cocktails und lange Nächte</Heading
       >
       <Paragraph maxWidth={38} class="hero_text"
-        >Cocktails ab CHF 12.–, Flaschenservice und DJ-Abende. Marktgasse 34B,
-        Langenthal.</Paragraph
+        >{cocktailLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
+          BUSINESS.city
+        }.</Paragraph
       >
       <ButtonWrapper class="hero_buttons">
         <Button element="link" href="/getraenkekarte"
@@ -85,7 +112,7 @@ const hours = await getHours();
     <div class="hours_strip">
       <div class="hours_strip-headline">
         <span class="hours_strip-label">Offen</span>
-        <span class="hours_strip-value">Do – So, ab 20 Uhr</span>
+        <span class="hours_strip-value">{openDays}</span>
       </div>
       <div class="hours_strip-today">
         <span class="hours_strip-pill">
@@ -245,8 +272,8 @@ const hours = await getHours();
     <div class="section-header">
       <Heading tag="h2" variant="h2">Was ein Abend<br />hier kostet</Heading>
       <Paragraph variant="main" maxWidth={40} class="section-note"
-        >Cocktails ab CHF 12.–, Flaschen ab CHF 105.–. Alle Preise stehen
-        online, nicht nur auf der Tafel an der Bar.</Paragraph
+        >{cocktailLine}, {bottleLine}. Alle Preise stehen online, nicht nur auf
+        der Tafel an der Bar.</Paragraph
       >
       <ButtonWrapper>
         <Button element="link" href="/getraenkekarte"
@@ -255,27 +282,17 @@ const hours = await getHours();
       </ButtonWrapper>
     </div>
     <Grid medium={3} class="menu_grid">
-      <Card
-        variant="stacked"
-        image={aperolImage}
-        imageAlt="Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
-        heading="Aperol Spritz"
-        text="Aperol, Prosecco, Mineral, Orange."
-      />
-      <Card
-        variant="stacked"
-        image={longIslandImage}
-        imageAlt="Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe"
-        heading="Long Island Iced Tea"
-        text="Der Klassiker, stark und kalt."
-      />
-      <Card
-        variant="stacked"
-        image={pinaColadaImage}
-        imageAlt="Piña Colada mit Ananas und Cocktailkirsche an der Bar"
-        heading="Piña Colada"
-        text="Rum, Kokos, Ananas."
-      />
+      {
+        teaserDrinks.map((drink) => (
+          <Card
+            variant="stacked"
+            image={drink.data.image}
+            imageAlt={drink.data.imageAlt}
+            heading={drink.data.name}
+            text={drink.data.description}
+          />
+        ))
+      }
     </Grid>
   </Section>
   <!-- WAS LÄUFT -->
@@ -293,30 +310,18 @@ const hours = await getHours();
     </div>
     <div class="events_content">
       <Grid medium={3} class="events_grid">
-        <Card
-          variant="cover"
-          image={djMixerImage}
-          imageAlt="DJane am Pult, pinke Lichtstrahlen über der Menge"
-          eyebrow="Freitag, 21. August 2026"
-          heading="Pink Friday mit DJ Nael"
-          cardTag="article"
-        />
-        <Card
-          variant="cover"
-          image={crowdImage}
-          imageAlt="Tanzende Gäste im Konfettiregen an einer Motto-Party"
-          eyebrow="Samstag, 22. August 2026"
-          heading="Latin Night"
-          cardTag="article"
-        />
-        <Card
-          variant="cover"
-          image={liveSessionImage}
-          imageAlt="Musiker mit Gitarre am Mikrofon im pinken Gegenlicht"
-          eyebrow="Donnerstag, 27. August 2026"
-          heading="Live Session"
-          cardTag="article"
-        />
+        {
+          teaserEvents.map((event) => (
+            <Card
+              variant="cover"
+              image={event.data.image!}
+              imageAlt={event.data.imageAlt}
+              eyebrow={longDate(event.data.start)}
+              heading={event.data.name}
+              cardTag="article"
+            />
+          ))
+        }
       </Grid>
       <Paragraph variant="small" class="section-note events_note"
         >Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen
@@ -464,7 +469,7 @@ const hours = await getHours();
     <Grid medium={3} class="visit_details">
       <div class="visit_detail-item">
         <p class="visit_label text-style-small">Adresse</p>
-        <p class="visit_value">Marktgasse 34B, 4900 Langenthal</p>
+        <p class="visit_value">{ADDRESS_LINE}</p>
         <Button element="link" href={BUSINESS.mapsUrl} variant="link"
           >Auf Karte öffnen</Button
         >
@@ -486,7 +491,7 @@ const hours = await getHours();
     <div class="visit_map">
       <Img
         src={mapImage}
-        alt="Karte mit Standort Marktgasse 34B, 4900 Langenthal"
+        alt={`Karte mit Standort ${ADDRESS_LINE}`}
       />
     </div>
   </Section>

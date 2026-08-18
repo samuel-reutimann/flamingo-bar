@@ -12,7 +12,8 @@ import Img from "@/components/Img.astro";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
-import { getUpcomingEvents } from "@/utils/content.ts";
+import { getUpcomingEvents, bottleFromCHF } from "@/utils/content.ts";
+import { longDate, shortDate, timeNote } from "@/utils/dates.ts";
 import { BUSINESS } from "@/consts.ts";
 
 /* Termine aus der Collection `src/content/events` — der Betrieb pflegt sie in
@@ -20,60 +21,17 @@ import { BUSINESS } from "@/consts.ts";
    abgelaufene Einträge zeigt. */
 const events = await getUpcomingEvents();
 
+/* Startpreis aus der Flaschenservice-Collection statt als Text daneben. */
+const bottleFrom = await bottleFromCHF();
+const bottleLine = bottleFrom
+  ? `Flaschen ab CHF ${bottleFrom}.–, Rest auf Anfrage`
+  : "Auf Anfrage";
+
 /* Oben die hervorgehobenen Abende als Poster, darunter der Rest als Liste.
    Ohne Bild kann ein Termin keine Karte werden, sonst bliebe der Poster leer. */
 const featured = events.filter((event) => event.data.featured && event.data.image);
 const listed = events.filter((event) => !featured.includes(event));
 
-/* Alle Zeiten in Zürich formatieren, nicht in der Zeitzone des Build-Rechners. */
-const zone = "Europe/Zurich";
-const fmt = (date: Date, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat("de-CH", { timeZone: zone, ...options }).format(date);
-
-/** Karten-Eyebrow: „Freitag, 21. August 2026“. */
-const longDate = (iso: string) =>
-  fmt(new Date(iso), {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-/** Listen-Datum: „Fr, 28. Aug“ — ohne die Punkte, die `de-CH` anhängt. */
-const shortDate = (iso: string) => {
-  const date = new Date(iso);
-  const weekday = fmt(date, { weekday: "short" }).replace(".", "");
-  const day = fmt(date, { day: "numeric" });
-  const month = fmt(date, { month: "short" }).replace(".", "");
-  return `${weekday}, ${day}. ${month}`;
-};
-
-/**
- * Zeile unter dem Titel: „Ab 21 Uhr, Eintritt frei.“ Wird aus Startzeit und
- * Eintritt gerechnet statt als zweites Feld gepflegt — so kann sie nicht von
- * der Uhrzeit abweichen. Volle Stunden ohne Minuten: „Ab 20.30 Uhr“, „Ab 21 Uhr“.
- */
-const timeNote = (event: (typeof events)[number]) => {
-  const start = new Date(event.data.start);
-  /* Über `formatToParts`, weil `de-CH` an eine einzeln formatierte Stunde
-     " Uhr" anhängt und die Minute nicht auf zwei Stellen auffüllt. */
-  const parts = new Intl.DateTimeFormat("de-CH", {
-    timeZone: zone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(start);
-  const part = (type: string) =>
-    parts.find((entry) => entry.type === type)?.value ?? "";
-  const hour = String(Number(part("hour")));
-  const minute = part("minute");
-  const clock = minute === "00" ? hour : `${hour}.${minute}`;
-  const entry =
-    event.data.priceCHF === 0
-      ? "Eintritt frei."
-      : `Eintritt CHF ${event.data.priceCHF}.–`;
-  return `Ab ${clock} Uhr, ${entry}`;
-};
 ---
 
 <Layout
@@ -108,7 +66,7 @@ const timeNote = (event: (typeof events)[number]) => {
           >Tisch für einen Abend anfragen</Button
         >
         <Button element="link" href={BUSINESS.instagram} variant="secondary">
-          @flamingobar.langenthal
+          {BUSINESS.instagramHandle}
         </Button>
       </ButtonWrapper>
     </PageHeader>
@@ -125,7 +83,7 @@ const timeNote = (event: (typeof events)[number]) => {
             imageAlt={event.data.imageAlt}
             eyebrow={longDate(event.data.start)}
             heading={event.data.name}
-            text={timeNote(event)}
+            text={timeNote(event.data.start, event.data.priceCHF)}
             cardTag="article"
           />
         ))
@@ -222,7 +180,7 @@ const timeNote = (event: (typeof events)[number]) => {
           <div class="private_row">
             <span class="private_row-label">Preis</span>
             <span class="private_row-value"
-              >Flaschen ab CHF 105.–, Rest auf Anfrage</span
+              >{bottleLine}</span
             >
           </div>
         </div>
@@ -248,7 +206,7 @@ const timeNote = (event: (typeof events)[number]) => {
       </Paragraph>
       <ButtonWrapper>
         <Button element="link" href={BUSINESS.instagram}
-          >@flamingobar.langenthal</Button
+          >{BUSINESS.instagramHandle}</Button
         >
         <Button element="link" href="/getraenkekarte" variant="secondary">
           Getränkekarte ansehen

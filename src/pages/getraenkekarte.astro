@@ -11,11 +11,15 @@ import Card from "@/components/Card.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
 import {
+  getHours,
   getDrinksByCategory,
   getSpiritsByGroup,
+  getBottleService,
   getMenuSection,
   getPriceDate,
+  minPriceCHF,
 } from "@/utils/content.ts";
+import { openDaysLabel } from "@/utils/hours.ts";
 import { BUSINESS, SITE_LOCALE } from "@/consts.ts";
 
 /* Karte aus den Collections `drinks`, `spirits` und `menu-sections` — der
@@ -30,6 +34,13 @@ const weitere = await getDrinksByCategory("weitere");
 /* Cocktails mit Bild stehen oben als Karten, der Rest in der Preisliste. */
 const cocktailCards = cocktails.filter((drink) => drink.data.image);
 const cocktailRows = cocktails.filter((drink) => !drink.data.image);
+
+/* Stufen des Flaschenservice — dieselbe Collection, die Startseite,
+   Reservation und das Structured Data unten lesen. */
+const bottleTiers = await getBottleService();
+
+/* Öffnungstage für den Schlusssatz — aus der Collection, nicht getippt. */
+const openDaysLong = openDaysLabel(await getHours(), { long: true });
 
 const spiritGroups = [
   { label: "Whisky", entries: await getSpiritsByGroup("whisky") },
@@ -46,6 +57,11 @@ const sections = {
   flaschen: await getMenuSection("flaschen"),
   weitere: await getMenuSection("weitere"),
 };
+
+/* „Ab“-Preis gerechnet statt getippt — die Karte behauptete „ab CHF 12.–“,
+   während der günstigste Cocktail CHF 14 kostet. */
+const cocktailFrom = await minPriceCHF("cocktails");
+const cocktailLine = cocktailFrom ? `Cocktails ab CHF ${cocktailFrom}.–` : "Cocktails";
 
 /** Stand der Preise. ISO für `Menu.dateModified`, ausgeschrieben für die Seite. */
 const priceDateIso = (await getPriceDate()) ?? "";
@@ -111,20 +127,12 @@ const menuSections = [
   {
     name: sections.flaschen.title,
     description: sections.flaschen.intro,
-    items: [
-      {
-        name: "Flasche mit Mineral",
-        description: "Rum, Vodka, Whisky oder Gin. CHF 105.– bis 150.–",
-      },
-      {
-        name: "Flasche mit 2 Zusätzen",
-        description: "Zum Beispiel Cola und Red Bull. Preis auf Anfrage.",
-      },
-      {
-        name: "Gruppen und Geburtstage",
-        description: "Ab 6 Personen, Tisch reserviert. Auf Anfrage.",
-      },
-    ],
+    items: bottleTiers.map((tier) => ({
+      name: tier.data.name,
+      description: [tier.data.description, tier.data.price]
+        .filter(Boolean)
+        .join(". "),
+    })),
   },
   {
     name: sections.weitere.title,
@@ -136,7 +144,7 @@ const menuSections = [
 
 <Layout
   title="Getränkekarte mit Preisen – Langenthal"
-  description="Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: Cocktails ab CHF 12.–, Longdrinks, Spirituosen, alkoholfreie Drinks und Flaschenservice."
+  description={`Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: ${cocktailLine}, Longdrinks, Spirituosen, alkoholfreie Drinks und Flaschenservice.`}
   theme="dark"
 >
   <Schema
@@ -374,7 +382,7 @@ const menuSections = [
     <div class="section-header">
       <Heading tag="h2" variant="h3">Heute Abend hier?</Heading>
       <Paragraph variant="main" class="section-note">
-        Donnerstag bis Sonntag ab 20 Uhr, Marktgasse 34B.
+        {openDaysLong}, {BUSINESS.street}.
       </Paragraph>
       <ButtonWrapper>
         <Button element="link" href="/reservation">Tisch anfragen</Button>

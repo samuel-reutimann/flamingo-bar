@@ -36,6 +36,17 @@ export const DAY_NAMES = [
   "Samstag",
 ] as const;
 
+/** Kurzform derselben Tage, für „Do – So“. */
+export const DAY_NAMES_SHORT = [
+  "So",
+  "Mo",
+  "Di",
+  "Mi",
+  "Do",
+  "Fr",
+  "Sa",
+] as const;
+
 /** `HH:MM` als Minuten seit Mitternacht. */
 const toMinutes = (clock: string) => {
   const [h, m] = clock.split(":").map(Number);
@@ -57,6 +68,107 @@ export function scheduleFrom(days: DayHours[]): Record<number, [number, number]>
     schedule[day.weekday] = [opens, closes];
   }
   return schedule;
+}
+
+/** `HH:MM` als Uhrzeit ohne führende Null: „20:00“ → „20“, „20:30“ → „20.30“. */
+const clock = (time: string) => {
+  const [h, m] = time.split(":");
+  return m && m !== "00" ? `${Number(h)}.${m}` : String(Number(h));
+};
+
+/** Öffnungszeit pro Wochentag als `HH:MM`. Geschlossene Tage fehlen. */
+export function openTimesFrom(days: DayHours[]): Record<number, string> {
+  const times: Record<number, string> = {};
+  for (const day of days) {
+    if (!day.closed && day.opens) times[day.weekday] = day.opens;
+  }
+  return times;
+}
+
+/**
+ * Aufeinanderfolgende Tage zu Läufen bündeln. „Aufeinanderfolgend“ heißt
+ * benachbart im übergebenen Array *und* im Kalender; optional muss zusätzlich
+ * `key` übereinstimmen, damit Tage mit verschiedenen Zeiten getrennt bleiben.
+ */
+function runsOf(days: DayHours[], key: (day: DayHours) => string = () => "") {
+  const runs: DayHours[][] = [];
+  for (const day of days) {
+    const run = runs.at(-1);
+    const previous = run?.at(-1);
+    const contiguous =
+      previous &&
+      (previous.weekday + 1) % 7 === day.weekday &&
+      key(previous) === key(day);
+    if (run && contiguous) run.push(day);
+    else runs.push([day]);
+  }
+  return runs;
+}
+
+/** „Freitag und Samstag“, „Montag bis Mittwoch“, „Donnerstag“. */
+function namesOf(run: DayHours[], names: readonly string[]) {
+  if (run.length === 1) return names[run[0].weekday];
+  if (run.length === 2)
+    return `${names[run[0].weekday]} und ${names[run[1].weekday]}`;
+  return `${names[run[0].weekday]} bis ${names[run.at(-1)!.weekday]}`;
+}
+
+/**
+ * Zusammenfassung der offenen Tage: „Do – So, ab 20 Uhr“.
+ *
+ * Aufeinanderfolgende Tage werden zu einer Spanne zusammengezogen, Lücken
+ * durch Komma getrennt („Do, Sa – So“). Die Uhrzeit hängt nur dran, wenn alle
+ * offenen Tage zur selben Zeit aufmachen — sonst wäre sie eine Behauptung.
+ *
+ * `days` kommt aus `getHours()` und ist damit bereits Montag-zuerst sortiert;
+ * die Reihenfolge des Arrays ist die Reihenfolge der Ausgabe.
+ */
+export function openDaysLabel(days: DayHours[], { long = false } = {}) {
+  const open = days.filter((day) => !day.closed);
+  if (!open.length) return "";
+
+  /* Kurz für den Strip („Do – So“), lang für Überschrift und Meta-Description
+     („Donnerstag bis Sonntag“). */
+  const label = runsOf(open)
+    .map((run) =>
+      long
+        ? namesOf(run, DAY_NAMES)
+        : run.length > 1
+          ? `${DAY_NAMES_SHORT[run[0].weekday]} – ${DAY_NAMES_SHORT[run.at(-1)!.weekday]}`
+          : DAY_NAMES_SHORT[run[0].weekday]
+    )
+    .join(", ");
+
+  const opens = open.map((day) => day.opens);
+  const uniform = opens[0] && opens.every((time) => time === opens[0]);
+  return uniform ? `${label}, ab ${clock(opens[0]!)} Uhr` : label;
+}
+
+/**
+ * Die ganze Woche als Fließtext, für die FAQ im Structured Data:
+ * „Donnerstag 20 bis 03 Uhr, Freitag und Samstag 20 bis 04 Uhr, Sonntag 20
+ * bis 01 Uhr. Montag bis Mittwoch ist die Bar geschlossen.“
+ *
+ * Stand als vierte handgetippte Fassung der Öffnungszeiten auf
+ * `/oeffnungszeiten` — Google bekam sie damit unabhängig von der Tabelle
+ * daneben serviert.
+ */
+export function hoursSentence(days: DayHours[]) {
+  const open = days.filter((day) => !day.closed);
+  const closed = days.filter((day) => day.closed);
+
+  const openPart = runsOf(open, (day) => day.time)
+    .map(
+      (run) =>
+        `${namesOf(run, DAY_NAMES)} ${run[0].time.replace(/\s*–\s*/, " bis ")}`
+    )
+    .join(", ");
+
+  const closedPart = closed.length
+    ? `${runsOf(closed).map((run) => namesOf(run, DAY_NAMES)).join(", ")} ist die Bar geschlossen.`
+    : "";
+
+  return [openPart && `${openPart}.`, closedPart].filter(Boolean).join(" ");
 }
 
 /** Anzeigetext pro Wochentag. Geschlossene Tage fehlen. */
@@ -105,13 +217,24 @@ export function isOpenAt(date: Date, schedule = scheduleFrom(days())) {
 }
 
 /** Pill im Hero: „Heute 20 – 04 Uhr“ oder „Ab Donnerstag 20 Uhr“. */
-export function todayHoursLabel(dayIndex: number, dayTimes = dayTimesFrom(days())) {
+export function todayHoursLabel(
+  dayIndex: number,
+  dayTimes = dayTimesFrom(days()),
+  openTimes = openTimesFrom(days())
+) {
   const today = dayTimes[dayIndex];
   if (today) return `Heute ${today}`;
 
   for (let i = 1; i <= 7; i++) {
     const next = (dayIndex + i) % 7;
-    if (dayTimes[next]) return `Ab ${DAY_NAMES[next]} 20 Uhr`;
+    /* Die Uhrzeit kommt aus `opens` des nächsten offenen Tages. Sie stand
+       hier als "20 Uhr" im Text — direkt neben dem Wert, den sie meint. */
+    if (dayTimes[next]) {
+      const opens = openTimes[next];
+      return opens
+        ? `Ab ${DAY_NAMES[next]} ${clock(opens)} Uhr`
+        : `Ab ${DAY_NAMES[next]}`;
+    }
   }
 
   return "";

@@ -12,7 +12,12 @@ import Img from "@/components/Img.astro";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
+import { getHours } from "@/utils/content.ts";
+import { openDaysLabel } from "@/utils/hours.ts";
 import { BUSINESS } from "@/consts.ts";
+
+/* Öffnungstage für die FAQ-Antwort — aus der Collection, nicht getippt. */
+const openDaysLong = openDaysLabel(await getHours(), { long: true });
 
 /**
  * Ohne Backend geht die Anfrage über WhatsApp: das Skript baut aus den
@@ -43,7 +48,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         {
           question: "Wann kommt die Antwort?",
           answer:
-            "An einem Öffnungstag, also von Donnerstag bis Sonntag. Die Anfrage ist erst mit unserer Bestätigung verbindlich.",
+            `An einem Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
         },
         {
           question: "Ab wie vielen Personen lohnt sich eine Reservation?",

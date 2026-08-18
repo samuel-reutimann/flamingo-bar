@@ -13,15 +13,17 @@ import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
-import { BUSINESS } from "@/consts.ts";
+import { openDaysLabel } from "@/utils/hours.ts";
+import { ADDRESS_LINE, ADDRESS_SHORT, BUSINESS } from "@/consts.ts";
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
+const openDaysLong = openDaysLabel(hours, { long: true });
 ---
 
 <Layout
-  title="Kontakt & Anfahrt – Marktgasse 34B"
-  description="Flamingo Bar, Marktgasse 34B, 4900 Langenthal: Telefon, WhatsApp und E-Mail, Anfahrt mit Bahn, Bus und Auto sowie alle Öffnungszeiten auf einen Blick."
+  title={`Kontakt & Anfahrt – ${BUSINESS.street}`}
+  description={`Flamingo Bar, ${ADDRESS_LINE}: Telefon, WhatsApp und E-Mail, Anfahrt mit Bahn, Bus und Auto sowie alle Öffnungszeiten auf einen Blick.`}
   theme="dark"
 >
   <Schema
@@ -79,7 +81,7 @@ const hours = await getHours();
   <Section paddingTop="small" paddingBottom="medium">
     <div class="contact_layout">
       <div class="contact_text">
-        <Heading tag="h2" variant="h3">Marktgasse 34B, Langenthal</Heading>
+        <Heading tag="h2" variant="h3">{ADDRESS_SHORT}</Heading>
         <Paragraph maxWidth={34} class="section-note">
           Mitten in der Altstadt, fünf Minuten zu Fuss vom Bahnhof Langenthal.
         </Paragraph>
@@ -104,7 +106,7 @@ const hours = await getHours();
             <div>
               <Heading tag="h3" variant="h6">Adresse</Heading>
               <Paragraph variant="small" class="section-note">
-                Flamingo Bar, Marktgasse 34B, 4900 Langenthal
+                Flamingo Bar, {ADDRESS_LINE}
               </Paragraph>
             </div>
           </div>
@@ -118,7 +120,7 @@ const hours = await getHours();
       <div class="contact_map">
         <Img
           src={mapImage}
-          alt="Karte mit Standort Marktgasse 34B, 4900 Langenthal"
+          alt={`Karte mit Standort ${ADDRESS_LINE}`}
         />
       </div>
     </div>
@@ -128,7 +130,7 @@ const hours = await getHours();
     <div class="section-header">
       <Heading tag="h2" variant="h3">Öffnungszeiten</Heading>
       <Paragraph variant="main" class="section-note">
-        Donnerstag bis Sonntag, ab 20 Uhr.
+        {openDaysLong}.
       </Paragraph>
     </div>
     <HoursTable />

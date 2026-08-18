@@ -7,7 +7,7 @@ import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema } from "@/utils/schema.ts";
-import { BUSINESS } from "@/consts.ts";
+import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
 ---
 
 <Layout
@@ -31,7 +31,7 @@ import { BUSINESS } from "@/consts.ts";
     <LegalText>
       <h2>Verantwortliche Stelle</h2>
       <p>
-        Flamingo Bar, Marktgasse 34B, 4900 Langenthal, Schweiz<br />
+        Flamingo Bar, {ADDRESS_LINE}, Schweiz<br />
         E-Mail: <a href={`mailto:${BUSINESS.email}`}>
           {BUSINESS.email}
         </a>
