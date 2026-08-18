@@ -1,4 +1,24 @@
 ---
+/**
+ * Eyebrow + Überschrift + Unterzeile als ein Block, mit einstellbaren
+ * Abständen.
+ *
+ * Der Abstand entsteht aus drei Werten, die als Custom Properties auf dem
+ * Block liegen und deshalb einzeln überschrieben werden können:
+ *
+ *   Eyebrow
+ *     ↕ --_ph-gap  +  --_ph-eyebrow-gap
+ *   Überschrift
+ *     ↕ --_ph-gap  +  --_ph-heading-gap
+ *   Unterzeile
+ *     ↕ --_ph-gap
+ *   Slot (Buttons, Notiz, …)
+ *
+ * `spacing` setzt alle drei auf einmal; `gap`, `eyebrowGap` und `headingGap`
+ * überschreiben einzeln. Anders geht es nicht sauber: `.section-header` ist
+ * ein Flex-Container, sein `row-gap` gilt zwischen *allen* Kindern, und die
+ * beiden Zusatzabstände kommen obendrauf.
+ */
 import type { HTMLAttributes } from "astro/types";
 import Eyebrow from "@/components/Eyebrow.astro";
 import Heading from "@/components/Heading.astro";
@@ -6,6 +26,17 @@ import Paragraph from "@/components/Paragraph.astro";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 type HeadingStyle = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "display";
+
+/**
+ * Abstands-Vorgaben.
+ *
+ * - `tight` — Unterzeile sitzt dicht unter der Überschrift. Das ist die
+ *   Rhythmik, die die Startseite hatte, bevor sie `PageHeader` benutzte.
+ * - `default` — die Unterzeile liest sich als eigene Zeile, nicht als zweite
+ *   Überschriftenzeile. Vorgabe auf allen Unterseiten.
+ * - `loose` — für Abschnitte, die als eigener Auftritt stehen sollen.
+ */
+type Spacing = "tight" | "default" | "loose";
 
 interface Props extends HTMLAttributes<"div"> {
   /** Set to `false` to skip rendering this component and its children. */
@@ -26,6 +57,14 @@ interface Props extends HTMLAttributes<"div"> {
    * look lopsided inside a 38ch box.
    */
   maxWidth?: number | "none";
+  /** Abstands-Vorgabe für den ganzen Block. */
+  spacing?: Spacing;
+  /** Grundabstand zwischen allen Teilen. Überschreibt `spacing`. z. B. `"1.5rem"`. */
+  gap?: string;
+  /** Zusätzlicher Abstand unter dem Eyebrow. Überschreibt `spacing`. */
+  eyebrowGap?: string;
+  /** Zusätzlicher Abstand unter der Überschrift. Überschreibt `spacing`. */
+  headingGap?: string;
 }
 
 const {
@@ -36,14 +75,33 @@ const {
   variant = "h2",
   text,
   maxWidth = 38,
+  spacing = "default",
+  gap,
+  eyebrowGap,
+  headingGap,
   class: className,
   ...rest
 } = Astro.props;
+
+/* Nur die tatsächlich gesetzten Werte landen im `style`, damit die Vorgabe
+   aus dem Stylesheet sonst unangetastet bleibt. */
+const overrides = Object.entries({
+  "--_ph-gap": gap,
+  "--_ph-eyebrow-gap": eyebrowGap,
+  "--_ph-heading-gap": headingGap,
+})
+  .filter(([, value]) => value)
+  .map(([name, value]) => `${name}: ${value}`)
+  .join("; ");
 ---
 
 {
   render && (
-    <div class:list={["section-header", className]} {...rest}>
+    <div
+      class:list={["section-header", `spacing-${spacing}`, className]}
+      style={overrides || undefined}
+      {...rest}
+    >
       <Eyebrow>{eyebrow}</Eyebrow>
       <Heading tag={headingTag} variant={variant}>
         {heading}
@@ -64,10 +122,33 @@ const {
 
 <style is:global>
   @layer components {
+    .section-header {
+      /* Vorgabe = `spacing="default"`, damit ein Block ohne Klasse (etwa aus
+         Stacki heraus) trotzdem richtig sitzt. */
+      --_ph-gap: 1rem;
+      --_ph-eyebrow-gap: var(--space-3);
+      --_ph-heading-gap: 0.9rem;
+
+      row-gap: var(--_ph-gap);
+      column-gap: var(--_ph-gap);
+    }
+
+    .section-header.spacing-tight {
+      --_ph-gap: 0.75rem;
+      --_ph-eyebrow-gap: var(--space-2);
+      --_ph-heading-gap: 0.5rem;
+    }
+
+    .section-header.spacing-loose {
+      --_ph-gap: 1.25rem;
+      --_ph-eyebrow-gap: var(--space-4);
+      --_ph-heading-gap: 1.4rem;
+    }
+
     /* A touch more air than Lumos's default heading/text pairing, so the
        subhead reads as its own line rather than as a second heading row. */
     .section-header > .heading {
-      margin-bottom: 0.9rem;
+      margin-bottom: var(--_ph-heading-gap);
     }
 
     /* `maxWidth` caps the measure; without this the narrower box would sit
@@ -79,7 +160,7 @@ const {
     /* The eyebrow is inline-flex, so the section's text-align places it;
        it only needs breathing room before the heading. */
     .section-header > .eyebrow_wrap {
-      margin-bottom: var(--space-3);
+      margin-bottom: var(--_ph-eyebrow-gap);
     }
   }
 </style>

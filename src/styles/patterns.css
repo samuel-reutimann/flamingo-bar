@@ -191,14 +191,14 @@
 /* Page-level intro block: heading, subhead and CTA in one tight flow instead
    of being pulled apart by the container's large inter-child gap. Set here
    rather than per page so every page shares one measure. */
+/* Die Abstände stehen bewusst nicht hier, sondern in `PageHeader.astro` —
+   dort sind sie über `spacing` bzw. `--_ph-gap` einstellbar. */
 .section-header {
   max-width: 38rem;
   margin-inline: auto;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  row-gap: 1rem;
-  column-gap: 1rem;
 }
 
 /* Muted supporting copy — subheads, notes, labels. */

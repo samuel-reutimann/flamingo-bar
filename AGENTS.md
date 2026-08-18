@@ -218,6 +218,15 @@ Six project components carry the patterns the subpages share:
   heading rhythm differed from every other page. `maxWidth="none"` drops the
   measure cap for one-line subheads.
 
+  Spacing is adjustable per instance. `spacing="tight" | "default" | "loose"`
+  sets all three gaps at once; `gap`, `eyebrowGap` and `headingGap` override
+  them individually with any CSS length. They write the custom properties
+  `--_ph-gap`, `--_ph-eyebrow-gap` and `--_ph-heading-gap`, so a page can also
+  set them in CSS. Measured heading gap: tight 8px, default 14.4px, loose
+  22.4px — `tight` is the rhythm the homepage had before it used PageHeader.
+  The gaps live in the component, not in `patterns.css`, so there is one place
+  to change them.
+
 `patterns.css` also carries the recipes that used to be copied between
 pages: `.split_layout` (image beside text; `.is-top` aligns the columns at
 the top), `.def_rows`/`.def_row` (labelled rows with dividers),
