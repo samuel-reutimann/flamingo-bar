@@ -6,11 +6,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "check": "astro check",
+    "check": "node scripts/check-css.mjs && astro check",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check:css": "node scripts/check-css.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

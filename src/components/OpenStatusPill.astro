@@ -88,6 +88,13 @@ const {
       gap: var(--space-2);
     }
 
+    /* Eyebrow setzt `display: inline-flex`, was das `hidden`-Attribut
+       überstimmen würde — die Pille wäre vor dem ersten Skriptlauf sichtbar
+       und leer. */
+    .status_pill[hidden] {
+      display: none;
+    }
+
     .status_dot {
       flex: none;
       width: 0.35rem;
