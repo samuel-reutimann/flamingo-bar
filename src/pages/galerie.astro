@@ -50,22 +50,22 @@ const tiles: Tile[] = [
     alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" },
   { image: neonGlassesImage, caption: "Neonlicht", ratio: "landscape", eager: true,
     alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" },
-  { image: aperolImage, caption: "Aperol Spritz", ratio: "tall", eager: true,
-    alt: "Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze" },
-  { image: cocktailHandImage, caption: "Cocktails", ratio: "portrait", eager: true,
-    alt: "Hand hält einen Tumbler mit Cocktail und Eiswürfel" },
+  { image: aperolImage, caption: "Aperitif", ratio: "tall", eager: true,
+    alt: "Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze" },
+  { image: cocktailHandImage, caption: "An der Bar", ratio: "portrait", eager: true,
+    alt: "Hand hält einen Tumbler mit Eiswürfeln" },
   { image: djKnobsImage, caption: "Am Pult", ratio: "tall",
     alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" },
-  { image: longIslandImage, caption: "Long Island Iced Tea",
-    alt: "Long Island Iced Tea im Longdrinkglas mit Zitronenscheibe" },
+  { image: longIslandImage, caption: "Longdrink",
+    alt: "Longdrinkglas mit Eis und Zitronenscheibe" },
   { image: crowdImage, caption: "Tanzfläche", ratio: "landscape",
     alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party" },
   { image: djMixerImage, caption: "DJ-Abend", ratio: "portrait",
     alt: "DJane am Pult, pinke Lichtstrahlen über der Menge" },
   { image: liveSessionImage, caption: "Live Session", ratio: "tall",
     alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht" },
-  { image: pinaColadaImage, caption: "Piña Colada", ratio: "portrait",
-    alt: "Piña Colada mit Ananas und Cocktailkirsche an der Bar" },
+  { image: pinaColadaImage, caption: "Auf Eis", ratio: "portrait",
+    alt: "Glas mit Ananasscheibe und Cocktailkirsche an der Bar" },
   { image: bottleImage, caption: "Flaschenservice", ratio: "landscape",
     alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" },
 ];
@@ -73,7 +73,7 @@ const tiles: Tile[] = [
 
 <Layout
   title="Galerie – Bar, Drinks und Nächte"
-  description="Bilder aus der Flamingo Bar Langenthal: die Bartheke bei Nacht, Cocktails und Longdrinks, DJ-Abende, Motto-Partys und die Logen mit Flaschenservice."
+  description="Bilder aus der Flamingo Bar Langenthal: die Bartheke bei Nacht, Drinks und Longdrinks, DJ-Abende, Motto-Partys und die Logen mit Flaschenservice."
   theme="dark"
 >
   <Schema
@@ -84,12 +84,12 @@ const tiles: Tile[] = [
     <PageHeader
       eyebrow="Galerie"
       heading="Bar, Drinks und lange Nächte"
-      text="Bilder aus der Bar, von den Drinks und von den Abenden. Zum Vergrössern antippen."
+      text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen."
     />
   </Section>
 
   <Section paddingTop="small" paddingBottom="medium">
-    <div class="gallery_grid">
+    <div class="gallery_grid measure-main">
       {
         tiles.map((tile) => (
           <figure class:list={["gallery_tile", tile.ratio && `is-${tile.ratio}`]}>
@@ -136,7 +136,7 @@ const tiles: Tile[] = [
       headingTag="h2"
       variant="h3"
       maxWidth="none"
-      heading="Aktueller geht Instagram"
+      heading="Aktuelleres steht auf Instagram"
       text="Kurzfristige Ankündigungen und Bilder vom letzten Wochenende laufen dort."
     >
       <ButtonWrapper>
@@ -208,9 +208,6 @@ const tiles: Tile[] = [
     .gallery_grid {
       --_gallery-gap: 0.5rem;
 
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
       columns: 2;
       column-gap: var(--_gallery-gap);
     }
@@ -297,7 +294,7 @@ const tiles: Tile[] = [
 
     .lightbox::backdrop {
       background-color: color-mix(in srgb, var(--dark-900) 88%, transparent);
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(0.375rem);
     }
 
     .lightbox_image {

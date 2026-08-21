@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import ContentWrapper from "@/components/ContentWrapper.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import HoursTable from "@/components/HoursTable.astro";
 import Heading from "@/components/Heading.astro";
@@ -37,7 +38,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
     <PageHeader
       eyebrow="Kontakt"
       heading="Direkt erreichbar"
-      text="WhatsApp ist der schnellste Weg, auch mitten am Abend. Für einen Tisch gibt es das Formular."
+      text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular."
     >
       <ButtonWrapper>
         <Button element="link" href="/reservation/">Tisch anfragen</Button>
@@ -79,13 +80,18 @@ const openDaysLong = openDaysLabel(hours, { long: true });
   </Section>
 
   <Section paddingTop="small" paddingBottom="medium">
-    <div class="split_layout contact_layout">
-      <div class="contact_text">
+    <ContentWrapper
+      variant="columns"
+      class="measure-main"
+      column2Class="contact_map radius-main"
+      visualRatio="4 / 3"
+    >
+      <Fragment>
         <Heading tag="h2" variant="h3">{ADDRESS_SHORT}</Heading>
         <Paragraph maxWidth={34} class="section-note">
           Mitten in der Altstadt, fünf Minuten zu Fuss vom Bahnhof Langenthal.
         </Paragraph>
-        <div class="def_rows contact_rows">
+        <div class="def_rows contact_rows width-full">
           <div class="contact_row">
             <div>
               <Heading tag="h3" variant="h6">Mit dem ÖV</Heading>
@@ -111,19 +117,18 @@ const openDaysLong = openDaysLabel(hours, { long: true });
             </div>
           </div>
         </div>
-        <ButtonWrapper>
+        <ButtonWrapper class="width-full">
           <Button element="link" href={BUSINESS.mapsUrl}>
             Auf Karte öffnen
           </Button>
         </ButtonWrapper>
-      </div>
-      <div class="contact_map">
-        <Img
-          src={mapImage}
-          alt={`Karte mit Standort ${ADDRESS_LINE}`}
-        />
-      </div>
-    </div>
+      </Fragment>
+      <Img
+        slot="column2"
+        src={mapImage}
+        alt={`Karte mit Standort ${ADDRESS_LINE}`}
+      />
+    </ContentWrapper>
   </Section>
 
   <Section paddingTop="medium" paddingBottom="large" align="center">
@@ -167,7 +172,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
     }
 
     .contact_label {
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
     }
 
     .contact_value {
@@ -178,9 +183,6 @@ const openDaysLong = openDaysLabel(hours, { long: true });
     }
 
     .contact_map {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      border-radius: var(--radius-main);
       overflow: clip;
     }
 

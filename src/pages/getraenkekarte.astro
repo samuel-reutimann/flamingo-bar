@@ -3,65 +3,52 @@ import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import Paragraph from "@/components/Paragraph.astro";
+import Heading from "@/components/Heading.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
-import Grid from "@/components/Grid.astro";
-import Card from "@/components/Card.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
-import {
-  getHours,
-  getDrinksByCategory,
-  getSpiritsByGroup,
-  getBottleService,
-  getMenuSection,
-  getPriceDate,
-  minPriceCHF,
-} from "@/utils/content.ts";
+import { getHours, getDrinkGroups, getBottleService, getMenuSection, getPriceDate, bottleFromCHF, minPriceCHF } from "@/utils/content.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
+import { DRINK_CATEGORIES } from "@/content/options.ts";
 import { BUSINESS, SITE_LOCALE } from "@/consts.ts";
 
-/* Karte aus den Collections `drinks`, `spirits` und `menu-sections` — der
-   Betrieb pflegt sie in Keystatic. Früher stand jede Position zweimal da
-   (Markup plus eine Zweitfassung für Structured Data); beides liest jetzt
-   dieselben Dateien. */
-const cocktails = await getDrinksByCategory("cocktails");
-const longdrinks = await getDrinksByCategory("longdrinks");
-const alkoholfrei = await getDrinksByCategory("alkoholfrei");
-const weitere = await getDrinksByCategory("weitere");
+/* Die Karte kommt aus den Collections `drinks` und `menu-sections` — der
+   Betrieb pflegt sie in Keystatic. Die Abschnitte stehen nicht hier im
+   Markup, sondern kommen aus `DRINK_CATEGORIES`: ein neuer Abschnitt in
+   `src/content/options.ts` erscheint damit auf der Seite, in den Chips und im
+   Structured Data, ohne dass diese Datei angefasst wird.
 
-/* Cocktails mit Bild stehen oben als Karten, der Rest in der Preisliste. */
-const cocktailCards = cocktails.filter((drink) => drink.data.image);
-const cocktailRows = cocktails.filter((drink) => !drink.data.image);
+   `groups` sind die Zwischentitel der gedruckten Karte („Flaschenbier
+   (33 cl)“, „Flasche (inkl. Zusatzgetränke)“). Die Gruppe ohne Titel steht
+   zuerst — dort, wo die Positionen direkt unter der Überschrift stehen. */
+const menu = await Promise.all(
+  DRINK_CATEGORIES.map(async (category) => ({
+    id: category.value,
+    chip: category.label,
+    section: await getMenuSection(category.value),
+    groups: await getDrinkGroups(category.value),
+  }))
+);
 
 /* Stufen des Flaschenservice — dieselbe Collection, die Startseite,
    Reservation und das Structured Data unten lesen. */
+const bottleSection = await getMenuSection("flaschen");
 const bottleTiers = await getBottleService();
 
 /* Öffnungstage für den Schlusssatz — aus der Collection, nicht getippt. */
 const openDaysLong = openDaysLabel(await getHours(), { long: true });
 
-const spiritGroups = [
-  { label: "Whisky", entries: await getSpiritsByGroup("whisky") },
-  { label: "Vodka", entries: await getSpiritsByGroup("vodka") },
-  { label: "Rum", entries: await getSpiritsByGroup("rum") },
-  { label: "Gin", entries: await getSpiritsByGroup("gin") },
-];
+/* „Ab“-Preise gerechnet statt getippt: der günstigste feste Preis der ganzen
+   Karte und der günstigste Flaschenpreis. */
+const drinkFrom = await minPriceCHF(DRINK_CATEGORIES.map((c) => c.value));
+const bottleFrom = await bottleFromCHF();
 
-const sections = {
-  cocktails: await getMenuSection("cocktails"),
-  longdrinks: await getMenuSection("longdrinks"),
-  spirituosen: await getMenuSection("spirituosen"),
-  alkoholfrei: await getMenuSection("alkoholfrei"),
-  flaschen: await getMenuSection("flaschen"),
-  weitere: await getMenuSection("weitere"),
-};
-
-/* „Ab“-Preis gerechnet statt getippt — die Karte behauptete „ab CHF 12.–“,
-   während der günstigste Cocktail CHF 14 kostet. */
-const cocktailFrom = await minPriceCHF("cocktails");
-const cocktailLine = cocktailFrom ? `Cocktails ab CHF ${cocktailFrom}.–` : "Cocktails";
+const drinkLine = drinkFrom ? `Drinks ab CHF ${drinkFrom}.–` : "Alle Drinks";
+const bottleLine = bottleFrom
+  ? `Flaschen ab CHF ${bottleFrom}.–`
+  : "Flaschenservice";
 
 /** Stand der Preise. ISO für `Menu.dateModified`, ausgeschrieben für die Seite. */
 const priceDateIso = (await getPriceDate()) ?? "";
@@ -76,57 +63,44 @@ const priceDate = priceDateIso
 
 /* Structured Data aus denselben Einträgen. `price` ist dort der reine Betrag
    ohne Währung, deshalb `priceCHF` statt des Anzeigetexts — und nur, wo der
-   Preis wirklich fest ist. */
-const toMenuItems = (entries: typeof cocktails) =>
-  entries.map((drink) => ({
-    name: drink.data.name,
-    ...(drink.data.description ? { description: drink.data.description } : {}),
-    ...(drink.data.priceCHF !== undefined
-      ? { price: String(drink.data.priceCHF) }
-      : {}),
-  }));
+   Preis wirklich fest ist. Der Klammerzusatz („4.8%“, „Lemon / Peach“) ist
+   für Google die Beschreibung der Position. */
+type DrinkEntries = (typeof menu)[number]["groups"][number]["entries"];
+
+const toMenuItems = (entries: DrinkEntries) =>
+  entries.map((drink) => {
+    const description = drink.data.description ?? drink.data.note;
+    return {
+      name: drink.data.name,
+      ...(description ? { description } : {}),
+      ...(drink.data.priceCHF !== undefined
+        ? { price: String(drink.data.priceCHF) }
+        : {}),
+    };
+  });
 
 const menuSections = [
+  ...menu.map(({ section, groups }) => {
+    const named = groups.filter((group) => group.label);
+    return {
+      name: section.title,
+      description: [section.intro, section.note].filter(Boolean).join(" ") || undefined,
+      items: toMenuItems(
+        groups.find((group) => !group.label)?.entries ?? []
+      ),
+      ...(named.length
+        ? {
+            sections: named.map((group) => ({
+              name: group.label!,
+              items: toMenuItems(group.entries),
+            })),
+          }
+        : {}),
+    };
+  }),
   {
-    name: sections.cocktails.title,
-    description: sections.cocktails.intro,
-    items: toMenuItems(cocktails),
-  },
-  {
-    name: sections.longdrinks.title,
-    description: sections.longdrinks.intro,
-    items: toMenuItems(longdrinks),
-  },
-  {
-    name: sections.spirituosen.title,
-    description: sections.spirituosen.intro,
-    items: [],
-    sections: spiritGroups.map((group) => ({
-      name: group.label,
-      items: group.entries.flatMap((spirit) => [
-        {
-          name: `${spirit.data.name}, 4 cl`,
-          ...(spirit.data.glassCHF !== undefined
-            ? { price: String(spirit.data.glassCHF) }
-            : { description: spirit.data.glass }),
-        },
-        {
-          name: `${spirit.data.name}, Flasche`,
-          ...(spirit.data.bottleCHF !== undefined
-            ? { price: String(spirit.data.bottleCHF) }
-            : { description: spirit.data.bottle }),
-        },
-      ]),
-    })),
-  },
-  {
-    name: sections.alkoholfrei.title,
-    description: sections.alkoholfrei.intro,
-    items: toMenuItems(alkoholfrei),
-  },
-  {
-    name: sections.flaschen.title,
-    description: sections.flaschen.intro,
+    name: bottleSection.title,
+    description: bottleSection.intro,
     items: bottleTiers.map((tier) => ({
       name: tier.data.name,
       description: [tier.data.description, tier.data.price]
@@ -134,17 +108,12 @@ const menuSections = [
         .join(". "),
     })),
   },
-  {
-    name: sections.weitere.title,
-    description: sections.weitere.intro,
-    items: toMenuItems(weitere),
-  },
 ];
 ---
 
 <Layout
   title="Getränkekarte mit Preisen – Langenthal"
-  description={`Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: ${cocktailLine}, Longdrinks, Spirituosen, alkoholfreie Drinks und Flaschenservice.`}
+  description={`Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: Bier, Wein, Whisky, Vodka, Liköre und alkoholfreie Getränke. ${drinkLine}, ${bottleLine}.`}
   theme="dark"
 >
   <Schema
@@ -157,163 +126,87 @@ const menuSections = [
   <Section paddingTop="navoverlap" paddingBottom="small" align="center">
     <PageHeader
       heading="Getränkekarte"
-      text="Alle Preise stehen hier, nicht nur auf der Tafel an der Bar."
+      text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`}
     />
   </Section>
 
-  {
-    /* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
-       Die Chips bleiben beim Scrollen unter der Nav kleben. */
-  }
+  {/* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
+       Die Chips bleiben beim Scrollen unter der Nav kleben. */}
   <nav class="chips_wrap" aria-label="Kategorien">
-    <ul class="chips">
-      <li><a class="chip" href="#cocktails">Cocktails</a></li>
-      <li><a class="chip" href="#longdrinks">Longdrinks</a></li>
-      <li><a class="chip" href="#spirituosen">Spirituosen</a></li>
-      <li><a class="chip" href="#alkoholfrei">Alkoholfrei</a></li>
+    <ul class="chips measure-main">
+      {
+        menu.map((category) => (
+          <li>
+            <a class="chip" href={`#${category.id}`}>
+              {category.chip}
+            </a>
+          </li>
+        ))
+      }
       <li><a class="chip" href="#flaschen">Flaschenservice</a></li>
-      <li><a class="chip" href="#weitere">Weitere</a></li>
     </ul>
   </nav>
 
-  <Section
-    paddingTop="medium"
-    paddingBottom="large"
-    align="center"
-    id="cocktails"
-  >
-    <PageHeader
-      headingTag="h2"
-      variant="h3"
-      heading={sections.cocktails.title}
-      text={sections.cocktails.intro}
-    />
-    <Grid medium={3} class="menu_grid">
-      {
-        cocktailCards.map((drink) => (
-          <Card
-            variant="stacked"
-            image={drink.data.image}
-            imageAlt={drink.data.imageAlt}
-            heading={drink.data.name}
-            text={drink.data.description}
-          />
-        ))
-      }
-    </Grid>
-    <ul class="drink_list">
-      {
-        cocktailRows.map((drink) => (
-          <li class="drink_row">
-            <span class="drink_name">{drink.data.name}</span>
-            <span class="drink_dots" />
-            <span class="drink_price">{drink.data.price}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
-
-  <Section
-    paddingTop="none"
-    paddingBottom="large"
-    align="center"
-    id="longdrinks"
-  >
-    <PageHeader
-      headingTag="h2"
-      variant="h3"
-      heading={sections.longdrinks.title}
-      text={sections.longdrinks.intro}
-    />
-    <ul class="drink_list">
-      {
-        longdrinks.map((drink) => (
-          <li class="drink_row">
-            <span class="drink_name">{drink.data.name}</span>
-            <span class="drink_dots" />
-            <span class="drink_price">{drink.data.price}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
-
   {
-    /* Spirituosen: 4 cl und ganze Flasche in einer Zeile, damit der Sprung
-       vom Glas zum Flaschenservice ohne Rechnen sichtbar ist. */
-  }
-  <Section
-    paddingTop="none"
-    paddingBottom="large"
-    align="center"
-    id="spirituosen"
-  >
-    <PageHeader
-      headingTag="h2"
-      variant="h3"
-      heading={sections.spirituosen.title}
-      text={sections.spirituosen.intro}
-    />
-    <div class="price_table">
-      <div class="price_head">
-        <span>Sorte</span>
-        <span>4 cl</span>
-        <span>Flasche</span>
-      </div>
-
-      {
-        spiritGroups.map((group) => (
+    menu.map((category, index) => (
+      <Section
+        paddingTop={index === 0 ? "medium" : "none"}
+        paddingBottom="large"
+        align="center"
+        id={category.id}
+      >
+        <PageHeader
+          headingTag="h2"
+          variant="h3"
+          heading={category.section.title}
+          text={category.section.intro}
+        />
+        {category.groups.map((group) => (
           <>
-            <h3 class="price_group">{group.label}</h3>
-            <ul class="price_rows">
-              {group.entries.map((spirit) => (
-                <li class="price_row">
-                  <span class="price_name">{spirit.data.name}</span>
-                  <span class="price_value">{spirit.data.glass}</span>
-                  <span class="price_value">{spirit.data.bottle}</span>
+            <Heading
+              tag="h3"
+              variant="inherit"
+              class="drink_group"
+              render={Boolean(group.label)}
+            >
+              {group.label}
+            </Heading>
+            <ul class="drink_list">
+              {group.entries.map((drink) => (
+                <li class="drink_row">
+                  <span class="drink_name">
+                    {drink.data.name}
+                    {drink.data.note && (
+                      <span class="drink_note"> ({drink.data.note})</span>
+                    )}
+                  </span>
+                  <span class="drink_dots" />
+                  <span class="drink_price">{drink.data.price}</span>
                 </li>
               ))}
             </ul>
           </>
-        ))
-      }
-    </div>
-  </Section>
-
-  <Section
-    paddingTop="none"
-    paddingBottom="large"
-    align="center"
-    id="alkoholfrei"
-  >
-    <PageHeader
-      headingTag="h2"
-      variant="h3"
-      heading={sections.alkoholfrei.title}
-      text={sections.alkoholfrei.intro}
-    />
-    <ul class="drink_list">
-      {
-        alkoholfrei.map((drink) => (
-          <li class="drink_row">
-            <span class="drink_name">{drink.data.name}</span>
-            <span class="drink_dots" />
-            <span class="drink_price">{drink.data.price}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
+        ))}
+        <Paragraph
+          variant="small"
+          maxWidth={32}
+          class="section-note drink_footnote"
+          render={Boolean(category.section.note)}
+        >
+          {category.section.note}
+        </Paragraph>
+      </Section>
+    ))
+  }
 
   <Section paddingTop="none" paddingBottom="large" align="center" id="flaschen">
     <PageHeader
       headingTag="h2"
       variant="h3"
-      heading={sections.flaschen.title}
-      text={sections.flaschen.intro}
+      heading={bottleSection.title}
+      text={bottleSection.intro}
     />
-    <BottleOptions class="bottle_options-spaced" />
+    <BottleOptions class="margin-bottom-6" />
     <ButtonWrapper>
       <Button element="link" href="/reservation/">Tisch anfragen</Button>
       <Button
@@ -324,34 +217,14 @@ const menuSections = [
     </ButtonWrapper>
   </Section>
 
-  <Section paddingTop="none" paddingBottom="medium" align="center" id="weitere">
-    <PageHeader
-      headingTag="h2"
-      variant="h3"
-      heading={sections.weitere.title}
-      text={sections.weitere.intro}
-    />
-    <ul class="drink_list">
-      {
-        weitere.map((drink) => (
-          <li class="drink_row">
-            <span class="drink_name">{drink.data.name}</span>
-            <span class="drink_dots" />
-            <span class="drink_price">{drink.data.price}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
-
   <Section paddingTop="none" paddingBottom="medium" align="center">
     <div class="menu_note">
-      <p class="menu_note-label text-style-small">Stand der Preise</p>
+      <p class="menu_note-label text-style-small">Hinweise</p>
       <Paragraph variant="small" maxWidth={52} class="section-note">
         Preise aktualisiert am {priceDate}. «Auf Anfrage» heisst: der Preis
         hängt von der Sorte oder der Menge ab, wir sagen ihn dir vor der
         Bestellung. Einzelne Sorten können ausgehen — dann nennen wir eine
-        Alternative.
+        Alternative. Die Prozentangaben sind der Alkoholgehalt.
       </Paragraph>
     </div>
   </Section>
@@ -432,7 +305,7 @@ const menuSections = [
       });
     };
 
-    // Sechs Messungen pro Scroll-Event, direkt im Handler: billiger als das
+    // Zehn Messungen pro Scroll-Event, direkt im Handler: billiger als das
     // Umschalten selbst, und ohne rAF bleibt die Leiste beim schnellen Scrollen
     // nicht hinter dem Inhalt zurück.
     update();
@@ -443,15 +316,6 @@ const menuSections = [
 
 <style is:global>
   @layer components {
-    /* Nur hier folgt direkt ein weiterer Abschnitt. */
-    .bottle_options-spaced {
-      margin-bottom: var(--space-6);
-    }
-
-    .menu_grid {
-      margin-bottom: var(--space-6);
-    }
-
     /* ------------------------------------------------------------------ chips */
     .chips_wrap {
       position: sticky;
@@ -471,11 +335,9 @@ const menuSections = [
     .chips {
       display: flex;
       gap: var(--space-2);
-      max-width: var(--max-width-main);
-      margin: 0 auto;
       padding: 0 0 0.25rem;
       list-style: none;
-      overflow-x: auto;
+      overflow-x: visible;
       scrollbar-width: none;
       scroll-snap-type: x proximity;
     }
@@ -487,7 +349,7 @@ const menuSections = [
     /* Ab dieser Breite passen alle Chips in eine Zeile, dann sitzen sie zentriert
        wie der Rest der Seite. Schmaler bleibt die Leiste linksbündig, sonst
        verschwindet der erste Chip hinter dem Rand. */
-    @media (min-width: 48rem) {
+    @media (min-width: 64rem) {
       .chips {
         justify-content: center;
       }
@@ -541,8 +403,13 @@ const menuSections = [
       text-align: left;
     }
 
+    /* Drei Spalten statt Flexbox: der Klammerzusatz („Green 17%, Red 24%, …“)
+       ist manchmal länger als der Name, und nur eine Spalte, die auf 0
+       schrumpfen darf, lässt ihn umbrechen statt die Zeile zu sprengen. Die
+       Punktreihe behält ihr Minimum, damit sie nicht verschwindet. */
     .drink_row {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, auto) minmax(1.5rem, 1fr) auto;
       align-items: baseline;
       gap: 0.75rem;
       padding: 0.7rem 1.25rem;
@@ -552,12 +419,20 @@ const menuSections = [
     .drink_name {
       font-family: var(--display-family);
       font-size: 1.0625rem;
-      white-space: nowrap;
+    }
+
+    /* Volumenprozent, Größe oder Sorten — mitlesbar, aber nicht mitlaut. */
+    .drink_note {
+      font-family: var(--mono-family);
+      font-size: 0.6875rem;
+      letter-spacing: 0.03em;
+      color: var(--text-faded);
+      white-space: normal;
     }
 
     .drink_dots {
-      flex: 1 1 auto;
-      border-bottom: var(--border-width) dotted color-mix(in srgb, var(--light-100) 20%, transparent);
+      border-bottom: var(--border-width) dotted
+        color-mix(in srgb, var(--light-100) 20%, transparent);
       transform: translateY(-0.3rem);
     }
 
@@ -569,89 +444,42 @@ const menuSections = [
       white-space: nowrap;
     }
 
-    /* ------------------------------------------------------------ price table */
-    .price_table {
-      width: 100%;
-      max-width: 36rem;
-      margin-inline: auto;
-      text-align: left;
-    }
-
-    .price_head,
-    .price_row {
-      display: grid;
-      grid-template-columns: 1fr 6rem 6rem;
-      align-items: baseline;
-      gap: 0.75rem;
-    }
-
-    .price_head {
-      padding: 0 1.25rem 0.6rem;
-      border-bottom: var(--border-width) solid var(--border);
-      font-family: var(--mono-family);
-      font-size: 0.5625rem;
-      letter-spacing: var(--letter-spacing-label);
-      text-transform: uppercase;
-      color: color-mix(in lab, currentcolor 48%, transparent);
-    }
-
-    .price_head > span + span,
-    .price_row > .price_value {
-      text-align: right;
-    }
-
-    .price_group {
+    /* Zwischentitel innerhalb eines Abschnitts: „Flaschenbier (33 cl)“. */
+    .drink_group {
+      max-width: 32rem;
+      margin: 0 auto 0.35rem;
+      padding-inline: 1.25rem;
       font-family: var(--mono-family);
       font-size: 0.625rem;
       font-weight: var(--primary-regular);
       letter-spacing: var(--letter-spacing-label);
       text-transform: uppercase;
       color: var(--brand-500);
-      margin: var(--space-5) 0 0.35rem;
-      padding-inline: 1.25rem;
+      text-align: left;
     }
 
-    .price_rows {
-      display: grid;
-      gap: 0.15rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
+    /* Abstand bekommt nur ein Zwischentitel, über dem schon eine Liste steht
+       — nicht der erste unter der Einleitung. `:first-of-type` ginge hier
+       nicht: in Whisky und Vodka steht die erste Liste ohne Zwischentitel, der
+       erste `h3` des Abschnitts folgt dort also auf eine Liste. */
+    .drink_list + .drink_group {
+      margin-top: var(--space-5);
     }
 
-    .price_row {
-      padding: 0.6rem 1.25rem;
-      border-radius: var(--radius-small);
-    }
-
-    .price_name {
-      font-family: var(--display-family);
-      font-size: 1.0625rem;
-    }
-
-    .price_value {
-      font-family: var(--mono-family);
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      color: color-mix(in lab, currentcolor 65%, transparent);
-      white-space: nowrap;
+    /* Die Fußnote der gedruckten Karte: „Mischgetränk: + CHF 3.–“. */
+    .drink_footnote {
+      margin-top: var(--space-4);
     }
 
     @media (max-width: 30rem) {
-      .price_head,
-      .price_row {
-        grid-template-columns: 1fr 5rem 5rem;
+      .drink_row {
         padding-inline: 0.75rem;
       }
 
-      .price_group {
+      .drink_group {
         padding-inline: 0.75rem;
       }
     }
-
-    /* --------------------------------------------------------------- bottles */
-
-
 
     /* ------------------------------------------------------------------ note */
     .menu_note {

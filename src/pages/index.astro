@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import ContentWrapper from "@/components/ContentWrapper.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
@@ -20,7 +21,7 @@ import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema } from "@/utils/schema.ts";
-import { getHours, getDrinksByCategory, getUpcomingEvents, minPriceCHF, bottleFromCHF } from "@/utils/content.ts";
+import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF } from "@/utils/content.ts";
 import { longDate } from "@/utils/dates.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
@@ -33,20 +34,53 @@ const hours = await getHours();
    zeigen. Standen hier früher ausgeschrieben im Markup — mit einbetonierten
    Daten ("Freitag, 21. August 2026"), die nach dem Abend nie wieder stimmten,
    und mit Getränketexten, die bei jeder Keystatic-Änderung auseinanderliefen. */
-const teaserDrinks = (await getDrinksByCategory("cocktails"))
-  .filter((drink) => drink.data.image)
-  .slice(0, 3);
 
 /* Nur Termine mit Bild — die `cover`-Karte wäre sonst leer. */
 const teaserEvents = (await getUpcomingEvents())
   .filter((event) => event.data.image)
   .slice(0, 3);
 
-/* „Ab“-Preise gerechnet, nicht getippt: die Karte behauptete an vier Stellen
-   „Cocktails ab CHF 12.–“, während der günstigste Cocktail CHF 14 kostete. */
-const cocktailFrom = await minPriceCHF("cocktails");
+/* „Ab“-Preise gerechnet, nicht getippt: die Seite behauptete an vier Stellen
+   „Cocktails ab CHF 12.–“, während der günstigste Cocktail CHF 14 kostete.
+   Jede Zahl hier kommt aus den Preisen, die in Keystatic stehen — der Teaser
+   sagt damit nie einen Preis, den es an der Bar nicht gibt. */
+const drinkFrom = await minPriceCHF([
+  "alkoholfrei",
+  "warm",
+  "bier",
+  "wein",
+  "shots",
+  "aperitif",
+  "likoere",
+  "whisky",
+  "vodkarum",
+]);
 const bottleFrom = await bottleFromCHF();
-const cocktailLine = cocktailFrom ? `Cocktails ab CHF ${cocktailFrom}.–` : "Cocktails";
+
+/* Die drei Karten im Karte-Teaser: je ein Block der Getränkekarte mit seinem
+   günstigsten Preis. */
+const teaserGroups = [
+  {
+    heading: "Bier & Wein",
+    from: await minPriceCHF(["bier", "wein"]),
+    text: "Aus der Flasche, offen vom Hahn, im Glas oder als ganze Flasche.",
+  },
+  {
+    heading: "Spirituosen & Liköre",
+    from: await minPriceCHF(["aperitif", "likoere", "whisky", "vodkarum"]),
+    text: "Whisky, Vodka, Rum, Aperitif und Digestif — 4 cl im Glas.",
+  },
+  {
+    heading: "Flaschenservice",
+    from: bottleFrom,
+    text: "Die ganze Flasche an den Tisch, Zusatzgetränke inklusive.",
+  },
+].map((group) => ({
+  heading: group.heading,
+  text: group.from ? `${group.text} Ab CHF ${group.from}.–` : group.text,
+}));
+
+const drinkLine = drinkFrom ? `Drinks ab CHF ${drinkFrom}.–` : "Drinks";
 const bottleLine = bottleFrom ? `Flaschen ab CHF ${bottleFrom}.–` : "Flaschenservice";
 
 /* „Do – So, ab 20 Uhr“ aus den Öffnungszeiten statt als Text daneben. */
@@ -54,8 +88,8 @@ const openDays = openDaysLabel(hours);
 ---
 
 <Layout
-  title="Cocktailbar in Langenthal – Drinks & DJs"
-  description={`Flamingo Bar an der ${BUSINESS.street} in ${BUSINESS.city}: ${cocktailLine}, DJ-Abende, Live-Musik und Flaschenservice. ${openDays} offen.`}
+  title="Bar in Langenthal – Drinks & DJs"
+  description={`Flamingo Bar an der ${BUSINESS.street} in ${BUSINESS.city}: ${drinkLine}, DJ-Abende, Live-Musik und Flaschenservice. ${openDays} offen.`}
   theme="dark"
 >
   <Schema slot="head" data={barSchema(hours)} />
@@ -64,7 +98,7 @@ const openDays = openDaysLabel(hours);
     // ruckelt. Ohne JS oder bei prefers-reduced-motion passiert nichts – die
     // Klasse wird nie gesetzt und der Hero ist von Anfang an sichtbar.
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.documentElement.classList.add("hero-preload");
+      document.documentElement.classList.add("is-preload");
 
       // Sicherheitsnetz. Aufgehoben wird der Haltezustand sonst nur vom
       // GSAP-Skript; kommt dessen Bundle nicht an (Netzfehler, CSP, ein
@@ -76,7 +110,7 @@ const openDays = openDaysLabel(hours);
       // und überspringt die Animation. Genau richtig: nach vier Sekunden hat
       // die Seite längst gestanden, eine Einblendung wäre dann ein Zucken.
       setTimeout(function () {
-        document.documentElement.classList.remove("hero-preload");
+        document.documentElement.classList.remove("is-preload");
       }, 4000);
     }
   </script>
@@ -85,10 +119,10 @@ const openDays = openDaysLabel(hours);
     <div class="hero_content">
       <OpenStatusPill class="hero_status" />
       <Heading tag="h1" variant="h1" class="hero_heading"
-        >Deine Bar in Langenthal <br />für Cocktails und lange Nächte</Heading
+        >Deine Bar in Langenthal <br />für Drinks und lange Nächte</Heading
       >
       <Paragraph maxWidth={38} class="hero_text"
-        >{cocktailLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
+        >{drinkLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
           BUSINESS.city
         }.</Paragraph
       >
@@ -113,7 +147,7 @@ const openDays = openDaysLabel(hours);
   </section>
   <!-- ÖFFNUNGSZEITEN -->
   <Section paddingTop="medium" paddingBottom="none" id="oeffnungszeiten">
-    <div class="hours_strip">
+    <div class="hours_strip measure-main">
       <div class="hours_strip-headline">
         <span class="hours_strip-label">Offen</span>
         <span class="hours_strip-value">{openDays}</span>
@@ -137,7 +171,7 @@ const openDays = openDaysLabel(hours);
     const root = document.documentElement;
 
     // Die Klasse setzt der Inline-Head-Script nur, wenn animiert werden darf.
-    if (root.classList.contains("hero-preload")) {
+    if (root.classList.contains("is-preload")) {
       const image = document.querySelector<HTMLElement>(".hero_visual img");
       const scrim = document.querySelector<HTMLElement>(".hero_scrim");
       const pill = document.querySelector<HTMLElement>(".nav_pill");
@@ -158,7 +192,7 @@ const openDays = openDaysLabel(hours);
         gsap.set(image, { scale: 1.06, yPercent: 3, force3D: true });
         gsap.set(scrim, { opacity: 0 });
         gsap.set(pill, { opacity: 0, y: -12, force3D: true });
-        root.classList.remove("hero-preload");
+        root.classList.remove("is-preload");
 
         const tl = gsap.timeline({
           defaults: { ease: "power3.out" },
@@ -247,7 +281,7 @@ const openDays = openDaysLabel(hours);
     <PageHeader
       headingTag="h2"
       maxWidth={40}
-      text={`${cocktailLine}, ${bottleLine}. Alle Preise stehen online, nicht nur auf der Tafel an der Bar.`}
+      text={`${drinkLine}, ${bottleLine}. Alle Preise stehen online, nicht nur auf der Tafel an der Bar.`}
     >
       <Fragment slot="heading">Was ein Abend<br />hier kostet</Fragment>
       <ButtonWrapper>
@@ -258,14 +292,8 @@ const openDays = openDaysLabel(hours);
     </PageHeader>
     <Grid medium={3} class="menu_grid">
       {
-        teaserDrinks.map((drink) => (
-          <Card
-            variant="stacked"
-            image={drink.data.image}
-            imageAlt={drink.data.imageAlt}
-            heading={drink.data.name}
-            text={drink.data.description}
-          />
+        teaserGroups.map((group) => (
+          <Card heading={group.heading} headingTag="h3" text={group.text} />
         ))
       }
     </Grid>
@@ -285,21 +313,14 @@ const openDays = openDaysLabel(hours);
       </ButtonWrapper>
     </PageHeader>
     <div class="events_content">
-      <Grid medium={3} class="events_grid">
+      <Grid medium={3} class="events_grid alignment-start">
         {
           teaserEvents.map((event) => (
-            <Card
-              variant="cover"
-              image={event.data.image!}
-              imageAlt={event.data.imageAlt}
-              eyebrow={longDate(event.data.start)}
-              heading={event.data.name}
-              cardTag="article"
-            />
+            <Card eyebrow={longDate(event.data.start)} heading={event.data.name} ratio="3 / 4" variant="cover" image={event.data.image!} imageAlt={event.data.imageAlt} cardTag="article" />
           ))
         }
       </Grid>
-      <Paragraph variant="small" class="section-note events_note"
+      <Paragraph variant="small" class="section-note events_note margin-top-6"
         >Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen
         auf Anfrage.</Paragraph
       >
@@ -327,7 +348,7 @@ const openDays = openDaysLabel(hours);
       <div class="gallery_item">
         <Img
           src={cocktailHandImage}
-          alt="Hand hält einen Tumbler mit Cocktail und Eiswürfel"
+          alt="Hand hält einen Tumbler mit Eiswürfeln"
         />
       </div>
       <div class="gallery_item">
@@ -369,21 +390,20 @@ const openDays = openDaysLabel(hours);
   </Section>
   <!-- FLASCHENSERVICE -->
   <Section paddingTop="medium" paddingBottom="medium" id="flaschenservice">
-    <div class="split_layout bottle_layout">
-      <div class="bottle_visual">
-        <Img src={bottle_service_lounge} />
-      </div>
-      <div class="bottle_text">
+    <ContentWrapper class="measure-main" column1Class="bottle_visual" variant="columns">
+      <Img src={bottle_service_lounge} variant="constrained" />
+      <Fragment slot="column2">
         <div>
           <Eyebrow>Flaschenservice</Eyebrow>
           <Heading tag="h2" variant="h2">Eine Flasche<br />an den Tisch</Heading>
         </div>
         <Paragraph maxWidth={34}
-          >Für Geburtstage, Gruppen und private Abende. Ein Zusatz ist ein
-          Mixgetränk wie Cola, Red Bull oder Tonic.</Paragraph
+          >Die Flasche kommt im Eiskübel mit Wunderkerze an den Tisch, für
+          Geburtstage, Gruppen und private Abende. Cola, Red Bull und Mineral
+          sind im Flaschenpreis dabei.</Paragraph
         >
-        <BottleOptions variant="rows" />
-        <ButtonWrapper>
+        <BottleOptions variant="rows" class="width-full" />
+        <ButtonWrapper class="width-full">
           <Button element="link" href="/reservation">Tisch anfragen</Button>
           <Button
             element="link"
@@ -391,8 +411,8 @@ const openDays = openDaysLabel(hours);
             variant="secondary">WhatsApp</Button
           >
         </ButtonWrapper>
-      </div>
-    </div>
+      </Fragment>
+    </ContentWrapper>
   </Section>
   <!-- ANFAHRT UND KONTAKT -->
   <Section
@@ -404,7 +424,7 @@ const openDays = openDaysLabel(hours);
     <PageHeader
       headingTag="h2"
       maxWidth="none"
-      heading="Mitten in Langenthal"
+      heading="Mitten in der Altstadt"
       text="Fünf Minuten zu Fuss vom Bahnhof."
     />
     <Grid medium={3} class="visit_details">
@@ -448,7 +468,7 @@ const openDays = openDaysLabel(hours);
       headingTag="h2"
       text="Karte, Preise und Flaschenservice, immer aktuell."
     >
-      <Fragment slot="heading">Alles für heute Abend<br />an einem Ort</Fragment>
+      <Fragment slot="heading">Heute Abend<br />schon was vor?</Fragment>
       <ButtonWrapper>
         <Button element="link" href="/getraenkekarte"
           >Getränkekarte ansehen</Button
@@ -467,11 +487,10 @@ const openDays = openDaysLabel(hours);
     /* Hero-Bild und H1 sind die LCP-Kandidaten und werden nie ausgeblendet —
        sonst hängt der Largest Contentful Paint an der Ausführung von GSAP.
        Beide kommen nur per Transform herein, der Rest darf einblenden. */
-    .hero-preload .hero_status,
-    .hero-preload .hero_text,
-    .hero-preload .hero_buttons,
-    .hero-preload .hero_scrim,
-    .hero-preload .nav_pill {
+    .is-preload .hero_status,
+    .is-preload .hero_text,
+    .is-preload .hero_buttons,
+    .is-preload .hero_scrim {
       opacity: 0;
     }
 
@@ -504,7 +523,7 @@ const openDays = openDaysLabel(hours);
       margin-inline: auto;
       margin-top: var(--space-3);
       margin-bottom: var(--space-5);
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
     }
 
     .hero_buttons {
@@ -561,9 +580,6 @@ const openDays = openDaysLabel(hours);
 
     /* --------------------------------------------------------------- öffnungs */
     .hours_strip {
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -625,10 +641,6 @@ const openDays = openDaysLabel(hours);
     /* Lumos's cover card is a fixed 20rem-tall box with content pinned to the
        top. The mockup wants a tall 3:4 poster card with the date/title
        anchored to the bottom over the gradient scrim. */
-    .events_note {
-      margin-top: var(--space-6);
-    }
-
     /* ------------------------------------------------------------ atmosphäre */
     .gallery_note {
       display: flex;
@@ -699,21 +711,6 @@ const openDays = openDaysLabel(hours);
       object-fit: cover;
     }
 
-    .bottle_scrim {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(
-        to top,
-        color-mix(in srgb, var(--dark-900) 55%, transparent),
-        transparent 45%
-      );
-    }
-
-    .bottle_text {
-      text-align: left;
-    }
-
 
 
 
@@ -726,7 +723,7 @@ const openDays = openDaysLabel(hours);
     }
 
     .visit_label {
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
     }
 
     .visit_value {

@@ -1,7 +1,7 @@
 ## What this is
 
-The Flamingo Bar website — Marktgasse 34B, Langenthal. A bar/cocktail site
-(hours, drink menu teaser, events, gallery, bottle service, visit/contact).
+The Flamingo Bar website — Marktgasse 34B, Langenthal. A bar site (hours,
+drink menu, events, gallery, bottle service, visit/contact).
 Built on the **Lumos** Astro starter framework, reskinned to a dark
 neon-pink/black brand instead of Lumos's default lime-green look.
 
@@ -97,7 +97,7 @@ not Lumos defaults**:
   `BaseLayout.astro`, only the latin subsets and the weights in use. Don't
   move this back to Google Fonts — no third-party connection is what
   `/datenschutz` now states, so the two would disagree.
-- **Type scale**: h1 42–84px, h2 34–62px, body text 14px (fixed, not
+- **Type scale**: h1 42–84px, h2 34–62px, body text 16px (fixed, not
   fluid), small text 12.5px (fixed), body line-height 1.7. These match the
   mockup's literal rem values, not Lumos's original fluid-clamp defaults —
   don't "fix" them back to a smoother fluid curve without checking the
@@ -114,8 +114,20 @@ not Lumos defaults**:
 - **Radius**: buttons are a full pill (`--radius-round`, changed in
   `Button.astro`), cards use `--radius-main` = `1.25rem`.
 - Effect tokens added wholesale for the glass nav pill / glows / scrims:
-  `--shadow-nav`, `--shadow-accent-glow`, `--blur-glass`,
-  `--gradient-glass`, `--gradient-card-scrim`, `--glow-accent-radial`.
+  `--border-glass`, `--shadow-nav`, `--shadow-accent-glow`,
+  `--shadow-dot-glow`, `--blur-glass`, `--gradient-glass`,
+  `--gradient-card-scrim`, `--glow-accent-radial`. Their lengths are in
+  `rem`, not `px`, so they scale with the reader's font size like the rest
+  of the system.
+- **Pure swatches** `--light-000` / `--dark-850` / `--dark-1000` exist only
+  to be mixed at low alpha (glass edge, drop shadow, scrim). The tinted
+  swatches above them have a visible cast at those alphas. Don't paint with
+  them at full strength.
+- **`--text-faded` (48 %) and `--text-subtle` (55 %)** are the two tiers of
+  played-down text — labels, captions, closed-day times, the footer's legal
+  bar. They resolve against `currentcolor`, so they work in every theme.
+  This stood written out as `color-mix(in lab, currentcolor 48%, …)` in
+  sixteen places; don't type the mix again.
 
 ## The cascade
 
@@ -125,7 +137,9 @@ rules in `@layer components`.** Unlayered CSS outranks every layer no matter
 the specificity, so a page that forgets it silently beats the whole design
 system, including the `utilities` layer that is supposed to win. All seven
 pages were unlayered until this was fixed; if a page rule starts behaving
-strangely, check for a missing `@layer` first.
+strangely, check for a missing `@layer` first. That includes the `<style>`
+inside `Nav.astro`'s `<noscript>`: it is in the layer too, and still wins
+because the block sits in the body while the bundled styles sit in the head.
 
 Colours come from the tokens via `color-mix`, never as literal `rgba()`.
 There used to be a second near-black (`rgba(10, 7, 8, …)`) blended straight
@@ -152,7 +166,7 @@ probably one of these, and it's intentional:
 
 ## Page structure (`src/pages/index.astro`)
 
-Sections, top to bottom: hero → Öffnungszeiten (hours) → Karte (cocktail
+Sections, top to bottom: hero → Öffnungszeiten (hours) → Karte (price
 teaser) → Events → Atmosphäre (gallery marquee) → Flaschenservice (bottle
 service) → Anfahrt/Kontakt (visit) → final CTA.
 
@@ -180,13 +194,16 @@ A few structural things worth knowing before editing:
   start }`, `.visit_map { width: 100% }`) — if you add new left-aligned or
   full-width content inside a centered section, you'll need the same kind
   of override.
-- **`.events_grid .card_wrap.cover` / `.card_content` override**: Lumos's
-  `Card` `cover` variant is a fixed 20rem-tall box with content pinned to
-  the *top*. The mockup's event cards are a tall 3:4 poster with the
-  date/title anchored to the *bottom* over a gradient scrim. This is
-  overridden with `aspect-ratio: 3/4` + `justify-content: flex-end`, scoped
-  to `.events_grid` only — don't "fix" this at the `Card.astro` level, other
-  cover-card usages (if any get added later) may want the default look.
+- **Event cards are `Card` props, not overrides**: Lumos's `Card` `cover`
+  variant is a fixed 20rem-tall box with content pinned to the *top*. The
+  mockup's event cards are a tall 3:4 poster with the date/title anchored to
+  the *bottom* over a gradient scrim. That is now `ratio="3 / 4"` +
+  `contentAlign="end"` on the `Card` itself, and `alignment-start` (a
+  utility) on the `Grid` around it. It used to be a `.events_grid
+  .card_wrap.cover` rule in `patterns.css`, where its `min-height: 0` never
+  applied — the `components` layer beats `patterns`, so Lumos's 20rem floor
+  won every time. Don't reintroduce a descendant override; the defaults are
+  unchanged, so other cover cards still get the plain look.
 - **Today-highlight on the hours list**: each `<li class="hours_row">` has
   a `data-day` attribute (`0`=Sunday…`6`=Saturday, matching
   `Date.prototype.getDay()`). A small inline `<script>` right after the
@@ -230,9 +247,38 @@ Six project components carry the patterns the subpages share:
 `patterns.css` also carries the recipes that used to be copied between
 pages: `.split_layout` (image beside text; `.is-top` aligns the columns at
 the top), `.def_rows`/`.def_row` (labelled rows with dividers),
-`.label_mono`, and the `.events_grid` cover-card overrides. Reach for those
-before writing a new page-local rule — each of them had already drifted
-apart between its copies.
+`.label_mono`, and `.measure-main` (full-width block, capped at
+`--max-width-main` and centred — the chip bar, the hours strip, the gallery
+grid, the footer's inner column, and every two-column `ContentWrapper`
+compose it). Reach for those before writing a new page-local rule — each of
+them had already drifted apart between its copies.
+
+**Image beside text is `<ContentWrapper variant="columns">`**, on
+Flaschenservice (home), Kontakt, private Events and Reservation. It used to
+be a `.split_layout` pattern; the wrapper does the same job, so the pattern
+is gone. Three things follow from the wrapper's own rules, and each has a
+utility as the escape hatch rather than an override:
+
+- It **stacks at 64rem**, not at the ~44rem the old `auto-fit` grid used.
+  Tablet widths now show one column.
+- Each column is a **flex column with `align-items: start`**, so a child
+  that has to span the column needs `width-full` — the forms, the aside,
+  the `def_rows` blocks and the button wrappers all carry it.
+- `:first-child` gets `align-self: center`. Where both columns should start
+  at the top (Reservation, formerly `.split_layout.is-top`), the wrapper
+  carries `align-items-start` and the first column `align-self-start`.
+
+A column holding nothing but a visual is locked to `--_visual-ratio`, 3/2 by
+default. Set another with the **`visualRatio` prop** (Kontakt's map uses
+`"4 / 3"`); the corner radius that comes with the lock is `--radius-small`,
+so that map also carries the `radius-main` utility. On desktop the grid
+stretches that column to the row height, so the ratio only bites once the
+columns stack.
+
+A rule that belongs to *one instance* — a margin under this one grid, a
+`max-width: none` on this one table — is a utility class in the markup, not
+a new named class. A rule that belongs to *the kind of thing* stays in the
+component or in `patterns.css`.
 - **`HoursTable.astro`** — the week's opening hours as one list, used by
   Öffnungszeiten, Kontakt and Reservation. Rows carry `data-day`
   (`0`=Sunday…`6`=Saturday) and an **`is:inline`** script marks today.
@@ -262,20 +308,29 @@ builds a WhatsApp message from the fields and opens the chat. `<noscript>`
 falls back to phone and WhatsApp links. When a real form endpoint exists,
 set it as the form's `action` and drop the `window.open` call.
 
-`getraenkekarte.astro` carries the sticky category chips. Which chip is
-current is *calculated* in a scroll handler, not observed with an
-IntersectionObserver — the measurement is six `getBoundingClientRect` calls
-per event and stays in step during fast scrolling. The chip bar is nudged
-with its own `scrollLeft`, never `scrollIntoView`: that walks every
-scrollport ancestor and can scroll the page from inside a scroll handler.
+`getraenkekarte.astro` renders its sections by looping `DRINK_CATEGORIES`,
+so a new section in `src/content/options.ts` appears on the page, in the
+chips and in the JSON-LD without touching the page. Inside a section the
+entries are grouped by `group` — see the collections below.
+
+It also carries the sticky category chips. Which chip is current is
+*calculated* in a scroll handler, not observed with an IntersectionObserver
+— one `getBoundingClientRect` call per section per event, which stays in
+step during fast scrolling. The chip bar is nudged with its own
+`scrollLeft`, never `scrollIntoView`: that walks every scrollport ancestor
+and can scroll the page from inside a scroll handler.
 
 Phone, e-mail and address are real. What is still open is listed once, in
 the comment above `BUSINESS` in `src/consts.ts`: the legal form and the
 CHE numbers for the Impressum (those lines are omitted until they exist —
 don't reintroduce bracket placeholders on a page the law requires), the
 never-confirmed Instagram URL, and the deliberately absent `geo` block.
-Event dates and spirits prices are sample content the bar replaces in
-Keystatic.
+Event dates are sample content the bar replaces in Keystatic. The drink
+prices are **real**: they come from the bar's printed Getränkekarte
+(`~/Downloads/Getraenkekarte.pdf`, Stand 20. August 2026). The printed card
+has no cocktail or longdrink section, so the site has none either — don't
+reintroduce cocktails as filler content, and don't call the bar a
+"Cocktailbar" in copy or metadata while the card doesn't list one.
 
 ## Images
 
@@ -309,10 +364,9 @@ Events, the drink menu and the opening hours live in
 | Collection      | Files                        | Was ist drin |
 | --------------- | ---------------------------- | ------------ |
 | `events`        | `src/content/events/*.yaml`   | ein Abend pro Datei |
-| `drinks`        | `src/content/drinks/*.yaml`   | ein Getränk pro Datei, `category` bestimmt den Abschnitt |
-| `spirits`       | `src/content/spirits/*.yaml`  | Sorte mit 4-cl- und Flaschenpreis |
+| `drinks`        | `src/content/drinks/*.yaml`   | ein Getränk pro Datei; `category` bestimmt den Abschnitt, `group` den Zwischentitel |
 | `bottleService` | `src/content/bottle-service/*.yaml` | eine Flaschenservice-Stufe pro Datei |
-| `menuSections`  | `src/content/menu-sections/*.yaml` | Überschrift + Einleitung je Abschnitt, `section` bestimmt die Stelle |
+| `menuSections`  | `src/content/menu-sections/*.yaml` | Überschrift, Einleitung und Fußnote je Abschnitt, `section` bestimmt die Stelle |
 | `hours`         | `src/content/hours.yaml`      | ein Block pro Wochentag |
 | `settings`      | `src/content/settings.yaml`   | Preisstand der Karte |
 
@@ -345,10 +399,21 @@ The rules:
 - `menuSections` entries are found by their `section` field, not by
   filename — Keystatic derives the filename from the heading, so renaming a
   heading would otherwise drop the intro text.
-- `price` is the display string (`"CHF 14.–"`, `"Auf Anfrage"`) and may be
+- `price` is the display string (`"CHF 13.–"`, `"Auf Anfrage"`) and may be
   absent; `priceCHF` is the same amount as a number and is set **only** when
   the price is fixed. Structured data uses `priceCHF`, so it never claims a
-  price the bar doesn't actually charge.
+  price the bar doesn't actually charge. The printed card prints a dash for
+  coffee, tea and rum — those entries carry `"Auf Anfrage"` and no
+  `priceCHF`, and the note under the card explains what that means.
+- A drink's `note` is the parenthesis from the printed card — the ABV, the
+  size, the flavours (`"4.8%"`, `"5% / 25 cl"`, `"Lemon / Peach"`). Stored
+  **without** the brackets; the page adds them. It is not the `description`,
+  which is prose for a card with an image.
+- `group` is the sub-heading inside a section (`"Flaschenbier (33 cl)"`,
+  `"Flasche (inkl. Zusatzgetränke)"`). One `DRINK_GROUPS` list serves every
+  section — empty groups simply don't render, and a dropdown can't typo a
+  group into existence. `keine` means the entry sits directly under the
+  section heading, which is where every group without a title goes first.
 
 Prices, event dates and opening times must not be written into `.astro`
 markup again. `getraenkekarte.astro` derives its JSON-LD from the same
@@ -357,9 +422,10 @@ the start time and the entry price, and `HoursTable.astro` loops the hours
 collection. The homepage teasers read the same collections as `/events` and
 `/getraenkekarte`; they used to be hand-written cards with dates baked in.
 
-"Ab" prices are **computed**, never typed: `minPriceCHF("cocktails")` and
-`bottleFromCHF()` in `src/utils/content.ts`. The site claimed "Cocktails ab
-CHF 12.–" in four places while the cheapest cocktail was CHF 14. Likewise
+"Ab" prices are **computed**, never typed: `minPriceCHF()` (one category or
+a list of them, for a teaser that covers several) and `bottleFromCHF()` in
+`src/utils/content.ts`. The site claimed "Cocktails ab CHF 12.–" in four
+places while the cheapest cocktail was CHF 14. Likewise
 `openDaysLabel()` and `hoursSentence()` in `utils/hours.ts` build "Do – So,
 ab 20 Uhr" and the FAQ sentence from the hours collection.
 

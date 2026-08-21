@@ -8,16 +8,17 @@
 import { getCollection, getEntry } from "astro:content";
 import type {
   DRINK_CATEGORIES,
+  DRINK_GROUPS,
   MENU_SECTIONS,
-  SPIRIT_GROUPS,
 } from "../content.config.ts";
+import { DRINK_GROUPS as DRINK_GROUP_OPTIONS } from "../content/options.ts";
 import { parseLocal } from "./dates.ts";
 import type { DayHours } from "./hours.ts";
 
 /** Eine der in `content.config.ts` deklarierten Kategorien. */
 export type DrinkCategory = (typeof DRINK_CATEGORIES)[number];
-/** Eine der in `content.config.ts` deklarierten Spirituosen-Gruppen. */
-export type SpiritGroup = (typeof SPIRIT_GROUPS)[number];
+/** Einer der Zwischentitel innerhalb eines Abschnitts. */
+export type DrinkGroup = (typeof DRINK_GROUPS)[number];
 /** Einer der Abschnitte der Getränkekarte. */
 export type MenuSection = (typeof MENU_SECTIONS)[number];
 
@@ -49,28 +50,41 @@ export async function getDrinksByCategory(category: DrinkCategory) {
 }
 
 /**
- * Günstigster fixer Preis einer Kategorie, als Zahl. `undefined`, wenn kein
- * Getränk der Kategorie einen festen Betrag hat.
+ * Ein Abschnitt der Karte, in Zwischentitel unterteilt.
+ *
+ * Die Gruppe ohne Titel kommt zuerst (auf der gedruckten Karte stehen die
+ * Positionen dort direkt unter der Überschrift), danach die Zwischentitel in
+ * der Reihenfolge von `DRINK_GROUPS`. Leere Gruppen fallen weg, deshalb
+ * reicht eine Liste für alle Abschnitte.
+ */
+export async function getDrinkGroups(category: DrinkCategory) {
+  const drinks = await getDrinksByCategory(category);
+  return DRINK_GROUP_OPTIONS.map((group) => ({
+    /** `undefined` für die Gruppe ohne Zwischentitel. */
+    label: group.value === "keine" ? undefined : group.label,
+    entries: drinks.filter((drink) => drink.data.group === group.value),
+  })).filter((group) => group.entries.length > 0);
+}
+
+/**
+ * Günstigster fixer Preis einer Kategorie — oder mehrerer, wenn ein Teaser
+ * einen Abschnitt zusammenfasst („Whisky, Vodka & Liköre ab CHF 8.–“).
+ * `undefined`, wenn keine der Positionen einen festen Betrag hat.
  *
  * Der „ab“-Preis stand früher als Text in Hero, Meta-Description und
  * Abschnitts-Einleitung — und war falsch: „Cocktails ab CHF 12.–“, während
- * der günstigste Cocktail CHF 14 kostete (CHF 12 war ein Longdrink).
- * Gerechnet statt getippt kann das nicht wieder passieren.
+ * der günstigste Cocktail CHF 14 kostete. Gerechnet statt getippt kann das
+ * nicht wieder passieren.
  */
-export async function minPriceCHF(category: DrinkCategory) {
-  const drinks = await getDrinksByCategory(category);
+export async function minPriceCHF(category: DrinkCategory | DrinkCategory[]) {
+  const categories = Array.isArray(category) ? category : [category];
+  const drinks = (
+    await Promise.all(categories.map((one) => getDrinksByCategory(one)))
+  ).flat();
   const prices = drinks
     .map((drink) => drink.data.priceCHF)
     .filter((price): price is number => typeof price === "number");
   return prices.length ? Math.min(...prices) : undefined;
-}
-
-/** Spirituosen einer Gruppe, nach `order` und dann Namen. */
-export async function getSpiritsByGroup(group: SpiritGroup) {
-  const spirits = await getCollection("spirits", (s) => s.data.group === group);
-  return spirits.sort(
-    (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name)
-  );
 }
 
 /** Stufen des Flaschenservice, nach `order` und dann Namen. */
@@ -97,7 +111,15 @@ export async function bottleFromCHF() {
  */
 export async function getMenuSection(section: MenuSection) {
   const entries = await getCollection("menuSections", (e) => e.data.section === section);
-  return entries[0]?.data ?? { section, title: section, intro: undefined, order: 0 };
+  return (
+    entries[0]?.data ?? {
+      section,
+      title: section,
+      intro: undefined,
+      note: undefined,
+      order: 0,
+    }
+  );
 }
 
 /**

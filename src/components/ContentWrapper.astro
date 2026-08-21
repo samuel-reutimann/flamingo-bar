@@ -5,6 +5,11 @@ import { slotContent } from "@/utils/slots.ts";
 type Base = HTMLAttributes<"div"> & {
   /** Set to `false` to skip rendering this component and its children. */
   render?: boolean;
+  /**
+   * Aspect ratio of a column that holds nothing but a visual, as a CSS
+   * `aspect-ratio` (`"4 / 3"`). Defaults to `3 / 2`.
+   */
+  visualRatio?: string;
 };
 
 type ColumnClasses = {
@@ -60,6 +65,7 @@ type Props = Base &
 
 type AllProps = Base &
   ColumnClasses & {
+    visualRatio?: string;
     variant?:
       | "stack"
       | "auto-width"
@@ -77,6 +83,7 @@ type AllProps = Base &
 const {
   render = true,
   variant = "stack",
+  visualRatio,
   reverse = false,
   centered = false,
   mediaOpacity,
@@ -104,11 +111,16 @@ if (import.meta.env.DEV && mediaOpacity !== undefined) {
   }
 }
 
-/* The stylesheet holds the default, so only a different value is written out. */
-const media =
-  variant === "card" && validMediaOpacity && mediaOpacity !== 70
-    ? `--_media-opacity: ${mediaOpacity}`
-    : undefined;
+/* The stylesheet holds the defaults, so only a different value is written out. */
+const inlineStyle =
+  [
+    variant === "card" && validMediaOpacity && mediaOpacity !== 70
+      ? `--_media-opacity: ${mediaOpacity}`
+      : undefined,
+    visualRatio ? `--_visual-ratio: ${visualRatio}` : undefined,
+  ]
+    .filter(Boolean)
+    .join("; ") || undefined;
 
 const variantClasses =
   variant === "stack"
@@ -131,7 +143,7 @@ const column2 = await slotContent(Astro.slots, "column2");
         centered && "centered",
         className,
       ]}
-      style={media}
+      style={inlineStyle}
       {...rest}
     >
       {column1 && (

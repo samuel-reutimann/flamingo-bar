@@ -1,8 +1,10 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
+import ContentWrapper from "@/components/ContentWrapper.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import HoursTable from "@/components/HoursTable.astro";
+import Grid from "@/components/Grid.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
@@ -33,7 +35,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
 
 <Layout
   title="Tisch reservieren in Langenthal"
-  description="Tisch oder Flaschenservice in der Flamingo Bar Langenthal anfragen: fünf Felder, Antwort per WhatsApp oder Telefon an einem Öffnungstag. Ohne Anmeldung."
+  description="Tisch oder Flaschenservice in der Flamingo Bar Langenthal anfragen: fünf Felder, Antwort per WhatsApp oder Telefon am nächsten Öffnungstag. Ohne Anmeldung."
   theme="dark"
 >
   <Schema
@@ -48,7 +50,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         {
           question: "Wann kommt die Antwort?",
           answer:
-            `An einem Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
+            `Am nächsten Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
         },
         {
           question: "Ab wie vielen Personen lohnt sich eine Reservation?",
@@ -63,14 +65,18 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
     <PageHeader
       eyebrow="Reservation"
       heading="Tisch anfragen"
-      text="Fünf Felder, mehr braucht es nicht. Wir melden uns an einem Öffnungstag zurück."
+      text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`}
     />
   </Section>
 
   <Section paddingTop="small" paddingBottom="medium">
-    <div class="split_layout is-top reservation_layout">
+    <ContentWrapper
+      variant="columns"
+      class="measure-main align-items-start"
+      column1Class="align-self-start"
+    >
       <form
-        class="form"
+        class="form width-full"
         data-reservation-form
         data-whatsapp={BUSINESS.whatsapp}
         novalidate
@@ -98,7 +104,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
             required
           />
         </div>
-        <div class="form_row">
+        <Grid variant="autofit" minColumnWidth={9} class="gap-4">
           <div class="form_field">
             <label class="form_label" for="res-datetime">Datum und Zeit</label>
             <input
@@ -123,7 +129,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
               required
             />
           </div>
-        </div>
+        </Grid>
         <div class="form_field">
           <label class="form_label" for="res-message"
             >Anlass oder Bemerkung</label
@@ -132,8 +138,13 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
           ></textarea>
         </div>
         <p class="form_note text-style-small">
-          Wir verwenden deine Angaben nur, um die Anfrage zu beantworten.
+          Wir verwenden deine Angaben nur, um die Anfrage zu beantworten.{" "}
           <a href="/datenschutz/">Datenschutz</a>
+        </p>
+        <p class="form_note text-style-small">
+          Der Knopf öffnet WhatsApp mit deiner Anfrage — abschicken musst du sie
+          dort. Die Anfrage ist unverbindlich, verbindlich wird sie erst mit
+          unserer Bestätigung.
         </p>
         <ButtonWrapper>
           <Button type="submit">Anfrage senden</Button>
@@ -161,7 +172,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         </noscript>
       </form>
 
-      <aside class="reservation_aside">
+      <aside class="reservation_aside width-full" slot="column2">
         <div class="reservation_visual">
           <Img
             src={bottleImage}
@@ -170,7 +181,9 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         </div>
         <Heading tag="h2" variant="h5">Direkter Weg</Heading>
         <Paragraph variant="small" class="section-note">
-          Kurzfristig? WhatsApp ist am schnellsten, auch während des Abends.
+          Kurzfristig? WhatsApp erreicht uns auch während des Abends. Unter
+          sechs Personen brauchst du nicht zu reservieren — komm einfach vorbei.
+          Einlass ab 18, Ausweis mitbringen.
         </Paragraph>
         <ButtonWrapper marginTop="4">
           <Button element="link" href={`https://wa.me/${WHATSAPP_NUMBER}`}
@@ -179,10 +192,10 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         </ButtonWrapper>
         <div class="reservation_hours">
           <p class="reservation_label text-style-small">Wann wir da sind</p>
-          <HoursTable />
+          <HoursTable class="max-width-none" />
         </div>
       </aside>
-    </div>
+    </ContentWrapper>
   </Section>
 
   <Section paddingTop="medium" paddingBottom="large" align="center">
@@ -191,7 +204,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
       variant="h3"
       maxWidth="none"
       heading="Flaschenservice und Gruppen"
-      text="Ein Zusatz ist ein Mixgetränk wie Cola, Red Bull oder Tonic."
+      text="Cola, Red Bull und Mineral sind im Flaschenpreis dabei."
     />
     <BottleOptions />
     <ButtonWrapper>
@@ -312,12 +325,6 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
       background-color: color-mix(in lab, var(--text) 2%, transparent);
     }
 
-    .form_row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-      gap: var(--space-4);
-    }
-
     .form_field {
       display: grid;
       gap: 0.45rem;
@@ -357,7 +364,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
     }
 
     .form_note {
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
       margin: 0;
     }
 
@@ -401,12 +408,8 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
     }
 
     .reservation_label {
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
       margin-bottom: var(--space-2);
-    }
-
-    .reservation_hours .hours_table {
-      max-width: none;
     }
 
     /* ---------------------------------------------------------------- options */

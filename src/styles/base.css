@@ -11,6 +11,12 @@
   --brand-500: #ff2e88;
   --brand-500-soft: #ff86bb;
   --brand-text: #08070a;
+  /* Reine Endpunkte der Skala. Stehen nie flächig da — nur mit kleinem Alpha
+     als Glaskante, Schlagschatten und Scrim, wo die getönten Swatches oben
+     einen sichtbaren Stich hätten. */
+  --light-000: #ffffff;
+  --dark-850: #08080a;
+  --dark-1000: #000000;
 
   /* Typography primitives */
   --primary-family: "Manrope Variable", "Manrope", system-ui, sans-serif;
@@ -45,6 +51,12 @@
   /* Skeleton loading background (resolves against currentcolor) */
   --background-skeleton: color-mix(in lab, currentcolor 10%, transparent);
 
+  /* Zurückgenommener Text — Labels, Nebensätze, Fusszeilen. Löst gegen
+     currentcolor auf, gilt also in jedem Theme. Stand an 16 Stellen als
+     ausgeschriebenes color-mix. */
+  --text-faded: color-mix(in lab, currentcolor 48%, transparent);
+  --text-subtle: color-mix(in lab, currentcolor 55%, transparent);
+
   /* Fluid scale range (px) */
   --viewport-min: 320;
   --viewport-max: 1440;
@@ -58,11 +70,19 @@
   --nav-height: 5rem;
 
   /* Flamingo effects — glass nav pill, accent glow, scrims */
-  --shadow-nav: 0 18px 44px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  --shadow-accent-glow: 0 0 30px color-mix(in srgb, var(--brand-500) 40%, transparent);
-  --shadow-dot-glow: 0 0 10px var(--brand-500);
-  --blur-glass: blur(28px) saturate(150%);
-  --gradient-glass: linear-gradient(160deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04) 45%, rgba(8, 8, 10, 0.28));
+  --border-glass: color-mix(in srgb, var(--light-000) 14%, transparent);
+  --shadow-nav:
+    0 1.125rem 2.75rem color-mix(in srgb, var(--dark-1000) 45%, transparent),
+    inset 0 var(--border-width) 0 var(--border-glass);
+  --shadow-accent-glow: 0 0 1.875rem color-mix(in srgb, var(--brand-500) 40%, transparent);
+  --shadow-dot-glow: 0 0 0.625rem var(--brand-500);
+  --blur-glass: blur(1.75rem) saturate(150%);
+  --gradient-glass: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--light-000) 13%, transparent),
+    color-mix(in srgb, var(--light-000) 4%, transparent) 45%,
+    color-mix(in srgb, var(--dark-850) 28%, transparent)
+  );
   --gradient-card-scrim: linear-gradient(to top, color-mix(in srgb, var(--dark-900) 82%, transparent) 0%, color-mix(in srgb, var(--dark-900) 35%, transparent) 55%, transparent 100%);
   --glow-accent-radial: radial-gradient(circle, color-mix(in srgb, var(--brand-500) 20%, transparent), transparent 62%);
 

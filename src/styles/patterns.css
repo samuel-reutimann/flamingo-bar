@@ -203,7 +203,7 @@
 
 /* Muted supporting copy — subheads, notes, labels. */
 .section-note {
-  color: color-mix(in lab, currentcolor 48%, transparent);
+  color: var(--text-faded);
 }
 
 /* Der senkrechte Strich neben dem Eyebrow-Text gehört nicht zu diesem Brand —
@@ -225,22 +225,18 @@ a:not([class]) {
    standen — mit Werten, die zwischen den Kopien schon auseinandergelaufen
    waren. Hier statt pro Seite, damit sie es nicht wieder tun. */
 
-/* Bild neben Text. Stand als .bottle_layout, .private_layout, .contact_layout
-   und .reservation_layout je einmal da; die Spaltenbreite war zweimal 21rem
-   und zweimal 20rem. */
-.split_layout {
+/* Bild neben Text macht jetzt <ContentWrapper variant="columns"> — stand
+   vorher als .bottle_layout, .private_layout, .contact_layout und
+   .reservation_layout je einmal da, mit vier verschiedenen Spaltenbreiten. */
+
+/* Auf Hauptbreite zentriert, ohne den Flex-Stack von `.container`. Für Blöcke,
+   die selbst über die volle Breite laufen und ihre Mitte darum selbst finden
+   müssen: die Chip-Leiste, die Öffnungszeiten-Leiste, das Galerieraster, der
+   Fussbereich und die zweispaltigen ContentWrapper. */
+.measure-main {
   width: 100%;
   max-width: var(--max-width-main);
   margin-inline: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-  gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
-  align-items: center;
-}
-
-/* Für Spalten unterschiedlicher Höhe, die oben bündig stehen sollen. */
-.split_layout.is-top {
-  align-items: start;
 }
 
 /* Beschriftete Zeilen mit Trennlinien — „Ab wie vielen Personen | 6 für einen
@@ -273,22 +269,4 @@ a:not([class]) {
 
 .label_mono.is-small {
   font-size: 0.625rem;
-}
-
-/* Die Terminkarten sind ein 3:4-Poster mit Datum und Titel unten über dem
-   Verlauf, nicht Lumos' 20rem-Kasten mit Inhalt oben. Bewusst auf
-   .events_grid begrenzt — andere Cover-Karten sollen die Vorgabe behalten.
-   Stand wortgleich auf der Startseite und auf /events. */
-.events_grid {
-  --_alignment: start;
-  text-align: start;
-}
-
-.events_grid .card_wrap.cover {
-  aspect-ratio: 3 / 4;
-  min-height: 0;
-}
-
-.events_grid .card_content {
-  justify-content: flex-end;
 }

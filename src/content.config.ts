@@ -22,7 +22,7 @@ import * as options from "./content/options.ts";
    `keystatic.config.ts` dieselben Werte braucht — nur als `{label, value}`
    für die Dropdowns. Vorher standen beide Fassungen getrennt da. */
 export const DRINK_CATEGORIES = options.values(options.DRINK_CATEGORIES);
-export const SPIRIT_GROUPS = options.values(options.SPIRIT_GROUPS);
+export const DRINK_GROUPS = options.values(options.DRINK_GROUPS);
 export const MENU_SECTIONS = options.values(options.MENU_SECTIONS);
 export const EVENT_TAGS = options.values(options.EVENT_TAGS);
 
@@ -50,12 +50,11 @@ const optionalText = z
   .transform((value) => (value?.trim() ? value : undefined));
 
 /**
- * `price` ist der Anzeigetext ("CHF 14.–", "Auf Anfrage", "Ab CHF 13.–") und
- * darf fehlen — die drei Karten oben in den Cocktails stehen absichtlich ohne
- * Betrag, weil der "ab"-Preis über dem Abschnitt gilt. Der wird aus
- * `priceCHF` gerechnet (`minPriceCHF()`), nicht getippt.
+ * `price` ist der Anzeigetext ("CHF 13.–", "Auf Anfrage") und darf fehlen.
  * `priceCHF` ist derselbe Betrag als Zahl und nur gesetzt, wenn der Preis
  * fix ist — Structured Data darf keinen Betrag behaupten, den es nicht gibt.
+ * "Auf Anfrage" steht auf der gedruckten Karte als Strich: Kaffee, Tee und
+ * Rum haben dort keinen aufgedruckten Preis.
  */
 const priceFields = {
   /** Weglassen, wenn die Position bewusst ohne Preis dasteht. */
@@ -102,7 +101,19 @@ const drinks = defineCollection({
     z.object({
       name: z.string(),
       category: z.enum(DRINK_CATEGORIES),
+      /**
+       * Zwischentitel innerhalb des Abschnitts — „Flaschenbier (33 cl)“,
+       * „Flasche (inkl. Zusatzgetränke)“. `keine` heißt: direkt unter der
+       * Abschnitts-Überschrift, vor allen Gruppen.
+       */
+      group: z.enum(DRINK_GROUPS).default("keine"),
       ...priceFields,
+      /**
+       * Der Klammerzusatz von der gedruckten Karte: Volumenprozent, Größe
+       * oder Sorten („4.8%“, „5% / 25 cl“, „Lemon / Peach“). Steht klein
+       * hinter dem Namen. Ohne Klammern — die setzt die Seite.
+       */
+      note: optionalText,
       /** Zutaten oder Hinweis. Nur Karten mit Bild zeigen ihn an. */
       description: optionalText,
       image: image().optional(),
@@ -110,21 +121,6 @@ const drinks = defineCollection({
       /** Kleinere Zahl steht weiter oben. */
       order: z.number().default(0),
     }),
-});
-
-const spirits = defineCollection({
-  loader: glob({ pattern: "**/*.yaml", base: "./src/content/spirits" }),
-  schema: z.object({
-    name: z.string(),
-    group: z.enum(SPIRIT_GROUPS),
-    /** Preis pro 4 cl. */
-    glass: z.string(),
-    glassCHF: z.number().optional(),
-    /** Preis für die ganze Flasche. */
-    bottle: z.string(),
-    bottleCHF: z.number().optional(),
-    order: z.number().default(0),
-  }),
 });
 
 /**
@@ -142,7 +138,7 @@ const bottleService = defineCollection({
     ...priceFields,
     /**
      * Untergrenze der Stufe als Zahl. Nur gesetzt, wenn es einen echten
-     * Startpreis gibt — daraus wird das „Flaschen ab CHF 105.–“ gerechnet,
+     * Startpreis gibt — daraus wird das „Flaschen ab CHF 125.–“ gerechnet,
      * das früher an vier Stellen von Hand stand.
      */
     fromCHF: z.number().optional(),
@@ -166,6 +162,11 @@ const menuSections = defineCollection({
     section: z.enum(MENU_SECTIONS),
     title: z.string(),
     intro: optionalText,
+    /**
+     * Die Fußnote unter der Liste — „Zusätzliche Getränke / Mischgetränk:
+     * + CHF 3.–“. Steht auf der gedruckten Karte unter dem Abschnitt.
+     */
+    note: optionalText,
     order: z.number().default(0),
   }),
 });
@@ -201,7 +202,6 @@ const settings = defineCollection({
 export const collections = {
   events,
   drinks,
-  spirits,
   bottleService,
   menuSections,
   hours,

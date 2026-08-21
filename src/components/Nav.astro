@@ -67,14 +67,19 @@ const isCurrent = (href: string) =>
 }
 <noscript>
   <style>
-    .nav_toggle {
-      display: none;
-    }
-    .nav_menu {
-      max-height: none;
-      opacity: 1;
-      margin-top: 1.5rem;
-      visibility: visible;
+    /* Muss in einen Layer: ungeschichtetes CSS schlägt jede Schicht, auch
+       `utilities`. Der Block steht im Body, die Komponenten-Styles im Head —
+       innerhalb derselben Schicht gewinnt also weiterhin dieser hier. */
+    @layer components {
+      .nav_toggle {
+        display: none;
+      }
+      .nav_menu {
+        max-height: none;
+        opacity: 1;
+        margin-top: 1.5rem;
+        visibility: visible;
+      }
     }
   </style>
 </noscript>
@@ -144,10 +149,17 @@ const isCurrent = (href: string) =>
       background: var(--gradient-glass);
       backdrop-filter: var(--blur-glass);
       -webkit-backdrop-filter: var(--blur-glass);
-      border: var(--border-width) solid rgba(255, 255, 255, 0.14);
+      border: var(--border-width) solid var(--border-glass);
       border-radius: 1.15rem;
       box-shadow: var(--shadow-nav);
       transition: padding 0.35s ease;
+    }
+
+    /* `is-preload` steht auf <html>, solange eine Seite ihre Einblend-Animation
+       noch nicht gestartet hat. Die Regel gehört hierher und nicht in die
+       Seite: die Pille ist Sache dieser Komponente. */
+    .is-preload .nav_pill {
+      opacity: 0;
     }
 
     .nav_bar {
@@ -218,7 +230,7 @@ const isCurrent = (href: string) =>
       flex-direction: column;
       justify-content: center;
       align-items: flex-end;
-      gap: 6px;
+      gap: 0.375rem;
       width: 1.75rem;
       height: 1.75rem;
       border: 0;
@@ -228,7 +240,7 @@ const isCurrent = (href: string) =>
     .nav_toggle_line {
       display: block;
       width: 1.4rem;
-      height: 1.5px;
+      height: 0.09375rem;
       background-color: var(--light-100);
       transition:
         transform 0.3s ease,
@@ -236,13 +248,13 @@ const isCurrent = (href: string) =>
     }
 
     .nav_pill.is-open .nav_toggle_line:first-child {
-      transform: translateY(3.75px) rotate(45deg);
+      transform: translateY(0.234375rem) rotate(45deg);
     }
     .nav_pill.is-open .nav_toggle_line:last-child {
-      transform: translateY(-3.75px) rotate(-45deg);
+      transform: translateY(-0.234375rem) rotate(-45deg);
     }
 
-    @media screen and (max-width: 991px) {
+    @media (width < 62rem) {
       .nav_pill {
         width: calc(100% - 2rem);
         padding: 0.9rem 1.25rem;

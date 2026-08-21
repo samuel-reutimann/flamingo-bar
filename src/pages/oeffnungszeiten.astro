@@ -27,7 +27,7 @@ const openDaysShort = openDaysLabel(hours);
 ---
 
 <Layout
-  title="Öffnungszeiten Langenthal"
+  title="Öffnungszeiten in Langenthal"
   description={`Flamingo Bar Langenthal: ${openDaysShort} geöffnet. Alle Zeiten pro Wochentag, letzter Einlass eine Stunde vor Schluss und ob gerade offen ist.`}
   theme="dark"
 >
@@ -48,7 +48,7 @@ const openDaysShort = openDaysLabel(hours);
         {
           question: "Wann ist Happy Hour?",
           answer:
-            "Donnerstag von 20 bis 22 Uhr, mit vergünstigten Cocktails und Longdrinks.",
+            "Donnerstag von 20 bis 22 Uhr, mit vergünstigten Drinks.",
         },
         {
           question: "Braucht es eine Reservation?",
@@ -63,7 +63,7 @@ const openDaysShort = openDaysLabel(hours);
     <PageHeader
       eyebrow="Öffnungszeiten"
       heading={openDaysLong}
-      text="An vier Abenden pro Woche offen. Montag bis Mittwoch bleibt die Bar geschlossen."
+      text="Montag bis Mittwoch bleibt die Bar geschlossen."
     />
     <OpenStatusPill />
   </Section>
@@ -71,8 +71,8 @@ const openDaysShort = openDaysLabel(hours);
   <Section paddingTop="small" paddingBottom="medium" align="center">
     <HoursTable />
     <Paragraph variant="small" maxWidth={44} class="section-note">
-      An Events kann später geschlossen werden, der Einlass endet dann eine
-      Stunde vor Schluss. Abweichende Zeiten kündigen wir auf Instagram an.
+      An Events schliessen wir teils später. Der letzte Einlass bleibt immer
+      eine Stunde vor Schluss. Abweichende Zeiten kündigen wir auf Instagram an.
     </Paragraph>
   </Section>
 
@@ -89,14 +89,14 @@ const openDaysShort = openDaysLabel(hours);
         <p class="hours_fact-label text-style-small">Happy Hour</p>
         <p class="hours_fact-value">Donnerstag, 20 – 22 Uhr</p>
         <Paragraph variant="small" class="section-note">
-          Ausgewählte Cocktails und Longdrinks vergünstigt.
+          Ausgewählte Drinks vergünstigt.
         </Paragraph>
       </div>
       <div class="hours_fact">
         <p class="hours_fact-label text-style-small">Tisch reserviert</p>
-        <p class="hours_fact-value">Ab 6 Personen sinnvoll</p>
+        <p class="hours_fact-value">Ab 6 Personen</p>
         <Paragraph variant="small" class="section-note">
-          Für Flaschenservice, Geburtstage und Gruppen.
+          Ohne Reservation können wir für Gruppen keinen Tisch freihalten.
         </Paragraph>
       </div>
     </Grid>
@@ -140,7 +140,7 @@ const openDaysShort = openDaysLabel(hours);
 
 
     .status_pill [data-open-hours] {
-      color: color-mix(in lab, currentcolor 55%, transparent);
+      color: var(--text-subtle);
     }
 
     .hours_facts {
@@ -154,7 +154,7 @@ const openDaysShort = openDaysLabel(hours);
     }
 
     .hours_fact-label {
-      color: color-mix(in lab, currentcolor 48%, transparent);
+      color: var(--text-faded);
     }
 
     .hours_fact-value {

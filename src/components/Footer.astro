@@ -4,7 +4,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
 ---
 
 <footer class="footer_wrap">
-  <div class="footer_inner">
+  <div class="footer_inner measure-main">
     <div class="footer_top">
       <div class="footer_brand">
         <div class="footer_brand-label text-style-small">{SITE_NAME}</div>
@@ -25,7 +25,9 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
           </li>
           <li><a class="footer_link" href="/events/">Events</a></li>
           <li><a class="footer_link" href="/galerie/">Galerie</a></li>
-          <li><a class="footer_link" href="/reservation/">Reservation</a></li>
+          <li>
+            <a class="footer_link" href="/reservation/">Tisch anfragen</a>
+          </li>
           <li>
             <a class="footer_link" href="/oeffnungszeiten/">Öffnungszeiten</a>
           </li>
@@ -43,7 +45,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
     <div class="footer_wordmark">Flamingo</div>
   </div>
 
-  <div class="footer_inner">
+  <div class="footer_inner measure-main">
     <div class="footer_bottom">
       <p class="footer_copyright text-style-small">
         &copy; {new Date().getFullYear()}&#160;{SITE_NAME}, Langenthal
@@ -69,9 +71,6 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
     }
 
     .footer_inner {
-      width: 100%;
-      max-width: var(--max-width-main);
-      margin-inline: auto;
       padding-inline: var(--site-margin);
     }
 
@@ -88,12 +87,12 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       font-size: 0.5625rem;
       letter-spacing: var(--letter-spacing-label);
       text-transform: uppercase;
-      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      color: var(--text-faded);
       margin-bottom: var(--space-2);
     }
 
     .footer_brand-address {
-      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      color: var(--text-faded);
       line-height: 1.6;
     }
 
@@ -106,7 +105,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
     }
 
     .footer_link {
-      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      color: var(--text-faded);
       font-size: 0.8125rem;
       text-decoration: none;
       transition: color 200ms;
@@ -156,7 +155,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
     }
 
     .footer_copyright {
-      color: color-mix(in lab, var(--light-100) 48%, transparent);
+      color: var(--text-faded);
     }
 
     .footer_legal {

@@ -27,9 +27,9 @@ import { config, collection, singleton, fields } from "@keystatic/core";
 
 import {
   DRINK_CATEGORIES,
+  DRINK_GROUPS,
   EVENT_TAGS,
   MENU_SECTIONS,
-  SPIRIT_GROUPS,
 } from "./src/content/options.ts";
 
 /** Bilder liegen bei den übrigen Assets, nicht im Content-Ordner. */
@@ -66,7 +66,7 @@ export default config({
     brand: { name: "Flamingo Bar" },
     navigation: {
       Programm: ["events"],
-      Getränkekarte: ["drinks", "spirits", "menuSections", "menuSettings"],
+      Getränkekarte: ["drinks", "menuSections", "menuSettings"],
       Betrieb: ["hours"],
     },
   },
@@ -133,14 +133,31 @@ export default config({
       entryLayout: "form",
       columns: ["name", "category", "price"],
       schema: {
-        name: fields.slug({ name: { label: "Name" } }),
+        name: fields.slug({
+          name: {
+            label: "Name",
+            description: 'Ohne Klammerzusatz — der gehört ins Feld darunter.',
+          },
+        }),
         category: fields.select({
           label: "Abschnitt",
           description: "Bestimmt, unter welcher Überschrift das Getränk steht.",
           options: [...DRINK_CATEGORIES],
-          defaultValue: "cocktails",
+          defaultValue: "alkoholfrei",
+        }),
+        group: fields.select({
+          label: "Zwischentitel",
+          description:
+            'Der kleine Titel innerhalb des Abschnitts, z. B. "Flaschenbier (33 cl)". "Ohne Zwischentitel" heißt: direkt unter der Abschnitts-Überschrift.',
+          options: [...DRINK_GROUPS],
+          defaultValue: "keine",
         }),
         ...priceGroup("Preis"),
+        note: fields.text({
+          label: "Zusatz",
+          description:
+            'Das Kleingedruckte hinter dem Namen: Volumenprozent, Größe oder Sorten — z. B. "4.8%", "5% / 25 cl", "Lemon / Peach". Ohne Klammern.',
+        }),
         description: fields.text({
           label: "Zutaten oder Hinweis",
           multiline: true,
@@ -154,48 +171,6 @@ export default config({
         order: fields.number({
           label: "Reihenfolge",
           description: "Kleinere Zahl steht weiter oben, innerhalb des Abschnitts.",
-          defaultValue: 0,
-        }),
-      },
-    }),
-
-    spirits: collection({
-      label: "Spirituosen und Flaschen",
-      path: "src/content/spirits/*",
-      slugField: "name",
-      format: { data: "yaml" },
-      entryLayout: "form",
-      columns: ["name", "group", "glass", "bottle"],
-      schema: {
-        name: fields.slug({ name: { label: "Sorte" } }),
-        group: fields.select({
-          label: "Gruppe",
-          options: [...SPIRIT_GROUPS],
-          defaultValue: "whisky",
-        }),
-        glass: fields.text({
-          label: "Preis 4 cl",
-          description: 'Z. B. "CHF 14.–" oder "Auf Anfrage".',
-          validation: { isRequired: true },
-        }),
-        glassCHF: fields.number({
-          label: "4 cl als Zahl (für Google)",
-          description: "Nur bei festem Preis.",
-          validation: { isRequired: false },
-        }),
-        bottle: fields.text({
-          label: "Preis Flasche",
-          description: 'Z. B. "CHF 120.–" oder "Auf Anfrage".',
-          validation: { isRequired: true },
-        }),
-        bottleCHF: fields.number({
-          label: "Flasche als Zahl (für Google)",
-          description: "Nur bei festem Preis.",
-          validation: { isRequired: false },
-        }),
-        order: fields.number({
-          label: "Reihenfolge",
-          description: "Innerhalb der Gruppe.",
           defaultValue: 0,
         }),
       },
@@ -219,12 +194,17 @@ export default config({
           label: "Abschnitt",
           description: "An welcher Stelle der Getränkekarte dieser Text steht.",
           options: [...MENU_SECTIONS],
-          defaultValue: "cocktails",
+          defaultValue: "alkoholfrei",
         }),
         intro: fields.text({
           label: "Einleitung",
           multiline: true,
-          description: 'Der Satz unter der Überschrift, z. B. "Ab CHF 12.–, alle frisch gemixt."',
+          description: 'Der Satz unter der Überschrift, z. B. "Alles 4 cl."',
+        }),
+        note: fields.text({
+          label: "Fußnote",
+          multiline: true,
+          description: 'Die Zeile unter der Liste, z. B. "Zusätzliche Getränke / Mischgetränk: + CHF 3.–".',
         }),
         order: fields.number({ label: "Reihenfolge", defaultValue: 0 }),
       },
