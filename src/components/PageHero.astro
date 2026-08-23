@@ -1,0 +1,344 @@
+---
+/**
+ * Der Auftakt jeder Unterseite: Eyebrow, Überschrift, Unterzeile, Buttons —
+ * und darunter ein Bild, das ein Stück weit unter den Text rutscht.
+ *
+ * Aufbau, von oben nach unten:
+ *
+ *   Eyebrow / Überschrift / Unterzeile / Buttons   ← `PageHeader`
+ *   Bild + Verlauf, um --_hero-overlap nach oben gezogen — es beginnt also
+ *   hinter der letzten Textzeile, meist hinter den Buttons
+ *
+ * Der Verlauf ist nicht Dekoration, sondern die Bedingung für die
+ * Überlappung: oben löst er das Bild in die Seitenfarbe auf, damit die
+ * Buttons darüber lesbar bleiben, unten wieder, damit es ohne Kante in den
+ * nächsten Abschnitt läuft. Beides mit `--background` statt `--dark-900`, also
+ * auch in einem hellen Theme richtig.
+ *
+ * Die Startseite hat ihren eigenen Hero (`.hero_section` in `index.astro`,
+ * 100svh hoch und von GSAP animiert). Dieser hier ist der Auftakt für alles
+ * andere — er nimmt eine feste Bildhöhe statt den ganzen Viewport, weil auf
+ * einer Unterseite der Inhalt und nicht das Bild der Grund des Besuchs ist.
+ *
+ * Ohne `image` bleibt der Textblock allein stehen; dann verhält sich die
+ * Komponente wie das bisherige `<Section paddingTop="navoverlap">` +
+ * `<PageHeader>`.
+ */
+import type { HTMLAttributes } from "astro/types";
+import PageHeader from "@/components/PageHeader.astro";
+import Img from "@/components/Img.astro";
+
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+type HeadingStyle = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "display";
+type Spacing = "tight" | "default" | "loose";
+type SectionSpace = "none" | "small" | "medium" | "large";
+
+interface Props extends HTMLAttributes<"section"> {
+  /** Set to `false` to skip rendering this component and its children. */
+  render?: boolean;
+  /** Kleine Beschriftung über der Überschrift. */
+  eyebrow?: string;
+  /** Überschrift. Für Markup stattdessen den Slot `heading` benutzen. */
+  heading?: string;
+  /** Gliederungsebene. Die Grösse ist `variant`. */
+  headingTag?: HeadingTag;
+  /** Grösse, unabhängig von der Gliederungsebene. */
+  variant?: HeadingStyle;
+  /** Unterzeile unter der Überschrift. Für Markup den Slot `text`. */
+  text?: string;
+  /** Zeilenbreite der Unterzeile in Zeichen. `"none"` hebt die Grenze auf. */
+  maxWidth?: number | "none";
+  /** Abstände innerhalb des Textblocks — siehe `PageHeader`. */
+  spacing?: Spacing;
+  /** Textbreite des ganzen Blocks. */
+  measure?: string;
+  /** Ausrichtung des Textblocks. */
+  align?: "center" | "start";
+  /** Bild unter dem Text. Aus `src/assets` importieren, nicht aus `public/`. */
+  image?: ImageMetadata | string;
+  /** Bildbeschreibung. Leer lassen macht das Bild dekorativ. */
+  imageAlt?: string;
+  /** Bildausschnitt, wenn der Zuschnitt den Bildinhalt verfehlt. */
+  imagePosition?: string;
+  /** Seitenverhältnis des Bildstreifens. */
+  ratio?: string;
+  /** Untergrenze der Bildhöhe — greift, wenn das Verhältnis zu flach wird. */
+  minHeight?: string;
+  /** Wie weit das Bild unter die letzte Textzeile rutscht. */
+  overlap?: string;
+  /** Abstand nach dem Hero. */
+  paddingBottom?: SectionSpace;
+  /** Pinker Lichtschein hinter dem Text. */
+  glow?: boolean;
+}
+
+const {
+  render = true,
+  eyebrow,
+  heading,
+  headingTag = "h1",
+  variant = "h2",
+  text,
+  maxWidth = 40,
+  spacing = "default",
+  measure,
+  align = "center",
+  image,
+  imageAlt,
+  imagePosition,
+  ratio,
+  minHeight,
+  overlap,
+  paddingBottom = "small",
+  glow = true,
+  class: className,
+  ...rest
+} = Astro.props;
+
+/* Nur gesetzte Werte landen im `style`, damit die Vorgaben aus dem
+   Stylesheet sonst unangetastet bleiben. */
+const overrides = Object.entries({
+  "--_hero-measure": measure,
+  "--_hero-ratio": ratio,
+  "--_hero-min-height": minHeight,
+  "--_hero-overlap": overlap,
+  "--_hero-image-position": imagePosition,
+})
+  .filter(([, value]) => value)
+  .map(([name, value]) => `${name}: ${value}`)
+  .join("; ");
+---
+
+{
+  render && (
+    <section
+      class:list={[
+        "page-hero",
+        `alignment-${align}`,
+        `pad-bottom-${paddingBottom}`,
+        image && "has-visual",
+        glow && "has-glow",
+        className,
+      ]}
+      style={overrides || undefined}
+      {...rest}
+    >
+      <div class="page-hero_content">
+        <PageHeader
+          eyebrow={eyebrow}
+          heading={heading}
+          headingTag={headingTag}
+          variant={variant}
+          text={text}
+          maxWidth={maxWidth}
+          spacing={spacing}
+        >
+          {Astro.slots.has("heading") && (
+            <Fragment slot="heading">
+              <slot name="heading" />
+            </Fragment>
+          )}
+          {Astro.slots.has("text") && (
+            <Fragment slot="text">
+              <slot name="text" />
+            </Fragment>
+          )}
+          <slot />
+        </PageHeader>
+      </div>
+
+      {image && (
+        <div class="page-hero_visual">
+          <Img
+            src={image}
+            alt={imageAlt}
+            loading="eager"
+            fetchPriority="high"
+            class="page-hero_image"
+          />
+          <div class="page-hero_scrim" aria-hidden="true" />
+        </div>
+      )}
+    </section>
+  )
+}
+
+<style is:global>
+  @layer components {
+    .page-hero {
+      /* Vorgaben; jede davon ist über die gleichnamige Prop einstellbar. */
+      --_hero-measure: 44rem;
+      --_hero-ratio: 16 / 7;
+      --_hero-min-height: clamp(13rem, 34svh, 21rem);
+      --_hero-overlap: clamp(2.75rem, 4.5vw, 4.5rem);
+      --_hero-image-position: 50% 55%;
+      --_hero-pad-bottom: var(--section-space-small);
+
+      position: relative;
+      /* Eigener Stapelkontext: der Lichtschein liegt auf -1 und soll unter
+         dem Hero bleiben, nicht unter der Seite. */
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      /* `clip` statt `hidden`: kein Scrollport, also kann der Verlauf des
+         Bildes nichts anstossen. */
+      overflow: clip;
+      padding-bottom: var(--_hero-pad-bottom);
+    }
+
+    .page-hero.pad-bottom-none {
+      --_hero-pad-bottom: 0rem;
+    }
+
+    .page-hero.pad-bottom-medium {
+      --_hero-pad-bottom: var(--section-space-medium);
+    }
+
+    .page-hero.pad-bottom-large {
+      --_hero-pad-bottom: var(--section-space-large);
+    }
+
+    .page-hero_content {
+      position: relative;
+      z-index: 1;
+      padding-top: var(--section-space-nav-overlap);
+      padding-inline: var(--site-margin);
+    }
+
+    /* Kein unterer Abstand, wenn ein Bild folgt: der negative Abstand des
+       Bildes soll die letzte Textzeile wirklich erreichen und nicht nur eine
+       Polsterung darunter aufheben. */
+    .page-hero.has-visual .page-hero_content {
+      padding-bottom: 0;
+    }
+
+    .page-hero .section-header {
+      max-width: var(--_hero-measure);
+    }
+
+    /* Die letzte Zeile des Blocks liegt auf dem Bild — bei einem Hero ohne
+       Buttons ist das die Unterzeile, und die läuft in `--text-faded`. Der
+       weiche Schatten hält sie auch über einer hellen Bildstelle lesbar; er
+       ist keine Kontur, sondern eine Verdunklung direkt hinter der Schrift. */
+    .page-hero.has-visual .section-header {
+      text-shadow: 0 0.0625rem 0.875rem
+        color-mix(in srgb, var(--dark-1000) 55%, transparent);
+    }
+
+    /* `.button-wrapper` zentriert immer; bei linksbündigem Hero wäre das die
+       einzige Zeile, die aus der Kante fällt. */
+    .page-hero.alignment-start .section-header {
+      margin-inline: 0;
+    }
+
+    .page-hero.alignment-start .button-wrapper,
+    .page-hero.alignment-start .section-header > .text {
+      justify-content: start;
+      margin-inline: 0;
+    }
+
+    /* Lichtschein hinter dem Text, nicht hinter dem Bild — deshalb an der
+       oberen Kante verankert und nicht über die ganze Section. */
+    .page-hero.has-glow::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset-block-start: calc(var(--space-6) * -1);
+      inset-inline: 0;
+      height: 28rem;
+      background: var(--glow-accent-radial);
+      /* Der Token ist für einen Fleck hinter einer Karte gemischt; über die
+         ganze Hero-Breite wäre er eine Wand. */
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .page-hero_visual {
+      position: relative;
+      z-index: 0;
+      width: 100%;
+      aspect-ratio: var(--_hero-ratio);
+      min-height: var(--_hero-min-height);
+      /* Hier passiert die Überlappung. */
+      margin-top: calc(var(--_hero-overlap) * -1);
+      overflow: clip;
+    }
+
+    /* Absolut, weil `aspect-ratio` und `min-height` sich sonst darüber
+       streiten, welche Höhe gilt. */
+    .page-hero_image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: var(--_hero-image-position);
+    }
+
+    /* Oben löst das Bild in die Seitenfarbe auf (darüber steht Text), unten
+       ebenso (darunter beginnt der nächste Abschnitt). Dazwischen bleibt es
+       stehen. Farben aus `--background`, damit der Verlauf im Theme mitgeht. */
+    .page-hero_scrim {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          to bottom,
+          var(--background) 0%,
+          color-mix(in srgb, var(--background) 82%, transparent) 7%,
+          color-mix(in srgb, var(--background) 48%, transparent) 18%,
+          color-mix(in srgb, var(--background) 16%, transparent) 33%,
+          transparent 52%
+        ),
+        linear-gradient(
+          to top,
+          var(--background) 0%,
+          color-mix(in srgb, var(--background) 55%, transparent) 10%,
+          transparent 34%
+        );
+    }
+
+    /* Einblendung: nur Transform und Opacity, gestaffelt über die Kinder des
+       Textblocks. Ohne `prefers-reduced-motion: no-preference` läuft nichts —
+       die Elemente stehen dann von Anfang an da, kein Haltezustand nötig. */
+    @media (prefers-reduced-motion: no-preference) {
+      .page-hero_content > .section-header > *,
+      .page-hero_visual {
+        animation: page-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .page-hero_content > .section-header > *:nth-child(2) {
+        animation-delay: 0.07s;
+      }
+
+      .page-hero_content > .section-header > *:nth-child(3) {
+        animation-delay: 0.14s;
+      }
+
+      .page-hero_content > .section-header > *:nth-child(n + 4) {
+        animation-delay: 0.21s;
+      }
+
+      .page-hero_visual {
+        animation-name: page-hero-reveal;
+        animation-duration: 0.9s;
+        animation-delay: 0.1s;
+      }
+    }
+
+    @keyframes page-hero-rise {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 0.75rem, 0);
+      }
+    }
+
+    @keyframes page-hero-reveal {
+      from {
+        opacity: 0;
+        transform: scale(1.03);
+      }
+    }
+  }
+</style>

@@ -2,6 +2,7 @@
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
+import PageHero from "@/components/PageHero.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Img from "@/components/Img.astro";
@@ -80,13 +81,9 @@ const tiles: Tile[] = [
     slot="head"
     data={breadcrumbSchema([{ name: "Galerie", path: "/galerie" }])}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      eyebrow="Galerie"
-      heading="Bar, Drinks und lange Nächte"
-      text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen."
-    />
-  </Section>
+  {/* Kein Hero-Bild: das Mosaik beginnt direkt darunter, ein zwölftes Foto
+       davor sähe nach Versehen aus. */}
+  <PageHero eyebrow="Galerie" heading="Bar, Drinks und lange Nächte" text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen." image={crowdImage} />
 
   <Section paddingTop="small" paddingBottom="medium">
     <div class="gallery_grid measure-main">

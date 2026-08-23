@@ -2,6 +2,8 @@
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
+import PageHero from "@/components/PageHero.astro";
+import heroImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
 import Paragraph from "@/components/Paragraph.astro";
 import Heading from "@/components/Heading.astro";
 import Button from "@/components/Button.astro";
@@ -123,12 +125,7 @@ const menuSections = [
       breadcrumbSchema([{ name: "Getränkekarte", path: "/getraenkekarte" }]),
     ]}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      heading="Getränkekarte"
-      text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`}
-    />
-  </Section>
+  <PageHero heading="Getränkekarte" text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`} image={heroImage} imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze" glow={false} />
 
   {/* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
        Die Chips bleiben beim Scrollen unter der Nav kleben. */}

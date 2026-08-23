@@ -3,6 +3,7 @@ import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import ContentWrapper from "@/components/ContentWrapper.astro";
 import PageHeader from "@/components/PageHeader.astro";
+import PageHero from "@/components/PageHero.astro";
 import Heading from "@/components/Heading.astro";
 import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
@@ -11,6 +12,7 @@ import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
 import Img from "@/components/Img.astro";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
+import heroImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
 import { getUpcomingEvents, bottleFromCHF } from "@/utils/content.ts";
@@ -55,55 +57,32 @@ const listed = events.filter((event) => !featured.includes(event));
       breadcrumbSchema([{ name: "Events", path: "/events" }]),
     ]}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      eyebrow="Events"
-      heading="Ein Datum ist ein Grund"
-      text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram."
-    >
-      <ButtonWrapper>
-        <Button element="link" href="/reservation/"
-          >Tisch für einen Abend anfragen</Button
-        >
-        <Button element="link" href={BUSINESS.instagram} variant="secondary">
-          {BUSINESS.instagramHandle}
-        </Button>
-      </ButtonWrapper>
-    </PageHeader>
-  </Section>
+  <PageHero
+    eyebrow="Events"
+    heading="Ein Datum ist ein Grund"
+    text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram."
+    image={heroImage}
+    imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole"
+  >
+    <ButtonWrapper>
+      <Button element="link" href="/reservation/"
+        >Tisch für einen Abend anfragen</Button
+      >
+      <Button element="link" href={BUSINESS.instagram} variant="secondary">
+        {BUSINESS.instagramHandle}
+      </Button>
+    </ButtonWrapper>
+  </PageHero>
 
   <Section paddingTop="small" paddingBottom="large" align="center">
     <PageHeader headingTag="h2" variant="h3" heading="Als Nächstes" />
     <Grid medium={3} class="events_grid alignment-start margin-bottom-6">
       {
-        featured.map((event) => (
-          <Card
-            variant="cover"
-            image={event.data.image}
-            imageAlt={event.data.imageAlt}
-            eyebrow={longDate(event.data.start)}
-            heading={event.data.name}
-            text={timeNote(event.data.start, event.data.priceCHF)}
-            cardTag="article"
-            ratio="3 / 4"
-            contentAlign="end"
-          />
+        events.map((item) => (
+          <Card variant="cover" image={item.data.image} imageAlt={item.data.imageAlt} eyebrow={longDate(item.data.start)} heading={item.data.name} text={timeNote(item.data.start, item.data.priceCHF)} cardTag="article" ratio="3 / 4" contentAlign="end" />
         ))
       }
     </Grid>
-
-    <PageHeader headingTag="h3" variant="h6" heading="Weitere Termine" />
-    <ul class="event_list">
-      {
-        listed.map((event) => (
-          <li class="event_row">
-            <span class="event_date">{shortDate(event.data.start)}</span>
-            <span class="event_title">{event.data.name}</span>
-            <span class="event_tag">{event.data.tag}</span>
-          </li>
-        ))
-      }
-    </ul>
 
     <ButtonWrapper>
       <Button element="link" href="/reservation/"

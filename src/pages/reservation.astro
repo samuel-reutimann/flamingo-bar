@@ -12,6 +12,8 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
 import Img from "@/components/Img.astro";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
+import heroImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
+import PageHero from "@/components/PageHero.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
@@ -61,13 +63,13 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
       breadcrumbSchema([{ name: "Reservation", path: "/reservation" }]),
     ]}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      eyebrow="Reservation"
-      heading="Tisch anfragen"
-      text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`}
-    />
-  </Section>
+  <PageHero
+    eyebrow="Reservation"
+    heading="Tisch anfragen"
+    text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`}
+    image={heroImage}
+    imageAlt="Hand hält einen Tumbler mit Eiswürfeln an der Bartheke"
+  />
 
   <Section paddingTop="small" paddingBottom="medium">
     <ContentWrapper

@@ -11,6 +11,8 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Img from "@/components/Img.astro";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
+import heroImage from "@/assets/flamingo/bar-guests-night.jpeg";
+import PageHero from "@/components/PageHero.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
@@ -34,22 +36,22 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       breadcrumbSchema([{ name: "Kontakt", path: "/kontakt" }]),
     ]}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      eyebrow="Kontakt"
-      heading="Direkt erreichbar"
-      text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular."
-    >
-      <ButtonWrapper>
-        <Button element="link" href="/reservation/">Tisch anfragen</Button>
-        <Button
-          element="link"
-          href={`https://wa.me/${BUSINESS.whatsapp}`}
-          variant="secondary">WhatsApp</Button
-        >
-      </ButtonWrapper>
-    </PageHeader>
-  </Section>
+  <PageHero
+    eyebrow="Kontakt"
+    heading="Direkt erreichbar"
+    text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular."
+    image={heroImage}
+    imageAlt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet"
+  >
+    <ButtonWrapper>
+      <Button element="link" href="/reservation/">Tisch anfragen</Button>
+      <Button
+        element="link"
+        href={`https://wa.me/${BUSINESS.whatsapp}`}
+        variant="secondary">WhatsApp</Button
+      >
+    </ButtonWrapper>
+  </PageHero>
 
   <Section paddingTop="small" paddingBottom="medium" align="center">
     <Grid medium={3} class="contact_channels">

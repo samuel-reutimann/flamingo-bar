@@ -221,7 +221,7 @@ into the contact page. Here they are split on request — `reservation.astro`
 owns the form, `kontakt.astro` owns the direct channels, address and hours,
 and each links to the other. Don't duplicate the form onto Kontakt.
 
-Six project components carry the patterns the subpages share:
+Seven project components carry the patterns the subpages share:
 
 - **`PageHeader.astro`** — the `.section-header` block (eyebrow, heading,
   subhead, optional buttons via the default slot) as a component, so every
@@ -243,6 +243,30 @@ Six project components carry the patterns the subpages share:
   22.4px — `tight` is the rhythm the homepage had before it used PageHeader.
   The gaps live in the component, not in `patterns.css`, so there is one place
   to change them.
+
+- **`PageHero.astro`** — the opener of every page except the homepage: a
+  `PageHeader` (eyebrow, heading, subhead, buttons via the default slot) with
+  a full-bleed image stacked underneath that slides up under the last text
+  row. The homepage keeps its own `.hero_section` — 100svh tall and animated
+  by GSAP; this one takes a fixed image band instead, and no page should have
+  both.
+
+  The overlap only reads as an overlap because of the scrim: the top of the
+  image dissolves into `--background` so the buttons stay legible over it,
+  the bottom does the same so it runs into the next section without an edge.
+  Both mix from `--background`, not `--dark-900`, so the block is right in
+  any theme. The text block carries a soft `text-shadow` when an image is
+  present — on a hero without buttons the last row is the subhead, and that
+  runs in `--text-faded`.
+
+  Everything is a prop with a custom property behind it: `overlap` (how far
+  the image reaches up), `ratio`, `minHeight`, `imagePosition`, `measure`,
+  `align` (`center` by default, `start` for a left-aligned hero),
+  `paddingBottom` and `glow`. Leave `image` off and the block behaves exactly
+  like the `<Section paddingTop="navoverlap">` + `<PageHeader>` pair it
+  replaced — that is what `/galerie` uses, because its mosaic starts right
+  below and a twelfth photo above it would read as an accident. `/impressum`,
+  `/datenschutz` and `/404` still use the old pair.
 
 `patterns.css` also carries the recipes that used to be copied between
 pages: `.split_layout` (image beside text; `.is-top` aligns the columns at

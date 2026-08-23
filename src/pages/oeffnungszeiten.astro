@@ -2,6 +2,8 @@
 import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
+import PageHero from "@/components/PageHero.astro";
+import heroImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
 import HoursTable from "@/components/HoursTable.astro";
 import OpenStatusPill from "@/components/OpenStatusPill.astro";
 import Paragraph from "@/components/Paragraph.astro";
@@ -59,14 +61,15 @@ const openDaysShort = openDaysLabel(hours);
       breadcrumbSchema([{ name: "Öffnungszeiten", path: "/oeffnungszeiten" }]),
     ]}
   />
-  <Section paddingTop="navoverlap" paddingBottom="small" align="center">
-    <PageHeader
-      eyebrow="Öffnungszeiten"
-      heading={openDaysLong}
-      text="Montag bis Mittwoch bleibt die Bar geschlossen."
-    />
+  <PageHero
+    eyebrow="Öffnungszeiten"
+    heading={openDaysLong}
+    text="Montag bis Mittwoch bleibt die Bar geschlossen."
+    image={heroImage}
+    imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund"
+  >
     <OpenStatusPill />
-  </Section>
+  </PageHero>
 
   <Section paddingTop="small" paddingBottom="medium" align="center">
     <HoursTable />
