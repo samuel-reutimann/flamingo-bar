@@ -11,7 +11,15 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
-import { getHours, getDrinkGroups, getBottleService, getMenuSection, getPriceDate, bottleFromCHF, minPriceCHF } from "@/utils/content.ts";
+import {
+  getHours,
+  getDrinkGroups,
+  getBottleService,
+  getMenuSection,
+  getPriceDate,
+  bottleFromCHF,
+  minPriceCHF,
+} from "@/utils/content.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { DRINK_CATEGORIES } from "@/content/options.ts";
 import { BUSINESS, SITE_LOCALE } from "@/consts.ts";
@@ -31,7 +39,7 @@ const menu = await Promise.all(
     chip: category.label,
     section: await getMenuSection(category.value),
     groups: await getDrinkGroups(category.value),
-  }))
+  })),
 );
 
 /* Stufen des Flaschenservice — dieselbe Collection, die Startseite,
@@ -86,10 +94,9 @@ const menuSections = [
     const named = groups.filter((group) => group.label);
     return {
       name: section.title,
-      description: [section.intro, section.note].filter(Boolean).join(" ") || undefined,
-      items: toMenuItems(
-        groups.find((group) => !group.label)?.entries ?? []
-      ),
+      description:
+        [section.intro, section.note].filter(Boolean).join(" ") || undefined,
+      items: toMenuItems(groups.find((group) => !group.label)?.entries ?? []),
       ...(named.length
         ? {
             sections: named.map((group) => ({
@@ -125,10 +132,18 @@ const menuSections = [
       breadcrumbSchema([{ name: "Getränkekarte", path: "/getraenkekarte" }]),
     ]}
   />
-  <PageHero heading="Getränkekarte" text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`} image={heroImage} imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze" glow={false} />
+  <PageHero
+    heading="Getränkekarte"
+    text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`}
+    image={heroImage}
+    imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze"
+    glow={false}
+  />
 
-  {/* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
-       Die Chips bleiben beim Scrollen unter der Nav kleben. */}
+  {
+    /* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
+       Die Chips bleiben beim Scrollen unter der Nav kleben. */
+  }
   <nav class="chips_wrap" aria-label="Kategorien">
     <ul class="chips measure-main">
       {
@@ -269,6 +284,27 @@ const menuSections = [
   const bar = chips[0]?.closest<HTMLElement>(".chips");
   let lastIndex = -1;
 
+  // Die weichen Ränder nur dort zeigen, wo es wirklich weitergeht: am Anfang
+  // der Leiste ist links nichts mehr, am Ende rechts nichts mehr. Sonst sähe
+  // der erste bzw. letzte Chip aus, als wäre er angeschnitten.
+  const updateFade = () => {
+    if (!bar) return;
+    const max = bar.scrollWidth - bar.clientWidth;
+    const fade = "var(--_fade)";
+    bar.style.setProperty("--_fade-start", bar.scrollLeft > 1 ? fade : "0px");
+    bar.style.setProperty(
+      "--_fade-end",
+      bar.scrollLeft < max - 1 ? fade : "0px",
+    );
+  };
+
+  if (bar) {
+    updateFade();
+    // `scroll` deckt auch das programmatische `scrollTo()` unten mit ab.
+    bar.addEventListener("scroll", updateFade, { passive: true });
+    window.addEventListener("resize", updateFade, { passive: true });
+  }
+
   if (entries.length) {
     const update = () => {
       // Messlinie: ein Drittel unter dem oberen Rand, also unterhalb der Chips.
@@ -294,8 +330,7 @@ const menuSections = [
       // heraus die Seite mitscrollen. `scrollLeft` rührt nur die Leiste an.
       const chip = entries[currentIndex]?.chip;
       if (!chip || !bar) return;
-      const target =
-        chip.offsetLeft - (bar.clientWidth - chip.offsetWidth) / 2;
+      const target = chip.offsetLeft - (bar.clientWidth - chip.offsetWidth) / 2;
       bar.scrollTo({
         left: Math.max(0, target),
         behavior: "instant" as ScrollBehavior,
@@ -334,22 +369,42 @@ const menuSections = [
       gap: var(--space-2);
       padding: 0 0 0.25rem;
       list-style: none;
-      overflow-x: visible;
+      /* `visible` liess die Leiste nicht scrollen: die Chips sind zusammen gut
+         dreimal so breit wie ein Telefon, standen also einfach über den Rand
+         hinaus und zogen das ganze Dokument auf ihre Breite auf. Alles drum
+         herum war schon auf einen Scroller ausgelegt — die versteckte
+         Scrollbar, das Snapping und das `scrollLeft` im Skript unten. */
+      overflow-x: auto;
       scrollbar-width: none;
       scroll-snap-type: x proximity;
+
+      /* `safe` statt bloss `center`: zentriert wird nur, solange alles
+         hineinpasst. Läuft die Reihe über, richtet `safe` sie am Anfang aus,
+         statt den Überhang auf beide Seiten zu verteilen. Genau das passierte
+         auf dem Desktop — die Leiste war nur elf Pixel zu breit, also wurden
+         vorne und hinten je zehn Pixel abgeschnitten, und der linke Rest war
+         nicht einmal erreichbar: `scrollLeft` kann nicht negativ werden.
+         Browser ohne `safe` verwerfen die Zeile und richten links aus — auch
+         dort ist dann nichts abgeschnitten. */
+      justify-content: safe center;
+
+      /* Weicher Rand, wo es weitergeht. Die beiden Längen setzt das Skript je
+         nach Scrollstand: am Anfang bleibt links 0, am Ende rechts 0, damit
+         der erste und der letzte Chip nicht grundlos ausgeblendet werden. */
+      --_fade: 2.5rem;
+      --_fade-start: 0px;
+      --_fade-end: 0px;
+      mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black var(--_fade-start),
+        black calc(100% - var(--_fade-end)),
+        transparent 100%
+      );
     }
 
     .chips::-webkit-scrollbar {
       display: none;
-    }
-
-    /* Ab dieser Breite passen alle Chips in eine Zeile, dann sitzen sie zentriert
-       wie der Rest der Seite. Schmaler bleibt die Leiste linksbündig, sonst
-       verschwindet der erste Chip hinter dem Rand. */
-    @media (min-width: 64rem) {
-      .chips {
-        justify-content: center;
-      }
     }
 
     .chip {
@@ -367,9 +422,9 @@ const menuSections = [
       white-space: nowrap;
       scroll-snap-align: center;
       transition:
-        border-color 200ms,
-        background-color 200ms,
-        color 200ms;
+        border-color var(--duration-fast),
+        background-color var(--duration-fast),
+        color var(--duration-fast);
     }
 
     @media (hover: hover) {

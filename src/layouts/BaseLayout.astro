@@ -43,7 +43,12 @@ const hours = await getHours();
     <slot name="head" />
   </head>
   <body>
-    <script type="application/json" id="hours-data" set:html={JSON.stringify(hours)} is:inline></script>
+    <script
+      type="application/json"
+      id="hours-data"
+      set:html={JSON.stringify(hours)}
+      is:inline
+    />
     <SkipLink />
     <Nav overlap={overlap} />
     {
@@ -65,7 +70,8 @@ const hours = await getHours();
         todayLineLabel,
       } from "@/utils/hours.ts";
 
-      const pills = document.querySelectorAll<HTMLElement>("[data-open-status]");
+      const pills =
+        document.querySelectorAll<HTMLElement>("[data-open-status]");
       const todayLines =
         document.querySelectorAll<HTMLElement>("[data-today-line]");
 
@@ -95,6 +101,114 @@ const hours = await getHours();
         // Damit die Pille über Mitternacht hinweg nicht falsch stehenbleibt.
         setInterval(render, 60000);
       }
+    </script>
+    {
+      /* Der Hover-Roll der Buttons steht hier und nicht in `Button.astro`:
+        ein gebündeltes Komponenten-Skript lässt Astro fallen, sobald die
+        Komponente im Slot einer `<Section>` steht — auf der Startseite und
+        auf `/events` kam der Roll deshalb nie an, während er auf allen
+        anderen Seiten lief. Dasselbe gilt für `OpenStatusPill`. */
+    }
+    <script>
+      // Hover-Roll: jeder Buchstabe schiebt nach unten weg, die Kopie kommt von
+      // oben nach – gestaffelt von links nach rechts. Gilt für Primary und
+      // Secondary; der `.link`-Variant bleibt bewusst ohne Roll.
+      import { gsap } from "gsap";
+
+      function setupRoll() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+          return;
+        // Ohne echten Zeiger gibt es keinen Hover, der den Roll auslöst — dann
+        // muss der Text auch nicht in Buchstabenspalten zerlegt werden. Auf dem
+        // Telefon bleibt die Beschriftung damit ein zusammenhängender Text.
+        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+          return;
+
+        document
+          .querySelectorAll<HTMLElement>(".button_wrap:not(.link) .button_text")
+          .forEach((label) => {
+            if (label.dataset.rollReady) return;
+
+            const text = (label.textContent ?? "").trim();
+            if (!text) return;
+
+            const button = label.closest<HTMLElement>("a, button") ?? label;
+            label.dataset.rollReady = "1";
+            label.textContent = "";
+            label.style.display = "inline-flex";
+            // Ohne `pre` kollabieren die Wortabstände der einzelnen Spalten.
+            label.style.whiteSpace = "pre";
+            // Zerlegt liest sich der Text sonst als Buchstabensalat vor.
+            button.setAttribute("aria-label", text);
+
+            const tops: HTMLElement[] = [];
+            const bottoms: HTMLElement[] = [];
+
+            for (const char of text) {
+              const column = document.createElement("span");
+              column.style.cssText =
+                "position:relative;display:inline-block;overflow:hidden;line-height:1.5;vertical-align:top";
+
+              const top = document.createElement("span");
+              top.style.cssText = "display:inline-block";
+              top.textContent = char === " " ? "\u00a0" : char;
+
+              // Die Kopie wartet über der Spalte und rückt beim Hover nach.
+              const bottom = top.cloneNode(true) as HTMLElement;
+              bottom.style.cssText =
+                "display:inline-block;position:absolute;left:0;top:-100%";
+
+              column.append(top, bottom);
+              label.appendChild(column);
+              tops.push(top);
+              bottoms.push(bottom);
+            }
+
+            // Die Staffelung ist gedeckelt: bei „Getränkekarte ansehen“ kamen
+            // 20 × 0.018s zusammen, der letzte Buchstabe stand also erst nach
+            // 0.78s — für eine Hover-Rückmeldung eine halbe Ewigkeit. So bleibt
+            // der ganze Lauf unter einer halben Sekunde, egal wie lang die
+            // Beschriftung ist.
+            const layers = [...tops, ...bottoms];
+            const each = Math.min(0.012, 0.18 / Math.max(1, tops.length - 1));
+
+            // Beide Ebenen laufen synchron, damit die Kopie nachrückt, während
+            // der Buchstabe geht. `overwrite` verhindert, dass schnelles
+            // Rein-Raus die Tweens stapelt.
+            const roll = (to: number) => {
+              // `will-change` nur für die Dauer der Bewegung: als feste Angabe im
+              // Stil hielt es zwei Ebenen pro Buchstabe dauerhaft auf einer
+              // eigenen Grafikebene — auf der Startseite gut 400 Stück, die auch
+              // dann Speicher belegten, wenn niemand über einen Knopf fuhr.
+              const config = {
+                yPercent: to,
+                duration: 0.32,
+                ease: "power3.out",
+                stagger: { each, from: "start" as const },
+                overwrite: true as const,
+              };
+              for (const layer of layers) layer.style.willChange = "transform";
+              gsap.to(tops, config);
+              gsap.to(bottoms, {
+                ...config,
+                onComplete: () => {
+                  for (const layer of layers) layer.style.willChange = "";
+                },
+              });
+            };
+
+            // Kein Roll beim Tastatur-Fokus: Anfang und Ende sehen gleich aus, die
+            // Bewegung sagt also nichts — sichtbar wird der Fokus über den
+            // Fokusring. Bewegung auf einer Tastenaktion ist reine Verzögerung.
+            button.addEventListener("mouseenter", () => roll(100));
+            button.addEventListener("mouseleave", () => roll(0));
+          });
+      }
+
+      setupRoll();
+      // Nach einer View-Transition erneut laufen lassen; `rollReady` hält das
+      // idempotent.
+      document.addEventListener("astro:page-load", setupRoll);
     </script>
     <script is:inline>
       // Heutigen Tag in jeder Öffnungszeiten-Tabelle markieren — der Footer

@@ -61,13 +61,7 @@ const openDaysShort = openDaysLabel(hours);
       breadcrumbSchema([{ name: "Öffnungszeiten", path: "/oeffnungszeiten" }]),
     ]}
   />
-  <PageHero
-    eyebrow="Öffnungszeiten"
-    heading={openDaysLong}
-    text="Montag bis Mittwoch bleibt die Bar geschlossen."
-    image={heroImage}
-    imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund"
-  >
+  <PageHero eyebrow="Öffnungszeiten" heading={openDaysLong} text="Montag bis Mittwoch bleibt die Bar geschlossen." image={heroImage} imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" glow={false}>
     <OpenStatusPill />
   </PageHero>
 

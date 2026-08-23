@@ -28,6 +28,35 @@ export default defineConfig({
   // `wrangler.jsonc` now points at a Worker instead of serving `dist` flat.
   adapter: cloudflare({ imageService: "compile" }),
 
+  vite: {
+    css: {
+      // Vite 8 minifiert CSS mit Lightning CSS. Ohne Zielbrowser fasst es
+      // `backdrop-filter` und `-webkit-backdrop-filter` zu einer Eigenschaft
+      // zusammen und behält nur die zuletzt notierte — die Glaspille der
+      // Navigation kam so ausschließlich mit `-webkit-` heraus und blieb in
+      // Firefox ungeblurrt, weil das dort die unbekannte Schreibweise ist.
+      //
+      // Mit Zielbrowsern setzt Lightning CSS die Präfixe selbst. Deshalb steht
+      // in den Komponenten nur noch die ungepräfixte Eigenschaft: eine von
+      // Hand nachgezogene `-webkit-`-Zeile wäre genau der Fall, der oben
+      // zusammenfällt.
+      //
+      // Die Zahlen sind das Format von Lightning CSS: Major << 16.
+      // Safari/iOS 15 sorgt für die `-webkit-`-Fassung, Firefox 90 liegt unter
+      // den 103, ab denen `backdrop-filter` dort überhaupt greift — die
+      // `@supports`-Ausnahmen in `Nav.astro` und `galerie.astro` fangen das ab.
+      lightningcss: {
+        targets: {
+          safari: 15 << 16,
+          ios_saf: 15 << 16,
+          firefox: 90 << 16,
+          chrome: 90 << 16,
+          edge: 90 << 16,
+        },
+      },
+    },
+  },
+
   integrations: [
     // React is only here because the Keystatic admin UI is a React app. No
     // page component uses it.

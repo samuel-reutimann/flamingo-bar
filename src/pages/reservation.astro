@@ -51,8 +51,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
         },
         {
           question: "Wann kommt die Antwort?",
-          answer:
-            `Am nächsten Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
+          answer: `Am nächsten Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
         },
         {
           question: "Ab wie vielen Personen lohnt sich eine Reservation?",
@@ -106,7 +105,13 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
             required
           />
         </div>
-        <Grid variant="autofit" minColumnWidth={9} class="gap-4">
+        {
+          /* 9rem waren schmaler als das, was ein `datetime-local`-Feld mindestens
+            braucht (gemessen 219px): ab rund 400px Breite entstanden zwei
+            Spalten, in denen das Datum in die Personen-Spalte lief. 14rem
+            lässt die zweite Spalte erst zu, wenn sie das Feld trägt. */
+        }
+        <Grid variant="autofit" minColumnWidth={14} class="gap-4">
           <div class="form_field">
             <label class="form_label" for="res-datetime">Datum und Zeit</label>
             <input
@@ -158,12 +163,7 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
             {PHONE_NUMBER}
           </Button>
         </ButtonWrapper>
-        <p
-          class="form_status"
-          id="res-status"
-          data-form-status
-          role="status"
-        >
+        <p class="form_status" id="res-status" data-form-status role="status">
         </p>
         <noscript>
           <p class="form_note text-style-small">
@@ -350,8 +350,8 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-small);
       transition:
-        border-color 200ms,
-        background-color 200ms;
+        border-color var(--duration-fast),
+        background-color var(--duration-fast);
     }
 
     .form_input:focus-visible {
@@ -415,7 +415,5 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
     }
 
     /* ---------------------------------------------------------------- options */
-
-
   }
 </style>

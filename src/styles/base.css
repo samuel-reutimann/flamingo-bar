@@ -71,20 +71,37 @@
 
   /* Flamingo effects — glass nav pill, accent glow, scrims */
   --border-glass: color-mix(in srgb, var(--light-000) 14%, transparent);
-  --shadow-nav:
-    0 1.125rem 2.75rem color-mix(in srgb, var(--dark-1000) 45%, transparent),
-    inset 0 var(--border-width) 0 var(--border-glass);
+  --shadow-nav: 0 1.125rem 2.75rem color-mix(in srgb, var(--dark-1000) 45%, transparent), inset 0 var(--border-width) 0 var(--border-glass);
   --shadow-accent-glow: 0 0 1.875rem color-mix(in srgb, var(--brand-500) 40%, transparent);
   --shadow-dot-glow: 0 0 0.625rem var(--brand-500);
   --blur-glass: blur(1.75rem) saturate(150%);
-  --gradient-glass: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--light-000) 13%, transparent),
-    color-mix(in srgb, var(--light-000) 4%, transparent) 45%,
-    color-mix(in srgb, var(--dark-850) 28%, transparent)
-  );
+  --gradient-glass: linear-gradient(160deg, color-mix(in srgb, var(--light-000) 13%, transparent), color-mix(in srgb, var(--light-000) 4%, transparent) 45%, color-mix(in srgb, var(--dark-850) 28%, transparent));
+  /* Dieselbe Glasfläche für Browser ohne `backdrop-filter`. Ohne Unschärfe
+     steht die durchsichtige Fassung oben nur als Hauch über dem Foto und die
+     Navigation wird unlesbar — hier sind dieselben Farben deshalb über
+     `--dark-900` gemischt statt über Transparenz. Wird von der
+     `@supports`-Ausnahme in `Nav.astro` benutzt. */
+  --gradient-glass-opaque: linear-gradient(160deg, color-mix(in srgb, var(--light-000) 13%, var(--dark-900)), color-mix(in srgb, var(--light-000) 4%, var(--dark-900)) 45%, color-mix(in srgb, var(--dark-850) 28%, var(--dark-900)));
   --gradient-card-scrim: linear-gradient(to top, color-mix(in srgb, var(--dark-900) 82%, transparent) 0%, color-mix(in srgb, var(--dark-900) 35%, transparent) 55%, transparent 100%);
   --glow-accent-radial: radial-gradient(circle, color-mix(in srgb, var(--brand-500) 20%, transparent), transparent 62%);
+
+  /* Bewegung — Kurven und Dauern. Standen vorher als Zahlenpaare in fünf
+     Dateien: drei fast gleiche Ease-outs (0.23/1/0.32/1, 0.22/1/0.36/1,
+     0.16/1/0.3/1) und Dauern von 160ms bis 900ms ohne Stufung. Wer eine
+     Bewegung nachschärft, soll sie hier finden und nicht in der Komponente.
+     `--ease-out` ist die Standardkurve: schnell los, weich aus — passend für
+     alles, was auftaucht oder verschwindet. `--ease-in-out` nur für
+     Bewegungen, die auf dem Schirm bleiben und sich verschieben. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* Interaktionen bleiben unter 300ms — darüber fühlt sich eine Antwort auf
+     einen Klick oder Hover nach Warten an. `--duration-reveal` ist die
+     Ausnahme: eine Einblendung pro Seitenaufruf, die niemand wiederholt. */
+  --duration-press: 160ms;
+  --duration-fast: 200ms;
+  --duration-medium: 280ms;
+  --duration-slow: 300ms;
+  --duration-reveal: 700ms;
 
   /* Heading styles */
   --display: clamp(var(--display-min) / 16 * 1rem, ((var(--display-min) - ((var(--display-max) - var(--display-min)) / (var(--viewport-max) - var(--viewport-min)) * var(--viewport-min))) / 16 * 1rem + ((var(--display-max) - var(--display-min)) / (var(--viewport-max) - var(--viewport-min))) * 100vw), var(--display-max) / 16 * 1rem);
@@ -408,6 +425,14 @@
   margin: 0;
 }
 
+/* Sprungmarken gleiten, statt zu springen: die Chip-Leiste der Getränkekarte
+   und die Fussnoten-Links wechseln sonst den Abschnitt, ohne dass erkennbar
+   wäre, wohin die Seite gesprungen ist. Der Block für reduzierte Bewegung
+   weiter unten stellt das wieder auf `auto`. */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -500,13 +525,21 @@ select:has(option[value=""]:checked) {
   color: var(--selection-text);
 }
 
+/* Reduzierte Bewegung heisst weniger und ruhiger, nicht gar nichts. Der Block
+   stand vorher auf `transition-duration: 0.01ms` für alles — damit verschwand
+   auch die Farbrückmeldung von Links, Chips und Formularfeldern, also genau
+   das, was ein Hover oder ein Fokus verständlich macht. Stattdessen fällt hier
+   nur die Bewegung weg: `transition-property` lässt Farbe, Rahmen, Schatten
+   und Deckkraft übrig, jede Verschiebung und jede Skalierung springt sofort.
+   Keyframe-Animationen laufen ohnehin nicht mehr. */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-property: color, background-color, border-color, outline-color, box-shadow, opacity !important;
+    transition-duration: var(--duration-fast) !important;
     scroll-behavior: auto !important;
   }
 }

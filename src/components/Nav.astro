@@ -35,39 +35,49 @@ const isCurrent = (href: string) =>
       </button>
     </div>
     <nav class="nav_menu" id="nav-menu" aria-label="Hauptnavigation">
-      <a class="nav_link" href="/" aria-current={isCurrent("/")}>
-        Startseite
-      </a>
-      <a
-        class="nav_link"
-        href="/getraenkekarte/"
-        aria-current={isCurrent("/getraenkekarte")}
-      >
-        Getränkekarte
-      </a>
-      <a class="nav_link" href="/events/" aria-current={isCurrent("/events")}>
-        Events
-      </a>
-      <a class="nav_link" href="/galerie/" aria-current={isCurrent("/galerie")}>
-        Galerie
-      </a>
-      <a
-        class="nav_link"
-        href="/oeffnungszeiten/"
-        aria-current={isCurrent("/oeffnungszeiten")}
-      >
-        Öffnungszeiten
-      </a>
-      <a class="nav_link" href="/kontakt/" aria-current={isCurrent("/kontakt")}>
-        Kontakt
-      </a>
-      <a
-        class="nav_link"
-        href="/reservation/"
-        aria-current={isCurrent("/reservation")}
-      >
-        Tisch anfragen
-      </a>
+      <div class="nav_menu_list">
+        <a class="nav_link" href="/" aria-current={isCurrent("/")}>
+          Startseite
+        </a>
+        <a
+          class="nav_link"
+          href="/getraenkekarte/"
+          aria-current={isCurrent("/getraenkekarte")}
+        >
+          Getränkekarte
+        </a>
+        <a class="nav_link" href="/events/" aria-current={isCurrent("/events")}>
+          Events
+        </a>
+        <a
+          class="nav_link"
+          href="/galerie/"
+          aria-current={isCurrent("/galerie")}
+        >
+          Galerie
+        </a>
+        <a
+          class="nav_link"
+          href="/oeffnungszeiten/"
+          aria-current={isCurrent("/oeffnungszeiten")}
+        >
+          Öffnungszeiten
+        </a>
+        <a
+          class="nav_link"
+          href="/kontakt/"
+          aria-current={isCurrent("/kontakt")}
+        >
+          Kontakt
+        </a>
+        <a
+          class="nav_link"
+          href="/reservation/"
+          aria-current={isCurrent("/reservation")}
+        >
+          Tisch anfragen
+        </a>
+      </div>
     </nav>
   </div>
 </div>
@@ -85,7 +95,7 @@ const isCurrent = (href: string) =>
         display: none;
       }
       .nav_menu {
-        max-height: none;
+        grid-template-rows: 1fr;
         opacity: 1;
         margin-top: 1.5rem;
         visibility: visible;
@@ -106,7 +116,10 @@ const isCurrent = (href: string) =>
       toggle.setAttribute("aria-expanded", String(open));
       // `aria-label` stand fest auf "Menü öffnen" — bei offenem Menü las ein
       // Screenreader also "Menü öffnen, erweitert".
-      toggle.setAttribute("aria-label", open ? "Menü schliessen" : "Menü öffnen");
+      toggle.setAttribute(
+        "aria-label",
+        open ? "Menü schliessen" : "Menü öffnen",
+      );
       // `inert` nimmt die Links zusätzlich aus dem Accessibility-Tree; die
       // CSS-Sichtbarkeit allein greift erst nach der Übergangszeit.
       menu.inert = !open;
@@ -158,11 +171,22 @@ const isCurrent = (href: string) =>
       padding: 0.8rem 1.25rem;
       background: var(--gradient-glass);
       backdrop-filter: var(--blur-glass);
-      -webkit-backdrop-filter: var(--blur-glass);
       border: var(--border-width) solid var(--border-glass);
       border-radius: 1.15rem;
       box-shadow: var(--shadow-nav);
-      transition: padding 0.35s ease;
+    }
+
+    /* Ohne `backdrop-filter` gibt es nichts, was das Foto hinter der Pille
+       ruhig stellt: `--gradient-glass` ist zu 87 % durchsichtig und die Links
+       stünden direkt auf dem Bild. Safari vor 18 kennt nur die Fassung mit
+       `-webkit-`, ältere Firefox-Versionen keine von beiden — die Abfrage
+       nennt deshalb beide Schreibweisen. */
+    @supports not (
+      (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+    ) {
+      .nav_pill {
+        background: var(--gradient-glass-opaque);
+      }
     }
 
     /* `is-preload` steht auf <html>, solange eine Seite ihre Einblend-Animation
@@ -184,7 +208,7 @@ const isCurrent = (href: string) =>
       font-size: 1.3rem;
       color: var(--light-100);
       text-decoration: none;
-      transition: color 200ms;
+      transition: color var(--duration-fast);
       @media (hover: hover) {
         &:hover {
           color: var(--brand-500-soft);
@@ -192,11 +216,15 @@ const isCurrent = (href: string) =>
       }
     }
 
+    /* Die Klappbewegung läuft über die Zeilenhöhe des Rasters, nicht über
+       `max-height`. Der alte Deckel stand auf 32rem, die sieben Links sind
+       aber nur rund 20rem hoch: Vier Zehntel der Zeit liefen ins Leere, was
+       sich beim Schliessen als Gedenksekunde anfühlte, bevor sich überhaupt
+       etwas bewegte. `0fr → 1fr` misst der Browser selbst, die Bewegung endet
+       also genau dann, wenn das Menü zu ist. */
     .nav_menu {
       display: grid;
-      gap: 0.35rem;
-      overflow: hidden;
-      max-height: 0;
+      grid-template-rows: 0fr;
       opacity: 0;
       /* Ohne `visibility` blieben die Links im Tab-Fokus und im
          Accessibility-Tree, obwohl das Menü zu ist — auf jeder Seite. Die
@@ -204,14 +232,23 @@ const isCurrent = (href: string) =>
          verschwinden. */
       visibility: hidden;
       transition:
-        max-height 0.4s ease,
-        opacity 0.3s ease,
-        margin-top 0.4s ease,
-        visibility 0s linear 0.4s;
+        grid-template-rows var(--duration-slow) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out),
+        margin-top var(--duration-slow) var(--ease-out),
+        visibility 0s linear var(--duration-slow);
+    }
+
+    /* `min-height: 0` hebt die Mindesthöhe auf, die ein Rasterelement sonst
+       von seinem Inhalt erbt — ohne sie faltet sich nichts zusammen. */
+    .nav_menu_list {
+      display: grid;
+      gap: 0.35rem;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .nav_pill.is-open .nav_menu {
-      max-height: 32rem;
+      grid-template-rows: 1fr;
       opacity: 1;
       margin-top: 1.5rem;
       visibility: visible;
@@ -224,7 +261,7 @@ const isCurrent = (href: string) =>
       line-height: 1.25;
       color: var(--light-100);
       text-decoration: none;
-      transition: color 200ms;
+      transition: color var(--duration-fast);
       &[aria-current="page"] {
         color: var(--brand-500-soft);
       }
@@ -253,8 +290,8 @@ const isCurrent = (href: string) =>
       height: 0.09375rem;
       background-color: var(--light-100);
       transition:
-        transform 0.3s ease,
-        opacity 0.3s ease;
+        transform var(--duration-fast) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out);
     }
 
     .nav_pill.is-open .nav_toggle_line:first-child {

@@ -121,8 +121,7 @@ const openDays = openDaysLabel(hours);
       <Heading tag="h1" variant="h1" class="hero_heading"
         >Deine Bar in Langenthal <br />für Drinks und lange Nächte</Heading
       >
-      <Paragraph maxWidth={38} class="hero_text"
-        >{drinkLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
+      <Paragraph class="hero_text">{drinkLine}, Flaschenservice und DJ-Abende. {BUSINESS.street}, {
           BUSINESS.city
         }.</Paragraph
       >
@@ -188,8 +187,11 @@ const openDays = openDaysLabel(hours);
         // Erst freigeben, wenn GSAP die Startwerte gesetzt hat.
         gsap.set(fadeItems, { opacity: 0, y: 14, force3D: true });
         gsap.set(heading, { y: 14, force3D: true });
-        // Ohne `opacity`: das Bild ist ab dem Decode sichtbar.
-        gsap.set(image, { scale: 1.06, yPercent: 3, force3D: true });
+        // Das Bild blendet nur auf und steht dabei still: kein Zoom, kein
+        // Versatz. Der Haltezustand unten setzt es vorab auf `opacity: 0`,
+        // sonst stünde es zwischen Decode und Skriptstart schon sichtbar da
+        // und würde beim Start der Animation wieder verschwinden.
+        gsap.set(image, { opacity: 0 });
         gsap.set(scrim, { opacity: 0 });
         gsap.set(pill, { opacity: 0, y: -12, force3D: true });
         root.classList.remove("is-preload");
@@ -202,7 +204,7 @@ const openDays = openDaysLabel(hours);
             }),
         });
 
-        tl.to(image, { scale: 1, yPercent: 0, duration: 1.1 })
+        tl.to(image, { opacity: 1, duration: 1.1 })
           .to(scrim, { opacity: 1, duration: 0.8 }, "<")
           .to(heading, { y: 0, duration: 0.6 }, "<0.15")
           .to(
@@ -484,13 +486,18 @@ const openDays = openDaysLabel(hours);
   @layer components {
     /* Haltezustand der Ladeanimation: gilt nur, solange das Head-Script die
        Klasse gesetzt hat, also nie ohne JS und nie bei reduzierter Bewegung. */
-    /* Hero-Bild und H1 sind die LCP-Kandidaten und werden nie ausgeblendet —
-       sonst hängt der Largest Contentful Paint an der Ausführung von GSAP.
-       Beide kommen nur per Transform herein, der Rest darf einblenden. */
+    /* Die H1 ist der Text-LCP-Kandidat und wird nie ausgeblendet — sie kommt
+       nur per Transform herein. Das Hero-Bild blendet dagegen auf und steht
+       deshalb hier mit: ohne den Haltezustand blitzt es zwischen Decode und
+       Skriptstart auf und verschwindet dann wieder. Der Preis dafür ist, dass
+       der Largest Contentful Paint am Bild an der Ausführung von GSAP hängt;
+       das Sicherheitsnetz im Head-Skript nimmt die Klasse nach vier Sekunden
+       in jedem Fall wieder weg. */
     .is-preload .hero_status,
     .is-preload .hero_text,
     .is-preload .hero_buttons,
-    .is-preload .hero_scrim {
+    .is-preload .hero_scrim,
+    .is-preload .hero_visual img {
       opacity: 0;
     }
 
@@ -519,7 +526,15 @@ const openDays = openDaysLabel(hours);
       margin-inline: auto;
     }
 
+    /* Das Mass steht in `rem`, nicht in `ch`. `ch` misst die Laufweite der
+       Null der geladenen Schrift — solange Manrope mit `font-display: swap`
+       noch fehlt, gilt die der Fallback-Schrift, und beim Wechsel springt die
+       Kappung (181px → 176px) und der Absatz bricht neu um. Genau das war
+       der Sprung von drei auf vier Zeilen beim Laden. `24rem` ist ausserdem
+       der Wert aus dem Mockup (`.max-width-small`); `18ch` waren 176px und
+       damit weniger als die Hälfte davon. */
     .hero_text {
+      max-width: 24rem;
       margin-inline: auto;
       margin-top: var(--space-3);
       margin-bottom: var(--space-5);
@@ -662,8 +677,13 @@ const openDays = openDaysLabel(hours);
       animation: gallery-scroll 48s linear infinite;
     }
 
-    .gallery_marquee:hover .gallery_track {
-      animation-play-state: paused;
+    /* Nur mit echtem Zeiger: auf dem Telefon bleibt `:hover` nach dem Tippen
+       auf der Kachel stehen, und das Band stand dann still, bis irgendwo
+       anders hingetippt wurde. */
+    @media (hover: hover) and (pointer: fine) {
+      .gallery_marquee:hover .gallery_track {
+        animation-play-state: paused;
+      }
     }
 
     .gallery_item {

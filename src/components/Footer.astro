@@ -9,8 +9,9 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       <div class="footer_brand">
         <div class="footer_brand-label text-style-small">{SITE_NAME}</div>
         <p class="footer_brand-address text-style-small">
-          {`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`}<br
-          />{BUSINESS.phoneDisplay}
+          {`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`}<br />{
+            BUSINESS.phoneDisplay
+          }
         </p>
       </div>
       <div>
@@ -108,7 +109,7 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       color: var(--text-faded);
       font-size: 0.8125rem;
       text-decoration: none;
-      transition: color 200ms;
+      transition: color var(--duration-fast);
       @media (hover: hover) {
         &:hover {
           color: var(--brand-500-soft);
@@ -140,7 +141,12 @@ import { BUSINESS, SITE_NAME } from "@/consts.ts";
       text-align: center;
       white-space: nowrap;
       color: var(--light-100);
-      padding-bottom: 0.4rem;
+      /* `line-height: 0.8` macht die Zeilenbox ein Fünftel kürzer als die
+         Schrift: die Unterlänge des „g“ ragt unten heraus. Der Ausgleich muss
+         deshalb in `em` stehen und mit der Schriftgrösse wachsen — als feste
+         0.4rem reichte er nur auf schmalen Telefonen, und ab etwa 768px lag
+         das „g“ über der Impressum-Zeile. */
+      padding-bottom: 0.22em;
     }
 
     .footer_bottom {

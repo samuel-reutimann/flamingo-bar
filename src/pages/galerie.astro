@@ -47,28 +47,75 @@ type Tile = {
 };
 
 const tiles: Tile[] = [
-  { image: barGuestsImage, caption: "Die Bar", ratio: "portrait", eager: true,
-    alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" },
-  { image: neonGlassesImage, caption: "Neonlicht", ratio: "landscape", eager: true,
-    alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" },
-  { image: aperolImage, caption: "Aperitif", ratio: "tall", eager: true,
-    alt: "Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze" },
-  { image: cocktailHandImage, caption: "An der Bar", ratio: "portrait", eager: true,
-    alt: "Hand hält einen Tumbler mit Eiswürfeln" },
-  { image: djKnobsImage, caption: "Am Pult", ratio: "tall",
-    alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" },
-  { image: longIslandImage, caption: "Longdrink",
-    alt: "Longdrinkglas mit Eis und Zitronenscheibe" },
-  { image: crowdImage, caption: "Tanzfläche", ratio: "landscape",
-    alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party" },
-  { image: djMixerImage, caption: "DJ-Abend", ratio: "portrait",
-    alt: "DJane am Pult, pinke Lichtstrahlen über der Menge" },
-  { image: liveSessionImage, caption: "Live Session", ratio: "tall",
-    alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht" },
-  { image: pinaColadaImage, caption: "Auf Eis", ratio: "portrait",
-    alt: "Glas mit Ananasscheibe und Cocktailkirsche an der Bar" },
-  { image: bottleImage, caption: "Flaschenservice", ratio: "landscape",
-    alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" },
+  {
+    image: barGuestsImage,
+    caption: "Die Bar",
+    ratio: "portrait",
+    eager: true,
+    alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet",
+  },
+  {
+    image: neonGlassesImage,
+    caption: "Neonlicht",
+    ratio: "landscape",
+    eager: true,
+    alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund",
+  },
+  {
+    image: aperolImage,
+    caption: "Aperitif",
+    ratio: "tall",
+    eager: true,
+    alt: "Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze",
+  },
+  {
+    image: cocktailHandImage,
+    caption: "An der Bar",
+    ratio: "portrait",
+    eager: true,
+    alt: "Hand hält einen Tumbler mit Eiswürfeln",
+  },
+  {
+    image: djKnobsImage,
+    caption: "Am Pult",
+    ratio: "tall",
+    alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole",
+  },
+  {
+    image: longIslandImage,
+    caption: "Longdrink",
+    alt: "Longdrinkglas mit Eis und Zitronenscheibe",
+  },
+  {
+    image: crowdImage,
+    caption: "Tanzfläche",
+    ratio: "landscape",
+    alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party",
+  },
+  {
+    image: djMixerImage,
+    caption: "DJ-Abend",
+    ratio: "portrait",
+    alt: "DJane am Pult, pinke Lichtstrahlen über der Menge",
+  },
+  {
+    image: liveSessionImage,
+    caption: "Live Session",
+    ratio: "tall",
+    alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht",
+  },
+  {
+    image: pinaColadaImage,
+    caption: "Auf Eis",
+    ratio: "portrait",
+    alt: "Glas mit Ananasscheibe und Cocktailkirsche an der Bar",
+  },
+  {
+    image: bottleImage,
+    caption: "Flaschenservice",
+    ratio: "landscape",
+    alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze",
+  },
 ];
 ---
 
@@ -83,13 +130,15 @@ const tiles: Tile[] = [
   />
   {/* Kein Hero-Bild: das Mosaik beginnt direkt darunter, ein zwölftes Foto
        davor sähe nach Versehen aus. */}
-  <PageHero eyebrow="Galerie" heading="Bar, Drinks und lange Nächte" text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen." image={crowdImage} />
+  <PageHero eyebrow="Galerie" heading="Bar, Drinks und lange Nächte" text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen." image={crowdImage} glow={false} />
 
   <Section paddingTop="small" paddingBottom="medium">
     <div class="gallery_grid measure-main">
       {
         tiles.map((tile) => (
-          <figure class:list={["gallery_tile", tile.ratio && `is-${tile.ratio}`]}>
+          <figure
+            class:list={["gallery_tile", tile.ratio && `is-${tile.ratio}`]}
+          >
             <button
               class="gallery_button"
               type="button"
@@ -249,7 +298,7 @@ const tiles: Tile[] = [
       height: auto;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform var(--duration-medium) var(--ease-out);
     }
 
     .gallery_tile.is-portrait .gallery_button img {
@@ -278,6 +327,11 @@ const tiles: Tile[] = [
 
     /* -------------------------------------------------------------- lightbox */
     .lightbox {
+      /* Ein modaler Dialog wird vom Browser mit `margin: auto` zentriert. Der
+         globale Reset setzt jede Margin auf 0 und nimmt ihm genau das weg — die
+         Grossansicht klebte in der linken oberen Ecke, und der Schliessen-Knopf
+         (`top: -0.5rem`) lag dadurch ausserhalb des Bildschirms. */
+      margin: auto;
       width: min(92vw, 60rem);
       max-width: none;
       max-height: 92svh;
@@ -287,11 +341,61 @@ const tiles: Tile[] = [
       background-color: transparent;
       color: var(--light-100);
       overflow: visible;
+      /* Die Grossansicht stand vorher schlagartig im Bild — Foto und
+         Verdunkelung erschienen zwischen zwei Bildern aus dem Nichts. Sie
+         wächst deshalb aus 96 % heran statt aus dem Punkt: nichts in der Welt
+         taucht aus dem Nichts auf. `allow-discrete` überträgt die Bewegung auf
+         `display` und `overlay`, sonst wäre der Dialog beim Schliessen weg,
+         bevor sich etwas bewegt hat. Browser ohne die Regel zeigen ihn wie
+         bisher sofort. */
+      opacity: 0;
+      transform: scale(0.96);
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out),
+        overlay var(--duration-fast) allow-discrete,
+        display var(--duration-fast) allow-discrete;
+
+      &[open] {
+        opacity: 1;
+        transform: scale(1);
+
+        @starting-style {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+      }
     }
 
     .lightbox::backdrop {
       background-color: color-mix(in srgb, var(--dark-900) 88%, transparent);
       backdrop-filter: blur(0.375rem);
+      opacity: 0;
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        overlay var(--duration-fast) allow-discrete,
+        display var(--duration-fast) allow-discrete;
+    }
+
+    .lightbox[open]::backdrop {
+      opacity: 1;
+    }
+
+    @starting-style {
+      .lightbox[open]::backdrop {
+        opacity: 0;
+      }
+    }
+
+    /* Fällt die Unschärfe ganz aus, trennt nur noch die Deckkraft das
+       geöffnete Bild von der Seite darunter. 88 % lassen die Mosaik-Kacheln
+       durchscheinen, was hinter einem freigestellten Foto unruhig wirkt. */
+    @supports not (
+      (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+    ) {
+      .lightbox::backdrop {
+        background-color: color-mix(in srgb, var(--dark-900) 96%, transparent);
+      }
     }
 
     .lightbox_image {
@@ -317,14 +421,15 @@ const tiles: Tile[] = [
       width: 2.5rem;
       height: 2.5rem;
       padding: 0;
-      border: var(--border-width) solid color-mix(in srgb, var(--light-100) 24%, transparent);
+      border: var(--border-width) solid
+        color-mix(in srgb, var(--light-100) 24%, transparent);
       border-radius: var(--radius-round);
       background-color: color-mix(in srgb, var(--dark-900) 70%, transparent);
       color: var(--light-100);
       cursor: pointer;
       transition:
-        background-color 200ms,
-        border-color 200ms;
+        background-color var(--duration-fast),
+        border-color var(--duration-fast);
     }
 
     @media (hover: hover) {

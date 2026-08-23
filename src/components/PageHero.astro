@@ -305,7 +305,7 @@ const overrides = Object.entries({
     @media (prefers-reduced-motion: no-preference) {
       .page-hero_content > .section-header > *,
       .page-hero_visual {
-        animation: page-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation: page-hero-rise var(--duration-reveal) var(--ease-out) both;
       }
 
       .page-hero_content > .section-header > *:nth-child(2) {

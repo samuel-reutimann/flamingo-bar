@@ -227,7 +227,7 @@ const coverStyle =
       }
 
       @media (hover: hover) and (pointer: fine) {
-        transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+        transition: transform var(--duration-medium) var(--ease-out);
 
         &:hover {
           transform: translateY(-0.25rem);
@@ -260,10 +260,12 @@ const coverStyle =
       border-radius: inherit;
       overflow: clip;
 
-      /* Das Bild zieht beim Hover langsam heran, die Karte hebt leicht ab.
-         Nur transform, damit nichts neu umbricht. */
+      /* Das Bild zieht beim Hover heran, die Karte hebt leicht ab. Nur
+         transform, damit nichts neu umbricht. Beide laufen über dieselbe
+         Dauer: mit 500ms für das Bild und 300ms für die Karte zoomte das Foto
+         noch zwei Zehntel weiter, nachdem die Karte längst stand. */
       img {
-        transition: transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
+        transition: transform var(--duration-medium) var(--ease-out);
       }
 
       .stacked > & {

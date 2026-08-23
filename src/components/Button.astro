@@ -54,82 +54,6 @@ const content = await slotContent(Astro.slots);
     </Tag>
   )
 }
-<script>
-  // Hover-Roll: jeder Buchstabe schiebt nach unten weg, die Kopie kommt von
-  // oben nach – gestaffelt von links nach rechts. Gilt für Primary und
-  // Secondary; der `.link`-Variant bleibt bewusst ohne Roll.
-  import { gsap } from "gsap";
-
-  function setupRoll() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    document
-      .querySelectorAll<HTMLElement>(".button_wrap:not(.link) .button_text")
-      .forEach((label) => {
-        if (label.dataset.rollReady) return;
-
-        const text = (label.textContent ?? "").trim();
-        if (!text) return;
-
-        const button = label.closest<HTMLElement>("a, button") ?? label;
-        label.dataset.rollReady = "1";
-        label.textContent = "";
-        label.style.display = "inline-flex";
-        // Ohne `pre` kollabieren die Wortabstände der einzelnen Spalten.
-        label.style.whiteSpace = "pre";
-        // Zerlegt liest sich der Text sonst als Buchstabensalat vor.
-        button.setAttribute("aria-label", text);
-
-        const tops: HTMLElement[] = [];
-        const bottoms: HTMLElement[] = [];
-
-        for (const char of text) {
-          const column = document.createElement("span");
-          column.style.cssText =
-            "position:relative;display:inline-block;overflow:hidden;line-height:1.5;vertical-align:top";
-
-          const top = document.createElement("span");
-          top.style.cssText = "display:inline-block;will-change:transform";
-          top.textContent = char === " " ? "\u00a0" : char;
-
-          // Die Kopie wartet über der Spalte und rückt beim Hover nach.
-          const bottom = top.cloneNode(true) as HTMLElement;
-          bottom.style.cssText =
-            "display:inline-block;position:absolute;left:0;top:-100%;will-change:transform";
-
-          column.append(top, bottom);
-          label.appendChild(column);
-          tops.push(top);
-          bottoms.push(bottom);
-        }
-
-        // Beide Ebenen laufen synchron, damit die Kopie nachrückt, während
-        // der Buchstabe geht. `overwrite` verhindert, dass schnelles
-        // Rein-Raus die Tweens stapelt.
-        const roll = (to: number) => {
-          const config = {
-            yPercent: to,
-            duration: 0.42,
-            ease: "power3.out",
-            stagger: { each: 0.018, from: "start" as const },
-            overwrite: true as const,
-          };
-          gsap.to(tops, config);
-          gsap.to(bottoms, config);
-        };
-
-        button.addEventListener("mouseenter", () => roll(100));
-        button.addEventListener("mouseleave", () => roll(0));
-        button.addEventListener("focus", () => roll(100));
-        button.addEventListener("blur", () => roll(0));
-      });
-  }
-
-  setupRoll();
-  // Nach einer View-Transition erneut laufen lassen; `rollReady` hält das
-  // idempotent.
-  document.addEventListener("astro:page-load", setupRoll);
-</script>
 
 <style is:global>
   @layer components {
@@ -147,11 +71,11 @@ const content = await slotContent(Astro.slots);
       text-decoration: none;
       text-align: center;
       transition:
-        background-color 200ms,
-        color 200ms,
-        border-color 200ms,
-        box-shadow 200ms,
-        transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+        background-color var(--duration-fast),
+        color var(--duration-fast),
+        border-color var(--duration-fast),
+        box-shadow var(--duration-fast),
+        transform var(--duration-press) var(--ease-out);
       @media (hover: hover) and (pointer: fine) {
         &:hover {
           background-color: var(--button-background-hover);
