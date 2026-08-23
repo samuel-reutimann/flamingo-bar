@@ -57,13 +57,7 @@ const listed = events.filter((event) => !featured.includes(event));
       breadcrumbSchema([{ name: "Events", path: "/events" }]),
     ]}
   />
-  <PageHero
-    eyebrow="Events"
-    heading="Ein Datum ist ein Grund"
-    text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram."
-    image={heroImage}
-    imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole"
-  >
+  <PageHero eyebrow="Events" heading="Ein Datum ist ein Grund" text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram." image={heroImage} imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" glow={false}>
     <ButtonWrapper>
       <Button element="link" href="/reservation/"
         >Tisch für einen Abend anfragen</Button

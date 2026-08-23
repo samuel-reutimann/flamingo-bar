@@ -183,6 +183,43 @@ const openDays = openDaysLabel(hours);
         document.querySelector<HTMLElement>(".hero_buttons"),
       ].filter((el): el is HTMLElement => el !== null);
 
+      const img = image as HTMLImageElement | null;
+
+      // Das Bild kommt zuletzt: erst steht der Text, dann blendet das Foto
+      // darunter auf. Läuft als eigene Timeline, damit der Text nicht auf den
+      // Decode warten muss — sonst hinge die ganze Animation am Netz.
+      let imageRevealed = false;
+      const revealImage = () => {
+        if (imageRevealed) return;
+        imageRevealed = true;
+
+        gsap
+          .timeline({
+            defaults: { ease: "power3.out" },
+            onComplete: () =>
+              gsap.set([image, scrim], { clearProps: "all" }),
+          })
+          .to(image, { opacity: 1, duration: 1.1 })
+          .to(scrim, { opacity: 1, duration: 0.8 }, "<");
+      };
+
+      // Aufblenden erst, wenn Text fertig ist *und* das Bild da ist. Fehlt
+      // eines von beidem, wartet die andere Seite.
+      let textDone = false;
+      let imageReady = !img || img.complete;
+      const maybeRevealImage = () => {
+        if (textDone && imageReady) revealImage();
+      };
+
+      if (img && !img.complete) {
+        const onReady = () => {
+          imageReady = true;
+          maybeRevealImage();
+        };
+        img.addEventListener("load", onReady, { once: true });
+        img.addEventListener("error", onReady, { once: true });
+      }
+
       const start = () => {
         // Erst freigeben, wenn GSAP die Startwerte gesetzt hat.
         gsap.set(fadeItems, { opacity: 0, y: 14, force3D: true });
@@ -198,15 +235,14 @@ const openDays = openDaysLabel(hours);
 
         const tl = gsap.timeline({
           defaults: { ease: "power3.out" },
-          onComplete: () =>
-            gsap.set([heading, ...fadeItems, image, scrim, pill], {
-              clearProps: "all",
-            }),
+          onComplete: () => {
+            gsap.set([heading, ...fadeItems, pill], { clearProps: "all" });
+            textDone = true;
+            maybeRevealImage();
+          },
         });
 
-        tl.to(image, { opacity: 1, duration: 1.1 })
-          .to(scrim, { opacity: 1, duration: 0.8 }, "<")
-          .to(heading, { y: 0, duration: 0.6 }, "<0.15")
+        tl.to(heading, { y: 0, duration: 0.6 })
           .to(
             fadeItems,
             { opacity: 1, y: 0, duration: 0.6, stagger: 0.06 },
@@ -215,14 +251,8 @@ const openDays = openDaysLabel(hours);
           .to(pill, { opacity: 1, y: 0, duration: 0.5 }, "<0.1");
       };
 
-      // Auf das Hero-Bild warten, sonst startet der Reveal auf einem leeren Feld.
-      const img = image as HTMLImageElement | null;
-      if (img && !img.complete) {
-        img.addEventListener("load", start, { once: true });
-        img.addEventListener("error", start, { once: true });
-      } else {
-        start();
-      }
+      // Der Text wartet auf nichts — er startet, sobald das Skript läuft.
+      start();
     }
   </script>
   <script>
