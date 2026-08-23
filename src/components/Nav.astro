@@ -53,6 +53,16 @@ const isCurrent = (href: string) =>
       </a>
       <a
         class="nav_link"
+        href="/oeffnungszeiten/"
+        aria-current={isCurrent("/oeffnungszeiten")}
+      >
+        Öffnungszeiten
+      </a>
+      <a class="nav_link" href="/kontakt/" aria-current={isCurrent("/kontakt")}>
+        Kontakt
+      </a>
+      <a
+        class="nav_link"
         href="/reservation/"
         aria-current={isCurrent("/reservation")}
       >
@@ -188,7 +198,7 @@ const isCurrent = (href: string) =>
       overflow: hidden;
       max-height: 0;
       opacity: 0;
-      /* Ohne `visibility` blieben die fünf Links im Tab-Fokus und im
+      /* Ohne `visibility` blieben die Links im Tab-Fokus und im
          Accessibility-Tree, obwohl das Menü zu ist — auf jeder Seite. Die
          Verzögerung lässt die Klappbewegung zu Ende laufen, bevor sie
          verschwinden. */
@@ -201,7 +211,7 @@ const isCurrent = (href: string) =>
     }
 
     .nav_pill.is-open .nav_menu {
-      max-height: 22rem;
+      max-height: 32rem;
       opacity: 1;
       margin-top: 1.5rem;
       visibility: visible;
