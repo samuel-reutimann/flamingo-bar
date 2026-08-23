@@ -32,6 +32,32 @@ import {
   MENU_SECTIONS,
 } from "./src/content/options.ts";
 
+/**
+ * `fields.datetime`, das als Zeichenkette in der Datei landet.
+ *
+ * Keystatics eigenes `serialize()` gibt ein `Date` zurück, dessen `toJSON` und
+ * `toString` auf die Kurzform `2026-09-05T21:00` gepatcht sind. In der
+ * Cloud-Oberfläche läuft der Wert über eine Structured-Clone-Grenze, die genau
+ * diesen Patch abstreift; der YAML-Writer schreibt danach den nativen
+ * Zeitstempel `2026-09-05T21:00:00.000Z`, und der Build hält an dem Muster in
+ * `content.config.ts` an. Lokal fällt das nicht auf, weil dort nicht geklont
+ * wird — die Kurzform kommt heraus und alles sieht in Ordnung aus.
+ *
+ * Eine Zeichenkette übersteht das Klonen unverändert.
+ */
+function localDatetime(options: Parameters<typeof fields.datetime>[0]) {
+  const field = fields.datetime(options);
+  return {
+    ...field,
+    serialize(value: string | null) {
+      const { value: serialized } = field.serialize(value);
+      return {
+        value: serialized === undefined ? undefined : String(serialized),
+      };
+    },
+  };
+}
+
 /** Bilder liegen bei den übrigen Assets, nicht im Content-Ordner. */
 const imageField = (description: string) =>
   fields.image({
@@ -86,12 +112,12 @@ export default config({
             description: 'Wie der Abend heißt, z. B. "Pink Friday mit DJ Nael".',
           },
         }),
-        start: fields.datetime({
+        start: localDatetime({
           label: "Beginn",
           description: "Datum und Startzeit.",
           validation: { isRequired: true },
         }),
-        end: fields.datetime({
+        end: localDatetime({
           label: "Ende",
           description: "Meist am Folgetag früh morgens.",
           validation: { isRequired: true },

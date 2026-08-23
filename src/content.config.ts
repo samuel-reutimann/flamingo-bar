@@ -26,16 +26,43 @@ export const DRINK_GROUPS = options.values(options.DRINK_GROUPS);
 export const MENU_SECTIONS = options.values(options.MENU_SECTIONS);
 export const EVENT_TAGS = options.values(options.EVENT_TAGS);
 
+const LOCAL_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+
+/** Dieselben Ziffern, aber mit Sekunden und `Z` — so schrieb es die Cloud. */
+const KEYSTATIC_UTC = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?Z$/;
+
+const pad = (value: number) => String(value).padStart(2, "0");
+
+/** Die Ziffern eines `Date`, so wie sie in der Datei stünden. */
+const wallClock = (date: Date) =>
+  `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+    date.getUTCDate()
+  )}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+
 /**
  * Datum mit Uhrzeit, ohne Zeitzone: genau das, was Keystatic schreibt.
  * `2026-08-21T21:00`.
+ *
+ * Keystatic Cloud hat dieselben Ziffern zeitweise als vollen Zeitstempel
+ * abgelegt (`2026-09-05T21:00:00.000Z`, unquotiert — js-yaml macht daraus ein
+ * `Date`). `localDatetime()` in `keystatic.config.ts` schreibt inzwischen eine
+ * Zeichenkette; die Umwandlung hier holt ein, was vorher gespeichert wurde.
+ *
+ * Das `Z` ist dabei **keine Zeitzonenangabe**, sondern dieselbe Konvention,
+ * die `parseLocal()` benutzt (`new Date(wert + "Z")`): die Ziffern sind die
+ * Uhrzeit an der Bar. Gelesen werden deshalb die UTC-Felder, umgerechnet wird
+ * nicht — eine Umrechnung verschöbe jeden Abend um ein bis zwei Stunden,
+ * genau der Fehler, den das Muster verhindern soll.
+ *
+ * Ein echter Offset (`+02:00`) bleibt unangetastet und fällt damit durch das
+ * Muster: dort ist nicht zu erraten, ob die Ziffern Ortszeit meinen.
  */
-const localDateTime = z
-  .string()
-  .regex(
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
-    "Erwartet YYYY-MM-DDTHH:MM ohne Zeitzone, z. B. 2026-08-21T21:00"
-  );
+const localDateTime = z.preprocess((value) => {
+  if (value instanceof Date)
+    return Number.isNaN(value.getTime()) ? value : wallClock(value);
+  if (typeof value === "string") return KEYSTATIC_UTC.exec(value)?.[1] ?? value;
+  return value;
+}, z.string().regex(LOCAL_DATE_TIME, "Erwartet YYYY-MM-DDTHH:MM ohne Zeitzone, z. B. 2026-08-21T21:00"));
 
 /**
  * Ein Textfeld, das leer sein darf. Keystatic schreibt ein nicht ausgefülltes
