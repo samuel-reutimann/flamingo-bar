@@ -172,7 +172,6 @@ const openDays = openDaysLabel(hours);
     // Die Klasse setzt der Inline-Head-Script nur, wenn animiert werden darf.
     if (root.classList.contains("is-preload")) {
       const image = document.querySelector<HTMLElement>(".hero_visual img");
-      const scrim = document.querySelector<HTMLElement>(".hero_scrim");
       const pill = document.querySelector<HTMLElement>(".nav_pill");
       // Die H1 blendet nicht ein, sie wird nur versetzt: sie ist der
       // Text-LCP-Kandidat und muss beim ersten Paint lesbar sein.
@@ -186,21 +185,22 @@ const openDays = openDaysLabel(hours);
       const img = image as HTMLImageElement | null;
 
       // Das Bild kommt zuletzt: erst steht der Text, dann blendet das Foto
-      // darunter auf. Läuft als eigene Timeline, damit der Text nicht auf den
+      // darunter auf. Läuft als eigener Tween, damit der Text nicht auf den
       // Decode warten muss — sonst hinge die ganze Animation am Netz.
+      //
+      // Der Scrim (`.hero_scrim`) bleibt aussen vor: der Verlauf ist von
+      // Anfang an da und steht die ganze Animation über still.
       let imageRevealed = false;
       const revealImage = () => {
         if (imageRevealed) return;
         imageRevealed = true;
 
-        gsap
-          .timeline({
-            defaults: { ease: "power3.out" },
-            onComplete: () =>
-              gsap.set([image, scrim], { clearProps: "all" }),
-          })
-          .to(image, { opacity: 1, duration: 1.1 })
-          .to(scrim, { opacity: 1, duration: 0.8 }, "<");
+        gsap.to(image, {
+          opacity: 1,
+          duration: 1.1,
+          ease: "power3.out",
+          clearProps: "all",
+        });
       };
 
       // Aufblenden erst, wenn Text fertig ist *und* das Bild da ist. Fehlt
@@ -229,7 +229,6 @@ const openDays = openDaysLabel(hours);
         // sonst stünde es zwischen Decode und Skriptstart schon sichtbar da
         // und würde beim Start der Animation wieder verschwinden.
         gsap.set(image, { opacity: 0 });
-        gsap.set(scrim, { opacity: 0 });
         gsap.set(pill, { opacity: 0, y: -12, force3D: true });
         root.classList.remove("is-preload");
 
@@ -526,7 +525,6 @@ const openDays = openDaysLabel(hours);
     .is-preload .hero_status,
     .is-preload .hero_text,
     .is-preload .hero_buttons,
-    .is-preload .hero_scrim,
     .is-preload .hero_visual img {
       opacity: 0;
     }

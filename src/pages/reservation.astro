@@ -33,6 +33,33 @@ const openDaysLong = openDaysLabel(await getHours(), { long: true });
  */
 const WHATSAPP_NUMBER = BUSINESS.whatsapp;
 const PHONE_NUMBER = BUSINESS.phoneDisplay;
+
+/**
+ * Structured Data steht hier oben statt inline am `<Schema>`: der Parser des
+ * visuellen Editors liest Attribut-Ausdrücke nur eine Klammerebene tief. Ein
+ * Objekt-Literal mit `${…}` darin ist eine Ebene zu viel, und die ganze Seite
+ * fiel deshalb auf die Codeansicht zurück. Als Konstante bleibt am Tag nur
+ * `data={schemaData}` stehen.
+ */
+const schemaData = [
+  faqSchema([
+    {
+      question: "Wie frage ich einen Tisch an?",
+      answer:
+        "Über das Formular auf dieser Seite: Name, Telefon, Wunschtermin, Personenzahl und Bemerkung. Die Anfrage geht per WhatsApp raus, alternativ per Telefon.",
+    },
+    {
+      question: "Wann kommt die Antwort?",
+      answer: `Am nächsten Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
+    },
+    {
+      question: "Ab wie vielen Personen lohnt sich eine Reservation?",
+      answer:
+        "Ab sechs Personen, ebenso für Flaschenservice, Geburtstage und private Abende.",
+    },
+  ]),
+  breadcrumbSchema([{ name: "Reservation", path: "/reservation" }]),
+];
 ---
 
 <Layout
@@ -40,35 +67,8 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
   description="Tisch oder Flaschenservice in der Flamingo Bar Langenthal anfragen: fünf Felder, Antwort per WhatsApp oder Telefon am nächsten Öffnungstag. Ohne Anmeldung."
   theme="dark"
 >
-  <Schema
-    slot="head"
-    data={[
-      faqSchema([
-        {
-          question: "Wie frage ich einen Tisch an?",
-          answer:
-            "Über das Formular auf dieser Seite: Name, Telefon, Wunschtermin, Personenzahl und Bemerkung. Die Anfrage geht per WhatsApp raus, alternativ per Telefon.",
-        },
-        {
-          question: "Wann kommt die Antwort?",
-          answer: `Am nächsten Öffnungstag, also ${openDaysLong}. Die Anfrage ist erst mit unserer Bestätigung verbindlich.`,
-        },
-        {
-          question: "Ab wie vielen Personen lohnt sich eine Reservation?",
-          answer:
-            "Ab sechs Personen, ebenso für Flaschenservice, Geburtstage und private Abende.",
-        },
-      ]),
-      breadcrumbSchema([{ name: "Reservation", path: "/reservation" }]),
-    ]}
-  />
-  <PageHero
-    eyebrow="Reservation"
-    heading="Tisch anfragen"
-    text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`}
-    image={heroImage}
-    imageAlt="Hand hält einen Tumbler mit Eiswürfeln an der Bartheke"
-  />
+  <Schema slot="head" data={schemaData} />
+  <PageHero eyebrow="Reservation" heading="Tisch anfragen" text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`} image={heroImage} imageAlt="Hand hält einen Tumbler mit Eiswürfeln an der Bartheke" glow={false} />
 
   <Section paddingTop="small" paddingBottom="medium">
     <ContentWrapper
@@ -105,12 +105,10 @@ const PHONE_NUMBER = BUSINESS.phoneDisplay;
             required
           />
         </div>
-        {
-          /* 9rem waren schmaler als das, was ein `datetime-local`-Feld mindestens
+        {/* 9rem waren schmaler als das, was ein `datetime-local`-Feld mindestens
             braucht (gemessen 219px): ab rund 400px Breite entstanden zwei
             Spalten, in denen das Datum in die Personen-Spalte lief. 14rem
-            lässt die zweite Spalte erst zu, wenn sie das Feld trägt. */
-        }
+            lässt die zweite Spalte erst zu, wenn sie das Feld trägt. */}
         <Grid variant="autofit" minColumnWidth={14} class="gap-4">
           <div class="form_field">
             <label class="form_label" for="res-datetime">Datum und Zeit</label>

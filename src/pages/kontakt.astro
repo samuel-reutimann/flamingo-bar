@@ -36,13 +36,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       breadcrumbSchema([{ name: "Kontakt", path: "/kontakt" }]),
     ]}
   />
-  <PageHero
-    eyebrow="Kontakt"
-    heading="Direkt erreichbar"
-    text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular."
-    image={heroImage}
-    imageAlt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet"
-  >
+  <PageHero eyebrow="Kontakt" heading="Direkt erreichbar" text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular." image={heroImage} imageAlt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" glow={false}>
     <ButtonWrapper>
       <Button element="link" href="/reservation/">Tisch anfragen</Button>
       <Button
