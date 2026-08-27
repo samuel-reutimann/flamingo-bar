@@ -5,39 +5,43 @@ montag:
   weekday: 1
 dienstag:
   label: Dienstag
-  time: 20 - 04 Uhr
-  closed: true
+  time: 18 – 00.30 Uhr
+  closed: false
   weekday: 2
+  opens: '18:00'
+  closes: '00:30'
 mittwoch:
   label: Mittwoch
-  time: Geschlossen
-  closed: true
+  time: 18 – 00.30 Uhr
+  closed: false
   weekday: 3
+  opens: '18:00'
+  closes: '00:30'
 donnerstag:
   label: Donnerstag
-  time: 20 – 03 Uhr
+  time: 18 – 00.30 Uhr
   closed: false
   weekday: 4
-  opens: '20:00'
-  closes: '03:00'
+  opens: '18:00'
+  closes: '00:30'
 freitag:
   label: Freitag
-  time: 20 – 04 Uhr
+  time: 18 – 03.30 Uhr
   closed: false
   weekday: 5
-  opens: '20:00'
-  closes: '04:00'
+  opens: '18:00'
+  closes: '03:30'
 samstag:
   label: Samstag
-  time: 20 – 04 Uhr
+  time: 18 – 03.30 Uhr
   closed: false
   weekday: 6
-  opens: '20:00'
-  closes: '04:00'
+  opens: '18:00'
+  closes: '03:30'
 sonntag:
   label: Sonntag
-  time: 20 – 01 Uhr
+  time: 18 – 00.30 Uhr
   closed: false
   weekday: 0
-  opens: '20:00'
-  closes: '01:00'
+  opens: '18:00'
+  closes: '00:30'

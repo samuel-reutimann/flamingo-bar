@@ -47,7 +47,7 @@ export const DRINK_CATEGORIES = [
   { label: "Aperitif & Digestif", value: "aperitif" },
   { label: "Liköre", value: "likoere" },
   { label: "Whisky", value: "whisky" },
-  { label: "Vodka & Rum", value: "vodkarum" },
+  { label: "Vodka, Rum & Gin", value: "vodkarum" },
 ] as const;
 
 /**
@@ -66,8 +66,9 @@ export const DRINK_GROUPS = [
   { label: "Alkoholfreies Bier (33 cl)", value: "bier-alkoholfrei" },
   { label: "Im Glas (1 dl)", value: "wein-glas" },
   { label: "Flaschen", value: "wein-flaschen" },
-  { label: "Flasche (inkl. Zusatzgetränke)", value: "spirituose-flasche" },
   { label: "Rum (4 cl)", value: "rum-4cl" },
+  { label: "Gin (4 cl)", value: "gin-4cl" },
+  { label: "Flasche (inkl. Zusatzgetränke)", value: "spirituose-flasche" },
 ] as const;
 
 /**

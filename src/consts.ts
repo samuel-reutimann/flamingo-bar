@@ -29,7 +29,11 @@ export const NOINDEX_ROUTES: string[] = ["/404"];
  *    Handelsregister bzw. MWST-Register eingetragen, die CHE-Nummern.
  *    Solange sie fehlen, nennt `/impressum` diese Punkte gar nicht — leere
  *    eckige Klammern auf einer Pflichtseite wären schlimmer als ihr Fehlen.
- * 2. `instagram` / `instagramHandle` sind nie bestätigt worden.
+ * 2. `instagram` / `instagramHandle` sind nie bestätigt worden. Dasselbe gilt
+ *    für `facebook` und `tiktok`: die beiden Profile heissen laut Betrieb
+ *    „Flamingo Bar Langenthal“, die genauen URLs sind aber geraten (dieselbe
+ *    Schreibweise wie beim Instagram-Profil). Vor dem Livegang öffnen und
+ *    korrigieren — ein falscher Link ist schlimmer als kein Link.
  * 3. `geo` im Structured Data fehlt bewusst (siehe `utils/schema.ts`).
  */
 export const BUSINESS = {
@@ -42,6 +46,8 @@ export const BUSINESS = {
   email: "negasi.gebretnsa@icloud.com",
   instagram: "https://www.instagram.com/flamingobar.langenthal/",
   instagramHandle: "@flamingobar.langenthal",
+  facebook: "https://www.facebook.com/flamingobar.langenthal",
+  tiktok: "https://www.tiktok.com/@flamingobar.langenthal",
   street: "Marktgasse 34B",
   postalCode: "4900",
   city: "Langenthal",

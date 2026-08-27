@@ -68,7 +68,7 @@ const teaserGroups = [
   {
     heading: "Spirituosen & Liköre",
     from: await minPriceCHF(["aperitif", "likoere", "whisky", "vodkarum"]),
-    text: "Whisky, Vodka, Rum, Aperitif und Digestif — 4 cl im Glas.",
+    text: "Whisky, Vodka, Rum, Gin, Aperitif und Digestif — 4 cl im Glas.",
   },
   {
     heading: "Flaschenservice",
@@ -353,7 +353,8 @@ const openDays = openDaysLabel(hours);
       </Grid>
       <Paragraph variant="small" class="section-note events_note margin-top-6"
         >Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen
-        auf Anfrage.</Paragraph
+        auf Anfrage. Eintritt frei — ausser an ausgewählten Events mit
+        Live-Musik.</Paragraph
       >
     </div>
   </Section>
@@ -364,7 +365,7 @@ const openDays = openDaysLabel(hours);
     align="center"
     id="atmosphaere"
   >
-    <PageHeader headingTag="h2" maxWidth="none" text="So sieht ein Abend bei uns aus.">
+    <PageHeader headingTag="h2" maxWidth="none" text="Wir freuen uns, euch bei uns zu begrüssen — mit einer grossen Auswahl an Getränken in entspannter Atmosphäre.">
       <Fragment slot="heading">Licht, Musik<br />und späte Stunden</Fragment>
     </PageHeader>
   </Section>
@@ -412,7 +413,8 @@ const openDays = openDaysLabel(hours);
     <div class="gallery_note">
       <Paragraph variant="small"
         >Mehr Bilder in der <a href="/galerie">Galerie</a>, kurzfristige
-        Ankündigungen laufen auf Instagram.</Paragraph
+        Ankündigungen laufen auf Instagram, Facebook und TikTok — überall als
+        Flamingo Bar Langenthal.</Paragraph
       >
       <Button element="link" href={BUSINESS.instagram} variant="link"
         >{BUSINESS.instagramHandle}</Button

@@ -57,7 +57,7 @@ const listed = events.filter((event) => !featured.includes(event));
       breadcrumbSchema([{ name: "Events", path: "/events" }]),
     ]}
   />
-  <PageHero eyebrow="Events" heading="Ein Datum ist ein Grund" text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Kurzfristige Ankündigungen laufen auf Instagram." image={heroImage} imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" glow={false}>
+  <PageHero eyebrow="Events" heading="Ein Datum ist ein Grund" text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Eintritt frei, ausser an ausgewählten Events mit Live-Musik. Kurzfristige Ankündigungen laufen auf Instagram, Facebook und TikTok." image={heroImage} imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" glow={false}>
     <ButtonWrapper>
       <Button element="link" href="/reservation/"
         >Tisch für einen Abend anfragen</Button
@@ -99,7 +99,7 @@ const listed = events.filter((event) => !featured.includes(event));
       heading="Jede Woche"
       text="Was jede Woche läuft, ohne dass wir es ankündigen."
     />
-    <Grid medium={3} class="weekly_grid">
+    <Grid medium={2} large={4} class="weekly_grid">
       <div class="weekly_item">
         <p class="weekly_label text-style-small">Donnerstag</p>
         <Heading tag="h3" variant="h6">Happy Hour</Heading>
@@ -111,7 +111,15 @@ const listed = events.filter((event) => !featured.includes(event));
         <p class="weekly_label text-style-small">Freitag und Samstag</p>
         <Heading tag="h3" variant="h6">DJ ab 21 Uhr</Heading>
         <Paragraph variant="small" class="section-note">
-          Wechselnde DJs, offen bis 4 Uhr, Eintritt frei.
+          Wechselnde DJs, offen bis 3.30 Uhr, Eintritt frei.
+        </Paragraph>
+      </div>
+      <div class="weekly_item">
+        <p class="weekly_label text-style-small">Immer</p>
+        <Heading tag="h3" variant="h6">Eintritt frei</Heading>
+        <Paragraph variant="small" class="section-note">
+          Eintritt kostet nur an ausgewählten Events mit Live-Musik etwas —
+          steht dann beim Termin. Sonst kommst du ohne Eintritt herein.
         </Paragraph>
       </div>
       <div class="weekly_item">
@@ -186,16 +194,17 @@ const listed = events.filter((event) => !featured.includes(event));
       headingTag="h2"
       variant="h3"
       maxWidth="none"
-      heading="Kurzfristiges steht auf Instagram"
-      text="Zusätzliche Abende, Gästelisten und Absagen kündigen wir dort an."
+      heading="Kurzfristiges steht auf Social Media"
+      text="Zusätzliche Abende, Gästelisten und Absagen kündigen wir auf Instagram, Facebook und TikTok an — überall als Flamingo Bar Langenthal."
     >
       <ButtonWrapper>
-        <Button element="link" href={BUSINESS.instagram}
-          >{BUSINESS.instagramHandle}</Button
+        <Button element="link" href={BUSINESS.instagram}>Instagram</Button>
+        <Button element="link" href={BUSINESS.facebook} variant="secondary"
+          >Facebook</Button
         >
-        <Button element="link" href="/getraenkekarte/" variant="secondary">
-          Getränkekarte ansehen
-        </Button>
+        <Button element="link" href={BUSINESS.tiktok} variant="secondary"
+          >TikTok</Button
+        >
       </ButtonWrapper>
     </PageHeader>
   </Section>

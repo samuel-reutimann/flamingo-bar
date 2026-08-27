@@ -122,7 +122,7 @@ const menuSections = [
 
 <Layout
   title="Getränkekarte mit Preisen – Langenthal"
-  description={`Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen: Bier, Wein, Whisky, Vodka, Liköre und alkoholfreie Getränke. ${drinkLine}, ${bottleLine}.`}
+  description={`Die ganze Karte der Flamingo Bar Langenthal mit allen Preisen inkl. MwSt.: Bier, Wein, Whisky, Vodka, Rum, Gin, Liköre und alkoholfreie Getränke. ${drinkLine}, ${bottleLine}.`}
   theme="dark"
 >
   <Schema
@@ -134,7 +134,7 @@ const menuSections = [
   />
   <PageHero
     heading="Getränkekarte"
-    text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar. Aktualisiert am ${priceDate}.`}
+    text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar — in Schweizer Franken, inklusive MwSt. Aktualisiert am ${priceDate}.`}
     image={heroImage}
     imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze"
     glow={false}
@@ -233,10 +233,11 @@ const menuSections = [
     <div class="menu_note">
       <p class="menu_note-label text-style-small">Hinweise</p>
       <Paragraph variant="small" maxWidth={52} class="section-note">
-        Preise aktualisiert am {priceDate}. «Auf Anfrage» heisst: der Preis
-        hängt von der Sorte oder der Menge ab, wir sagen ihn dir vor der
-        Bestellung. Einzelne Sorten können ausgehen — dann nennen wir eine
-        Alternative. Die Prozentangaben sind der Alkoholgehalt.
+        Alle Preise in Schweizer Franken, inklusive Mehrwertsteuer. Preise
+        aktualisiert am {priceDate}. «Auf Anfrage» heisst: der Preis hängt von
+        der Sorte oder der Menge ab, wir sagen ihn dir vor der Bestellung.
+        Einzelne Sorten können ausgehen — dann nennen wir eine Alternative. Die
+        Prozentangaben sind der Alkoholgehalt.
       </Paragraph>
     </div>
   </Section>

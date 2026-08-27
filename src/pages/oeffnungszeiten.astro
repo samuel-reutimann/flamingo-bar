@@ -53,6 +53,11 @@ const openDaysShort = openDaysLabel(hours);
             "Donnerstag von 20 bis 22 Uhr, mit vergünstigten Drinks.",
         },
         {
+          question: "Kostet der Eintritt etwas?",
+          answer:
+            "Nein, der Eintritt ist frei. Nur an ausgewählten Events mit Live-Musik verlangen wir Eintritt; er steht dann beim Termin.",
+        },
+        {
           question: "Braucht es eine Reservation?",
           answer:
             "Ab sechs Personen ist ein reservierter Tisch sinnvoll, ebenso für Flaschenservice, Geburtstage und Gruppen. Sonst kommt man ohne Anmeldung.",
@@ -61,7 +66,7 @@ const openDaysShort = openDaysLabel(hours);
       breadcrumbSchema([{ name: "Öffnungszeiten", path: "/oeffnungszeiten" }]),
     ]}
   />
-  <PageHero eyebrow="Öffnungszeiten" heading={openDaysLong} text="Montag bis Mittwoch bleibt die Bar geschlossen." image={heroImage} imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" glow={false}>
+  <PageHero eyebrow="Öffnungszeiten" heading={openDaysLong} text="Montag bleibt die Bar geschlossen." image={heroImage} imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" glow={false}>
     <OpenStatusPill />
   </PageHero>
 
@@ -69,7 +74,8 @@ const openDaysShort = openDaysLabel(hours);
     <HoursTable />
     <Paragraph variant="small" maxWidth={44} class="section-note">
       An Events schliessen wir teils später. Der letzte Einlass bleibt immer
-      eine Stunde vor Schluss. Abweichende Zeiten kündigen wir auf Instagram an.
+      eine Stunde vor Schluss. Abweichende Zeiten kündigen wir auf Instagram,
+      Facebook und TikTok an.
     </Paragraph>
   </Section>
 

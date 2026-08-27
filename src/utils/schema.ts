@@ -77,7 +77,7 @@ export const barSchema = (days: DayHours[]) => ({
   hasMap: BUSINESS.mapsUrl,
   openingHoursSpecification: openingHoursFrom(days),
   hasMenu: absoluteUrl("/getraenkekarte"),
-  sameAs: [BUSINESS.instagram],
+  sameAs: [BUSINESS.instagram, BUSINESS.facebook, BUSINESS.tiktok],
   publicAccess: true,
   smokingAllowed: false,
 });
