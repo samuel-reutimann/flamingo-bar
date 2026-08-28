@@ -1,7 +1,7 @@
 name: Flamingo Friday
-start: "2026-09-04T21:00"
-end: "2026-09-05T04:00"
+start: 2026-09-04T21:00
+end: 2026-09-05T04:00
 description: DJ-Abend. Ab 21 Uhr, Eintritt frei.
 tag: DJ-Abend
-featured: false
+featured: true
 priceCHF: 0
