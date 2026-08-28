@@ -61,6 +61,7 @@ export const DRINK_CATEGORIES = [
  */
 export const DRINK_GROUPS = [
   { label: "Ohne Zwischentitel", value: "keine" },
+  { label: "Alkoholfreie Cocktails", value: "mocktails" },
   { label: "Flaschenbier (33 cl)", value: "flaschenbier" },
   { label: "Offenbier", value: "offenbier" },
   { label: "Alkoholfreies Bier (33 cl)", value: "bier-alkoholfrei" },
