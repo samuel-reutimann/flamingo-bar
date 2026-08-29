@@ -14,8 +14,9 @@
  * Ohne JS bleibt sie unsichtbar: lieber gar keine Angabe als eine, die auf
  * dem Stand des letzten Builds stehengeblieben ist. Unsichtbar heisst hier
  * `visibility: hidden` und nicht `display: none` — die Pille belegt ihren
- * Platz von Anfang an. Mit `hidden` sprang die H1 im Hero beim ersten
- * Skriptlauf um 94 px nach unten, auf jedem Aufruf.
+ * Platz von Anfang an. Mit `hidden` rutschte die H1 im Hero beim ersten
+ * Skriptlauf nach unten: 7 px auf dem Desktop, 26 px auf dem Handy, auf
+ * jedem Aufruf.
  *
  * Damit der reservierte Platz stimmt, steht schon im HTML die *längste*
  * Beschriftung, die das Skript setzen kann („Jetzt geschlossen“ plus die
@@ -52,7 +53,10 @@ const dayTimes = dayTimesFrom(hours);
 const openTimes = openTimesFrom(hours);
 const widestHours = [0, 1, 2, 3, 4, 5, 6]
   .map((day) => todayHoursLabel(day, dayTimes, openTimes))
-  .reduce((longest, label) => (label.length > longest.length ? label : longest), "");
+  .reduce(
+    (longest, label) => (label.length > longest.length ? label : longest),
+    "",
+  );
 
 /* „Jetzt geschlossen“ ist länger als „Jetzt geöffnet“ — beide setzt das
    Skript in `BaseLayout.astro`. */
@@ -62,18 +66,30 @@ const widestStatus = "Jetzt geschlossen";
 {
   render &&
     (variant === "eyebrow" ? (
-      <Eyebrow class:list={["status_pill", "is-eyebrow", "is-pending", className]} data-open-status {...rest}>
+      <Eyebrow
+        class:list={["status_pill", "is-eyebrow", "is-pending", className]}
+        data-open-status
+        {...rest}
+      >
         <span class="status_dot" aria-hidden="true" />
         <span class="status_text">{widestStatus}</span>
         <span class="status_sep" aria-hidden="true" />
-        <span class="status_hours" data-open-hours>{widestHours}</span>
+        <span class="status_hours" data-open-hours>
+          {widestHours}
+        </span>
       </Eyebrow>
     ) : (
-      <div class:list={["status_pill", "is-pending", className]} data-open-status {...rest}>
+      <div
+        class:list={["status_pill", "is-pending", className]}
+        data-open-status
+        {...rest}
+      >
         <span class="status_dot" aria-hidden="true" />
         <span class="status_text">{widestStatus}</span>
         <span class="status_sep" aria-hidden="true" />
-        <span class="status_hours" data-open-hours>{widestHours}</span>
+        <span class="status_hours" data-open-hours>
+          {widestHours}
+        </span>
       </div>
     ))
 }

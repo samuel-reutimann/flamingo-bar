@@ -17,7 +17,10 @@
      ascent-override  = ascent(Webfont) / unitsPerEm / size-adjust
      descent-override = descent(Webfont) / unitsPerEm / size-adjust
 
-   Die Laufweiten stammen aus `measureText()` über denselben Beispielsatz, die
+   Die Laufweiten stammen aus `measureText()` über den kompletten Fliesstext
+   der Startseite — ein einzelner Beispielsatz reichte nicht: er ergab für
+   Manrope/Arial 101 % statt der 98.7 %, die über 4000 Zeichen herauskommen,
+   und liess damit gut 100 px Sprung über die Seite stehen. Die
    Metriken aus `hhea` der woff2-Dateien (Instrument Serif 990/-310 auf 1000,
    Manrope 2132/-600 auf 2000, Space Mono 1120/-361 auf 1000, alle ohne
    lineGap).
@@ -31,27 +34,27 @@
 @font-face {
   font-family: "Instrument Serif Fallback";
   src: local("Georgia");
-  size-adjust: 74.92%;
-  ascent-override: 132.14%;
-  descent-override: 41.38%;
+  size-adjust: 74.67%;
+  ascent-override: 132.59%;
+  descent-override: 41.52%;
   line-gap-override: 0%;
 }
 
 @font-face {
   font-family: "Instrument Serif Fallback 2";
   src: local("Times New Roman"), local("Times"), local("Liberation Serif");
-  size-adjust: 81.99%;
-  ascent-override: 120.75%;
-  descent-override: 37.81%;
+  size-adjust: 80.95%;
+  ascent-override: 122.31%;
+  descent-override: 38.3%;
   line-gap-override: 0%;
 }
 
 @font-face {
   font-family: "Manrope Fallback";
   src: local("Arial"), local("Helvetica"), local("Liberation Sans");
-  size-adjust: 101.05%;
-  ascent-override: 105.49%;
-  descent-override: 29.69%;
+  size-adjust: 98.71%;
+  ascent-override: 108%;
+  descent-override: 30.39%;
   line-gap-override: 0%;
 }
 
@@ -69,7 +72,7 @@
   src: local("Courier New"), local("Liberation Mono");
   size-adjust: 101.98%;
   ascent-override: 109.82%;
-  descent-override: 35.40%;
+  descent-override: 35.4%;
   line-gap-override: 0%;
 }
 
@@ -96,12 +99,9 @@
   /* Typography primitives */
   /* Nach dem Webfont steht jeweils die angeglichene Ersatzschrift (siehe
      Block 0 oben), erst danach die unangeglichene Systemschrift. */
-  --primary-family: "Manrope Variable", "Manrope", "Manrope Fallback",
-    system-ui, sans-serif;
-  --display-family: "Instrument Serif", "Instrument Serif Fallback",
-    "Instrument Serif Fallback 2", Georgia, serif;
-  --mono-family: "Space Mono", "Space Mono Fallback", "Space Mono Fallback 2",
-    ui-monospace, monospace;
+  --primary-family: "Manrope Variable", "Manrope", "Manrope Fallback", system-ui, sans-serif;
+  --display-family: "Instrument Serif", "Instrument Serif Fallback", "Instrument Serif Fallback 2", Georgia, serif;
+  --mono-family: "Space Mono", "Space Mono Fallback", "Space Mono Fallback 2", ui-monospace, monospace;
   --primary-regular: 400;
   --primary-medium: 500;
   --primary-bold: 700;

@@ -73,8 +73,10 @@ const openDays = openDaysLabel(hours);
 
 /* Welcher Tag heute ist, weiß erst der Browser — die Seite ist vorgerendert.
    Wie *breit* die Zeile höchstens wird, weiß dagegen der Build: die längste
-   der sieben möglichen Zeilen hält den Platz frei. Ohne sie wuchs der Strip
-   beim ersten Skriptlauf um 79 px, weil die leere Zeile den Umbruch änderte. */
+   der sieben möglichen Zeilen hält den Platz frei. Ohne sie stand die Zeile
+   bis zum ersten Skriptlauf leer: die „Heute“-Pille sprang dann von 80 auf
+   277 px Breite und der Strip wurde 10 px (Desktop) bis 32 px (Handy)
+   höher — auf jedem Aufruf. */
 const widestTodayLine = [0, 1, 2, 3, 4, 5, 6]
   .map((day) => todayLineLabel(day, dayTimesFrom(hours)))
   .reduce((longest, label) => (label.length > longest.length ? label : longest), "");
