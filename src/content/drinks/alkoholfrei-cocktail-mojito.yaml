@@ -4,8 +4,8 @@ group: mocktails
 price: CHF 13.–
 priceCHF: 13
 note: Limettensaft, Sprite, Zucker, Minze
-description: "Limettensaft, Sprite, Zucker, Minze. Ohne Alkohol."
-image: ../../assets/flamingo/drink-long-island.jpeg
-imageAlt: "Longdrinkglas mit Eis, Limette und Minze auf der Bartheke"
+description: Limettensaft, Sprite, Zucker, Minze. Ohne Alkohol.
+image: ../../assets/flamingo/alkoholfrei-cocktail-mojito/image.webp
+imageAlt: Longdrinkglas mit Eis, Limette und Minze auf der Bartheke
 featured: true
 order: 12
