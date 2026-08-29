@@ -334,7 +334,7 @@ const happyHourNote = happyHour
     <Grid medium={3} class="menu_grid" render={featuredDrinks.length > 0}>
       {
         featuredDrinks.map((drink) => (
-          <Card variant="cover" image={drink.data.image} imageAlt={drink.data.imageAlt} eyebrow={drink.data.price} heading={drink.data.name} headingTag="h3" text={drink.data.description ?? drink.data.note} ratio="3 / 4" contentAlign="end" />
+          <Card eyebrow={drink.data.price} heading={drink.data.name} headingTag="h3" text={drink.data.description ?? drink.data.note} ratio="1 / 1" contentAlign="end" variant="stacked" image={drink.data.image} imageAlt={drink.data.imageAlt} />
         ))
       }
     </Grid>
