@@ -1,0 +1,11 @@
+name: Aperol2
+category: aperitif
+group: keine
+price: CHF 8.–
+priceCHF: 8
+note: 11%
+description: Aperol, Prosecco, Mineral, Orange.
+image: ../../assets/flamingo/aperitif-aperol-copy2/image.webp
+imageAlt: Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze
+featured: true
+order: 5
