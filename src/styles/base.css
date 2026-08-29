@@ -1,4 +1,79 @@
 /* ==========================================================================
+   0. Fallback-Schriften mit angeglichenen Massen
+   ==========================================================================
+
+   Alle drei Schnitte laden mit `font-display: swap` — bis die Datei da ist,
+   setzt der Browser die Ersatzschrift. Ohne Angleichung ist das ein Sprung:
+   Georgia baut denselben Satz 33 % breiter als Instrument Serif, die H1 bricht
+   damit auf einer anderen Zeilenzahl um, und beim Wechsel rutscht die ganze
+   Seite. Dasselbe eine Stufe kleiner bei Manrope (Arial ist 1 % schmaler,
+   aber deutlich flacher) und Space Mono.
+
+   `size-adjust` skaliert die Ersatzschrift auf die Laufweite der echten,
+   `ascent-override`/`descent-override` setzen die Zeilenbox darauf. Die Werte
+   sind gemessen, nicht geraten:
+
+     size-adjust      = Laufweite(Webfont) / Laufweite(Ersatz)
+     ascent-override  = ascent(Webfont) / unitsPerEm / size-adjust
+     descent-override = descent(Webfont) / unitsPerEm / size-adjust
+
+   Die Laufweiten stammen aus `measureText()` über denselben Beispielsatz, die
+   Metriken aus `hhea` der woff2-Dateien (Instrument Serif 990/-310 auf 1000,
+   Manrope 2132/-600 auf 2000, Space Mono 1120/-361 auf 1000, alle ohne
+   lineGap).
+
+   Pro Schrift stehen zwei Ersatzschriften da, weil die Angleichung nur für
+   genau eine gilt: findet der Browser die erste nicht (Georgia fehlt unter
+   Android und den meisten Linux-Systemen), fällt er auf die zweite mit ihren
+   eigenen Werten. Erst danach kommt die unangeglichene Systemschrift.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Instrument Serif Fallback";
+  src: local("Georgia");
+  size-adjust: 74.92%;
+  ascent-override: 132.14%;
+  descent-override: 41.38%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Instrument Serif Fallback 2";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 81.99%;
+  ascent-override: 120.75%;
+  descent-override: 37.81%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Manrope Fallback";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 101.05%;
+  ascent-override: 105.49%;
+  descent-override: 29.69%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Space Mono Fallback";
+  src: local("Menlo"), local("DejaVu Sans Mono");
+  size-adjust: 101.65%;
+  ascent-override: 110.18%;
+  descent-override: 35.51%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Space Mono Fallback 2";
+  src: local("Courier New"), local("Liberation Mono");
+  size-adjust: 101.98%;
+  ascent-override: 109.82%;
+  descent-override: 35.40%;
+  line-gap-override: 0%;
+}
+
+/* ==========================================================================
    1. Design tokens
    ========================================================================== */
 
@@ -19,9 +94,14 @@
   --dark-1000: #000000;
 
   /* Typography primitives */
-  --primary-family: "Manrope Variable", "Manrope", system-ui, sans-serif;
-  --display-family: "Instrument Serif", Georgia, serif;
-  --mono-family: "Space Mono", ui-monospace, monospace;
+  /* Nach dem Webfont steht jeweils die angeglichene Ersatzschrift (siehe
+     Block 0 oben), erst danach die unangeglichene Systemschrift. */
+  --primary-family: "Manrope Variable", "Manrope", "Manrope Fallback",
+    system-ui, sans-serif;
+  --display-family: "Instrument Serif", "Instrument Serif Fallback",
+    "Instrument Serif Fallback 2", Georgia, serif;
+  --mono-family: "Space Mono", "Space Mono Fallback", "Space Mono Fallback 2",
+    ui-monospace, monospace;
   --primary-regular: 400;
   --primary-medium: 500;
   --primary-bold: 700;

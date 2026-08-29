@@ -19,7 +19,7 @@ import { barSchema } from "@/utils/schema.ts";
 import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF, getHappyHour, getHomepageGallery, getFeaturedDrinks } from "@/utils/content.ts";
 import { eventImage } from "@/utils/eventImage.ts";
 import { longDate } from "@/utils/dates.ts";
-import { openDaysLabel } from "@/utils/hours.ts";
+import { openDaysLabel, todayLineLabel, dayTimesFrom } from "@/utils/hours.ts";
 import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
 import _SCJ5832 from '@/assets/flamingo/_SCJ5832.webp';
 import _SCJ6123 from '@/assets/flamingo/_SCJ6123.webp';
@@ -70,6 +70,14 @@ const bottleLine = bottleFrom ? `Flaschen ab CHF ${bottleFrom}.–` : "Flaschens
 
 /* „Do – So, ab 20 Uhr“ aus den Öffnungszeiten statt als Text daneben. */
 const openDays = openDaysLabel(hours);
+
+/* Welcher Tag heute ist, weiß erst der Browser — die Seite ist vorgerendert.
+   Wie *breit* die Zeile höchstens wird, weiß dagegen der Build: die längste
+   der sieben möglichen Zeilen hält den Platz frei. Ohne sie wuchs der Strip
+   beim ersten Skriptlauf um 79 px, weil die leere Zeile den Umbruch änderte. */
+const widestTodayLine = [0, 1, 2, 3, 4, 5, 6]
+  .map((day) => todayLineLabel(day, dayTimesFrom(hours)))
+  .reduce((longest, label) => (label.length > longest.length ? label : longest), "");
 
 /* Happy Hour aus der Collection — stand im Hinweis unter dem Events-Raster. */
 const happyHour = await getHappyHour();
@@ -145,7 +153,14 @@ const happyHourNote = happyHour
       <div class="hours_strip-today">
         <span class="hours_strip-pill">
           <span class="hours_strip-pill-label">Heute</span>
-          <span data-today-line></span>
+          {/* Beide Spannen liegen in derselben Rasterzelle: der Platzhalter
+              gibt die Breite vor, die echte Zeile liegt darüber. */}
+          <span class="hours_strip-line">
+            <span class="hours_strip-line-sizer" aria-hidden="true"
+              >{widestTodayLine}</span
+            >
+            <span data-today-line></span>
+          </span>
         </span>
         <Button element="link" href="/oeffnungszeiten" variant="link"
           >Alle Zeiten</Button
@@ -334,7 +349,7 @@ const happyHourNote = happyHour
     <Grid medium={3} class="menu_grid" render={featuredDrinks.length > 0}>
       {
         featuredDrinks.map((drink) => (
-          <Card eyebrow={drink.data.price} heading={drink.data.name} headingTag="h3" text={drink.data.description ?? drink.data.note} ratio="1 / 1" contentAlign="end" variant="stacked" image={drink.data.image} imageAlt={drink.data.imageAlt} />
+          <Card eyebrow={drink.data.price} heading={drink.data.name} headingTag="h3" text={drink.data.description ?? drink.data.note} ratio="3 / 4" variant="stacked" image={drink.data.image} imageAlt={drink.data.imageAlt} />
         ))
       }
     </Grid>
@@ -649,6 +664,20 @@ const happyHourNote = happyHour
       align-items: center;
       flex-wrap: wrap;
       gap: var(--space-3);
+    }
+
+    /* Platzhalter und echte Zeile teilen sich eine Rasterzelle, damit die
+       Breite des längsten Wochentags von Anfang an steht. */
+    .hours_strip-line {
+      display: inline-grid;
+    }
+
+    .hours_strip-line > * {
+      grid-area: 1 / 1;
+    }
+
+    .hours_strip-line-sizer {
+      visibility: hidden;
     }
 
     .hours_strip-pill {

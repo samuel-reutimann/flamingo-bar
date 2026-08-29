@@ -88,7 +88,9 @@ const hours = await getHours();
             if (label)
               label.textContent = open ? "Jetzt geöffnet" : "Jetzt geschlossen";
             if (time) time.textContent = hours;
-            pill.hidden = false;
+            // Freigeben erst, nachdem die Beschriftung steht: bis dahin hält
+            // `is-pending` den Platzhalter unsichtbar, aber im Fluss.
+            pill.classList.remove("is-pending");
           });
 
           const line = todayLineLabel(now.getDay());

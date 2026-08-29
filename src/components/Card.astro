@@ -59,6 +59,8 @@ type Props = Base &
         /**
          * Lock the card to an aspect ratio (`"3 / 4"`) instead of the fixed
          * 20rem floor — a poster rather than a box. Any CSS `aspect-ratio`.
+         *
+         * On the stacked variant the same prop shapes the image instead.
          */
         ratio?: string;
         /**
@@ -75,6 +77,15 @@ type Props = Base &
         image?: ImageSource;
         /** Leave unset on a decorative image — renders `alt=""`. */
         imageAlt?: string;
+        /**
+         * The shape of the image (`"1 / 1"`), not of the card. A stacked card
+         * is only as tall as its content, so there is no card box to lock —
+         * the picture on top is the part with a shape. Defaults to `3 / 2`.
+         *
+         * The cover variant reads the same prop as the shape of the whole
+         * card, because there the image *is* the card.
+         */
+        ratio?: string;
       }
   );
 
@@ -134,26 +145,45 @@ if (import.meta.env.DEV && render) {
       `[lumos] <Card variant="${variant}"> has no \`image\`, so it renders as a plain card.`,
     );
   }
-  if (variant !== "cover" && (ratio || contentAlign)) {
+  if (variant === "default" && ratio) {
     console.warn(
-      `[lumos] <Card variant="${variant}"> ignores \`ratio\` and \`contentAlign\`; only the cover variant fills its own box.`,
+      '[lumos] <Card variant="default"> has no box to shape, so `ratio` was dropped. The cover variant shapes the card, the stacked variant shapes its image.',
+    );
+  }
+  if (variant !== "cover" && contentAlign) {
+    console.warn(
+      `[lumos] <Card variant="${variant}"> ignores \`contentAlign\`; only the cover variant stacks text over the image.`,
     );
   }
 }
 
 /* The stylesheet holds the defaults, so only a different value is written out.
-   A ratio replaces the fixed floor rather than fighting it — otherwise the
-   20rem minimum would still win on a narrow card. */
-const coverStyle =
-  variant === "cover"
+
+   `ratio` means a different thing per variant, because the variants have
+   different boxes to shape:
+
+   - `cover` — the image *is* the card, so the ratio shapes the card. It
+     replaces the fixed floor rather than fighting it; otherwise the 20rem
+     minimum would still win on a narrow card.
+   - `stacked` — the card is only as tall as its content, so there is no card
+     box worth locking. The ratio shapes the picture sitting on top, which is
+     what `--_visual-ratio` already drives.
+
+   A `default` card has no image and no box of its own, so `ratio` has nothing
+   to act on there — the dev warning above says so. */
+const cardStyle =
+  (variant === "cover"
     ? [
         ratio && `--_cover-ratio: ${ratio}`,
         ratio && "--_cover-min-height: 0",
         contentAlign === "end" && "--_content-align: flex-end",
       ]
-        .filter(Boolean)
-        .join("; ") || undefined
-    : undefined;
+    : variant === "stacked"
+      ? [ratio && `--_visual-ratio: ${ratio}`]
+      : []
+  )
+    .filter(Boolean)
+    .join("; ") || undefined;
 ---
 
 {
@@ -165,7 +195,7 @@ const coverStyle =
         hasTheme && `theme-${theme}`,
         className,
       ]}
-      style={coverStyle}
+      style={cardStyle}
       {...rest}
     >
       {hasImage && (
@@ -270,6 +300,28 @@ const coverStyle =
 
       .stacked > & {
         aspect-ratio: var(--_visual-ratio);
+
+        /* Das Bild aus dem Fluss nehmen, sonst gibt es kein Seitenverhältnis.
+
+           `aspect-ratio` ist nur eine bevorzugte Grösse: solange das Bild im
+           Fluss steht, zählt seine Höhe zur Mindesthöhe der Box, und weil
+           `base.css` global `img { height: auto }` setzt, ist das die
+           Eigenhöhe des Fotos — die Box wuchs also immer auf das Format des
+           Bildes. Deshalb war auch der Standard von 3 / 2 nie zu sehen.
+
+           Dagegen anzuschreiben geht nicht: `base.css` steht in *keinem*
+           Layer, und ungelayertes CSS schlägt jede Regel aus
+           `@layer components`, unabhängig von der Spezifität.
+
+           `position: absolute` mit `inset: 0` löst das ohne Wettstreit — ein
+           ausgerichtetes Element mit `height: auto` füllt seinen Container,
+           und aus dem Fluss heraus kann es die Box nicht mehr aufziehen. Das
+           globale `object-fit: cover` schneidet den Überstand. Die
+           `cover`-Variante macht es zwei Regeln weiter unten genauso. */
+        img {
+          position: absolute;
+          inset: 0;
+        }
       }
 
       .cover > & {
