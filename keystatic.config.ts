@@ -106,7 +106,7 @@ export default config({
       slugField: "name",
       format: { data: "yaml" },
       entryLayout: "form",
-      columns: ["name", "start"],
+      columns: ["name", "start", "featured"],
       schema: {
         name: fields.slug({
           name: {
@@ -160,7 +160,7 @@ export default config({
       slugField: "name",
       format: { data: "yaml" },
       entryLayout: "form",
-      columns: ["name", "category", "price"],
+      columns: ["name", "category", "price", "featured"],
       schema: {
         name: fields.slug({
           name: {
@@ -286,7 +286,7 @@ export default config({
       slugField: "caption",
       format: { data: "yaml" },
       entryLayout: "form",
-      columns: ["caption", "ratio"],
+      columns: ["caption", "ratio", "homepage"],
       schema: {
         caption: fields.slug({
           name: {
