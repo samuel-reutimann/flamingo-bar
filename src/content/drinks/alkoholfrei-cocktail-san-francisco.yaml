@@ -5,7 +5,6 @@ price: CHF 13.–
 priceCHF: 13
 note: Orangensaft, Ananassaft, Granatapfelsaft
 description: Orangensaft, Ananassaft, Granatapfelsaft. Ohne Alkohol.
-image: ../../assets/flamingo/alkoholfrei-cocktail-san-francisco/image.webp
 imageAlt: Fruchtiger Mocktail mit Ananasscheibe und Cocktailkirsche an der Bar
-featured: true
+featured: false
 order: 11
