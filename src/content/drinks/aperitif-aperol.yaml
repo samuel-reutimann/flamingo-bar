@@ -3,4 +3,8 @@ category: aperitif
 price: CHF 8.–
 priceCHF: 8
 note: 11%
+description: "Aperol, Prosecco, Mineral, Orange."
+image: ../../assets/flamingo/drink-aperol-spritz.jpeg
+imageAlt: "Aperol Spritz im beschlagenen Glas mit Orangenscheibe und Minze"
+featured: true
 order: 5

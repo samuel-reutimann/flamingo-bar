@@ -146,6 +146,13 @@ const drinks = defineCollection({
       description: optionalText,
       image: image().optional(),
       imageAlt: optionalText,
+      /**
+       * Steht auf der Startseite als grosse Karte. Braucht ein Bild — die
+       * `cover`-Karte legt ihren Verlauf ueber das Foto, ohne Foto gaebe es
+       * weder das eine noch das andere. `getFeaturedDrinks()` filtert
+       * deshalb auf beides.
+       */
+      featured: z.boolean().default(false),
       /** Kleinere Zahl steht weiter oben. */
       order: z.number().default(0),
     }),
@@ -241,6 +248,12 @@ const gallery = defineCollection({
       alt: z.string(),
       /** Höhe der Kachel im Mosaik. `quadrat` schreibt keine Klasse ins Markup. */
       ratio: z.enum(GALLERY_RATIOS).default("quadrat"),
+      /**
+       * Läuft zusätzlich im Bilderband auf der Startseite. Das Band zeigt
+       * Stimmung, nicht den ganzen Bestand — deshalb eine Auswahl und nicht
+       * einfach die ersten paar Kacheln.
+       */
+      homepage: z.boolean().default(false),
       /** Kleinere Zahl steht weiter oben. */
       order: z.number().default(0),
     }),

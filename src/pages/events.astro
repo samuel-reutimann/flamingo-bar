@@ -12,13 +12,13 @@ import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
 import Img from "@/components/Img.astro";
 import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
-import heroImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
 import { getUpcomingEvents, bottleFromCHF, getHappyHour } from "@/utils/content.ts";
 import { eventImage } from "@/utils/eventImage.ts";
 import { isoWithOffset, longDate, timeNote } from "@/utils/dates.ts";
 import { BUSINESS } from "@/consts.ts";
+import _SCJ6040 from '@/assets/flamingo/_SCJ6040.webp';
 
 /* Termine aus der Collection `src/content/events` — der Betrieb pflegt sie in
    Keystatic. Vergangene Abende fallen raus, damit weder die Seite noch Google
@@ -70,7 +70,7 @@ const listed = events.filter((event) => !featured.includes(event));
       breadcrumbSchema([{ name: "Events", path: "/events" }]),
     ]}
   />
-  <PageHero eyebrow="Events" heading="Ein Datum ist ein Grund" text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Eintritt frei, ausser an ausgewählten Events mit Live-Musik. Kurzfristige Ankündigungen laufen auf Instagram, Facebook und TikTok." image={heroImage} imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" glow={false}>
+  <PageHero eyebrow="Events" heading="Ein Datum ist ein Grund" text="DJ-Abende, Live-Musik, Motto-Partys, Sportübertragungen und Happy Hour. Eintritt frei, ausser an ausgewählten Events mit Live-Musik. Kurzfristige Ankündigungen laufen auf Instagram, Facebook und TikTok." image={_SCJ6040} imageAlt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole" glow={false}>
     <ButtonWrapper>
       <Button element="link" href="/reservation/"
         >Tisch für einen Abend anfragen</Button

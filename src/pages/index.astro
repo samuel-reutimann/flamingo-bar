@@ -13,20 +13,16 @@ import OpenStatusPill from "@/components/OpenStatusPill.astro";
 import Grid from "@/components/Grid.astro";
 import Card from "@/components/Card.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
-import heroImage from "@/assets/flamingo/bar-guests-night.jpeg";
-import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
-import neonGlassesImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
-import cocktailHandImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
-import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
-import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
+import MapEmbed from "@/components/MapEmbed.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema } from "@/utils/schema.ts";
-import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF, getHappyHour } from "@/utils/content.ts";
+import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF, getHappyHour, getHomepageGallery, getFeaturedDrinks } from "@/utils/content.ts";
 import { eventImage } from "@/utils/eventImage.ts";
 import { longDate } from "@/utils/dates.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
-import bottle_service_lounge from '@/assets/flamingo/bottle-service-lounge.jpeg';
+import _SCJ5832 from '@/assets/flamingo/_SCJ5832.webp';
+import _SCJ6123 from '@/assets/flamingo/_SCJ6123.webp';
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
@@ -59,28 +55,15 @@ const drinkFrom = await minPriceCHF([
 ]);
 const bottleFrom = await bottleFromCHF();
 
-/* Die drei Karten im Karte-Teaser: je ein Block der Getränkekarte mit seinem
-   günstigsten Preis. */
-const teaserGroups = [
-  {
-    heading: "Bier & Wein",
-    from: await minPriceCHF(["bier", "wein"]),
-    text: "Aus der Flasche, offen vom Hahn, im Glas oder als ganze Flasche.",
-  },
-  {
-    heading: "Spirituosen & Liköre",
-    from: await minPriceCHF(["aperitif", "likoere", "whisky", "vodkarum"]),
-    text: "Whisky, Vodka, Rum, Gin, Aperitif und Digestif — 4 cl im Glas.",
-  },
-  {
-    heading: "Flaschenservice",
-    from: bottleFrom,
-    text: "Die ganze Flasche an den Tisch, Zusatzgetränke inklusive.",
-  },
-].map((group) => ({
-  heading: group.heading,
-  text: group.from ? `${group.text} Ab CHF ${group.from}.–` : group.text,
-}));
+/* Die grossen Karten im Karte-Teaser: die Getränke mit dem Haken
+   "Auf der Startseite zeigen". Standen als drei ausgeschriebene Gruppen hier
+   ("Bier & Wein", "Spirituosen & Liköre", "Flaschenservice") mit gerechnetem
+   Ab-Preis — die Zahlen stimmten, aber welche Drinks es sind, entschied der
+   Code. Jetzt entscheidet das die Bar in Keystatic.
+
+   Die Ab-Preise sind darum nicht verloren: sie stehen weiter im Fliesstext
+   der Überschrift (`drinkLine`, `bottleLine`). */
+const featuredDrinks = await getFeaturedDrinks();
 
 const drinkLine = drinkFrom ? `Drinks ab CHF ${drinkFrom}.–` : "Drinks";
 const bottleLine = bottleFrom ? `Flaschen ab CHF ${bottleFrom}.–` : "Flaschenservice";
@@ -90,6 +73,11 @@ const openDays = openDaysLabel(hours);
 
 /* Happy Hour aus der Collection — stand im Hinweis unter dem Events-Raster. */
 const happyHour = await getHappyHour();
+
+/* Das Bilderband der Startseite — die Galerie-Kacheln mit dem Haken
+   "Auch auf der Startseite zeigen". Standen als vier <Img>-Bloecke im Markup,
+   samt zweitem Satz Alt-Texte, die von denen der Galerie schon abwichen. */
+const marqueeTiles = await getHomepageGallery();
 const happyHourNote = happyHour
   ? `Jede Woche: Happy Hour am ${happyHour.label}.`
   : "";
@@ -143,12 +131,7 @@ const happyHourNote = happyHour
       </ButtonWrapper>
     </div>
     <div class="hero_visual">
-      <Img
-        src={heroImage}
-        alt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet"
-        loading="eager"
-        fetchPriority="high"
-      />
+      <Img src={_SCJ5832} alt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" loading="eager" fetchPriority="high" width={3840} height={2560} />
       <div class="hero_scrim"></div>
     </div>
   </section>
@@ -207,7 +190,10 @@ const happyHourNote = happyHour
           opacity: 1,
           duration: 1.1,
           ease: "power3.out",
-          clearProps: "all",
+          // Siehe `reveal()` weiter unten: `"all"` würde das ganze
+          // style-Attribut leeren. Hier stand bisher nichts drin, was das
+          // gestört hätte — die Falle bleibt trotzdem dieselbe.
+          clearProps: "opacity",
         });
       };
 
@@ -243,7 +229,7 @@ const happyHourNote = happyHour
         const tl = gsap.timeline({
           defaults: { ease: "power3.out" },
           onComplete: () => {
-            gsap.set([heading, ...fadeItems, pill], { clearProps: "all" });
+            gsap.set([heading, ...fadeItems, pill], { clearProps: "opacity,transform" });
             textDone = true;
             maybeRevealImage();
           },
@@ -294,7 +280,19 @@ const happyHourNote = happyHour
             ease: "power3.out",
             stagger: options.stagger ?? 0,
             force3D: true,
-            clearProps: "all",
+            /* Nur die eigenen Spuren wegräumen, nicht das ganze Attribut.
+               `clearProps: "all"` setzt in GSAP `style.cssText = ""` und
+               löscht damit auch Custom Properties, die GSAP nie angefasst
+               hat. `Card.astro` schreibt `--_cover-ratio`,
+               `--_cover-min-height` und `--_content-align` genau dorthin:
+               nach dem Einblenden verlor eine Karte ihr Seitenverhältnis
+               (`aspect-ratio: auto`) und ihre Ausrichtung sprang von unten
+               nach oben zurück auf `flex-start`.
+
+               `transform` deckt auch `translate`/`rotate`/`scale` ab — GSAP
+               räumt die im selben Zweig mit auf. Weg müssen sie, weil ein
+               Inline-`transform` sonst den Hover-Effekt der Karte schlägt. */
+            clearProps: "opacity,transform",
             scrollTrigger: { trigger: target, start: "top 85%", once: true },
           });
         });
@@ -322,17 +320,21 @@ const happyHourNote = happyHour
       maxWidth={40}
       text={`${drinkLine}, ${bottleLine}. Alle Preise stehen online, nicht nur auf der Tafel an der Bar.`}
     >
-      <Fragment slot="heading">Was ein Abend<br />hier kostet</Fragment>
+      <Fragment slot="heading">Was im Glas<br />landet</Fragment>
       <ButtonWrapper>
         <Button element="link" href="/getraenkekarte"
           >Ganze Karte ansehen</Button
         >
       </ButtonWrapper>
     </PageHeader>
-    <Grid medium={3} class="menu_grid">
+    {/* `cover` legt den Verlauf ueber das Foto, damit Preis und Name darauf
+         lesbar bleiben. Der Preis steht als Eyebrow: er ist die Zahl, wegen
+         der jemand hinsieht, und er kommt aus derselben Zeile der Karte wie
+         auf `/getraenkekarte`. */}
+    <Grid medium={3} class="menu_grid" render={featuredDrinks.length > 0}>
       {
-        teaserGroups.map((group) => (
-          <Card heading={group.heading} headingTag="h3" text={group.text} />
+        featuredDrinks.map((drink) => (
+          <Card variant="cover" image={drink.data.image} imageAlt={drink.data.imageAlt} eyebrow={drink.data.price} heading={drink.data.name} headingTag="h3" text={drink.data.description ?? drink.data.note} ratio="3 / 4" contentAlign="end" />
         ))
       }
     </Grid>
@@ -376,46 +378,27 @@ const happyHourNote = happyHour
       <Fragment slot="heading">Licht, Musik<br />und späte Stunden</Fragment>
     </PageHeader>
   </Section>
-  <div class="gallery_marquee">
-    <div class="gallery_track">
-      <div class="gallery_item">
-        <Img
-          src={neonGlassesImage}
-          alt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund"
-        />
-      </div>
-      <div class="gallery_item">
-        <Img
-          src={cocktailHandImage}
-          alt="Hand hält einen Tumbler mit Eiswürfeln"
-        />
-      </div>
-      <div class="gallery_item">
-        <Img
-          src={djKnobsImage}
-          alt="Hände am DJ-Mixer, pinker Laserstrahl über der Konsole"
-        />
-      </div>
-      <div class="gallery_item">
-        <Img
-          src={crowdImage}
-          alt="Feiernde Gäste auf der Tanzfläche der Flamingo Bar"
-        />
-      </div>
-      <div class="gallery_item">
-        <Img src={neonGlassesImage} alt="" aria-hidden="true" />
-      </div>
-      <div class="gallery_item">
-        <Img src={cocktailHandImage} alt="" aria-hidden="true" />
-      </div>
-      <div class="gallery_item">
-        <Img src={djKnobsImage} alt="" aria-hidden="true" />
-      </div>
-      <div class="gallery_item">
-        <Img src={crowdImage} alt="" aria-hidden="true" />
+  {/* Das Band laeuft endlos: `gallery-scroll` schiebt die Spur um `-50%`,
+       also genau um einen Durchgang. Dafuer steht jede Kachel zweimal da —
+       der zweite Satz ist reine Deko und deshalb `aria-hidden`, sonst laese
+       ein Screenreader jedes Bild doppelt vor. Weil die Verschiebung
+       prozentual ist, stimmt sie bei jeder Anzahl. */}
+  {marqueeTiles.length > 0 && (
+    <div class="gallery_marquee">
+      <div class="gallery_track">
+        {marqueeTiles.map((tile) => (
+          <div class="gallery_item">
+            <Img src={tile.image} alt={tile.alt} />
+          </div>
+        ))}
+        {marqueeTiles.map((tile) => (
+          <div class="gallery_item" aria-hidden="true">
+            <Img src={tile.image} alt="" />
+          </div>
+        ))}
       </div>
     </div>
-  </div>
+  )}
   <Section paddingTop="small" paddingBottom="medium" align="center">
     <div class="gallery_note">
       <Paragraph variant="small"
@@ -431,7 +414,7 @@ const happyHourNote = happyHour
   <!-- FLASCHENSERVICE -->
   <Section paddingTop="medium" paddingBottom="medium" id="flaschenservice">
     <ContentWrapper class="measure-main" column1Class="bottle_visual" variant="columns">
-      <Img src={bottle_service_lounge} variant="constrained" />
+      <Img src={_SCJ6123} variant="constrained" width={3840} height={5760} />
       <Fragment slot="column2">
         <div>
           <Eyebrow>Flaschenservice</Eyebrow>
@@ -490,10 +473,7 @@ const happyHourNote = happyHour
       </div>
     </Grid>
     <div class="visit_map">
-      <Img
-        src={mapImage}
-        alt={`Karte mit Standort ${ADDRESS_LINE}`}
-      />
+      <MapEmbed />
     </div>
   </Section>
   <!-- FINALER CTA -->
@@ -794,7 +774,7 @@ const happyHourNote = happyHour
       overflow: hidden;
     }
 
-    .visit_map img {
+    .visit_map iframe {
       width: 100%;
       height: 100%;
     }

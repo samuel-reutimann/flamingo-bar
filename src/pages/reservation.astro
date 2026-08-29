@@ -11,14 +11,14 @@ import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
 import Img from "@/components/Img.astro";
-import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
-import heroImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
 import PageHero from "@/components/PageHero.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { BUSINESS } from "@/consts.ts";
+import _SCJ6340 from '@/assets/flamingo/_SCJ6340.webp';
+import _SCJ6130 from '@/assets/flamingo/_SCJ6130.webp';
 
 /* Öffnungstage für die FAQ-Antwort — aus der Collection, nicht getippt. */
 const openDaysLong = openDaysLabel(await getHours(), { long: true });
@@ -68,7 +68,7 @@ const schemaData = [
   theme="dark"
 >
   <Schema slot="head" data={schemaData} />
-  <PageHero eyebrow="Reservation" heading="Tisch anfragen" text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`} image={heroImage} imageAlt="Hand hält einen Tumbler mit Eiswürfeln an der Bartheke" glow={false} />
+  <PageHero eyebrow="Reservation" heading="Tisch anfragen" text={`Fünf Felder, mehr braucht es nicht. Wir antworten am nächsten Öffnungstag: ${openDaysLong}.`} image={_SCJ6340} imageAlt="Hand hält einen Tumbler mit Eiswürfeln an der Bartheke" glow={false} />
 
   <Section paddingTop="small" paddingBottom="medium">
     <ContentWrapper
@@ -174,10 +174,7 @@ const schemaData = [
 
       <aside class="reservation_aside width-full" slot="column2">
         <div class="reservation_visual">
-          <Img
-            src={bottleImage}
-            alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze"
-          />
+          <Img src={_SCJ6130} alt="Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze" width={3840} height={2560} />
         </div>
         <Heading tag="h2" variant="h5">Direkter Weg</Heading>
         <Paragraph variant="small" class="section-note">

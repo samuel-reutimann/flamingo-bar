@@ -55,6 +55,14 @@ export const BUSINESS = {
   /** Preisspanne für Structured Data: günstigster Drink bis teuerste Flasche. */
   priceRange: "CHF 5–150",
   mapsUrl: "https://maps.google.com/?q=Marktgasse+34B+4900+Langenthal",
+  /**
+   * Quelle des eingebetteten Kartenrahmens (`<MapEmbed>`). `output=embed`
+   * kommt ohne API-Schlüssel und ohne Abrechnungskonto aus — die Variante
+   * `maps/embed/v1/place` bräuchte beides. `hl=de` hält die Beschriftung
+   * deutsch, `z=16` zeigt die Altstadt statt der ganzen Stadt.
+   */
+  mapsEmbedUrl:
+    "https://www.google.com/maps?q=Marktgasse+34B,+4900+Langenthal&hl=de&z=16&output=embed",
 } as const;
 
 /**

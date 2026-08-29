@@ -4,4 +4,8 @@ group: mocktails
 price: CHF 13.–
 priceCHF: 13
 note: Orangensaft, Ananassaft, Granatapfelsaft
+description: "Orangensaft, Ananassaft, Granatapfelsaft. Ohne Alkohol."
+image: ../../assets/flamingo/drink-pina-colada.jpeg
+imageAlt: "Fruchtiger Mocktail mit Ananasscheibe und Cocktailkirsche an der Bar"
+featured: true
 order: 11

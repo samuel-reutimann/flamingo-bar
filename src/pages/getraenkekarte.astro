@@ -3,7 +3,6 @@ import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import PageHero from "@/components/PageHero.astro";
-import heroImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
 import Paragraph from "@/components/Paragraph.astro";
 import Heading from "@/components/Heading.astro";
 import Button from "@/components/Button.astro";
@@ -11,18 +10,11 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import BottleOptions from "@/components/BottleOptions.astro";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, menuSchema } from "@/utils/schema.ts";
-import {
-  getHours,
-  getDrinkGroups,
-  getBottleService,
-  getMenuSection,
-  getPriceDate,
-  bottleFromCHF,
-  minPriceCHF,
-} from "@/utils/content.ts";
+import { getHours, getDrinkGroups, getBottleService, getMenuSection, getPriceDate, bottleFromCHF, minPriceCHF } from "@/utils/content.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { DRINK_CATEGORIES } from "@/content/options.ts";
 import { BUSINESS, SITE_LOCALE } from "@/consts.ts";
+import _SCJ6279 from '@/assets/flamingo/_SCJ6279.webp';
 
 /* Die Karte kommt aus den Collections `drinks` und `menu-sections` — der
    Betrieb pflegt sie in Keystatic. Die Abschnitte stehen nicht hier im
@@ -132,18 +124,10 @@ const menuSections = [
       breadcrumbSchema([{ name: "Getränkekarte", path: "/getraenkekarte" }]),
     ]}
   />
-  <PageHero
-    heading="Getränkekarte"
-    text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar — in Schweizer Franken, inklusive MwSt. Aktualisiert am ${priceDate}.`}
-    image={heroImage}
-    imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze"
-    glow={false}
-  />
+  <PageHero heading="Getränkekarte" text={`Alle Preise stehen hier, nicht nur auf der Tafel an der Bar — in Schweizer Franken, inklusive MwSt. Aktualisiert am ${priceDate}.`} image={_SCJ6279} imageAlt="Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze" glow={false} />
 
-  {
-    /* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
-       Die Chips bleiben beim Scrollen unter der Nav kleben. */
-  }
+  {/* Sprungnavigation: am Tisch soll niemand die ganze Karte durchscrollen.
+       Die Chips bleiben beim Scrollen unter der Nav kleben. */}
   <nav class="chips_wrap" aria-label="Kategorien">
     <ul class="chips measure-main">
       {

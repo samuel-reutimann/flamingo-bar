@@ -67,6 +67,26 @@ export async function getDrinkGroups(category: DrinkCategory) {
 }
 
 /**
+ * Die Getränke, die auf der Startseite als grosse Karte stehen.
+ *
+ * Ohne Bild fällt eines heraus: die Karte ist `cover`, und `Card.astro` hängt
+ * sowohl das Foto als auch den Verlauf darüber an `image` — ein angehakter
+ * Drink ohne Foto ergäbe eine leere Fläche. Der Haken allein genügt also
+ * nicht, und genau das sagt der Hilfetext in Keystatic auch.
+ *
+ * Sortiert wie in der Karte: `order`, dann Name.
+ */
+export async function getFeaturedDrinks() {
+  const drinks = await getCollection(
+    "drinks",
+    (d) => d.data.featured && !!d.data.image
+  );
+  return drinks.sort(
+    (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name)
+  );
+}
+
+/**
  * Günstigster fixer Preis einer Kategorie — oder mehrerer, wenn ein Teaser
  * einen Abschnitt zusammenfasst („Whisky, Vodka & Liköre ab CHF 8.–“).
  * `undefined`, wenn keine der Positionen einen festen Betrag hat.
@@ -155,6 +175,19 @@ export async function getGallery() {
         a.data.order - b.data.order || a.data.caption.localeCompare(b.data.caption)
     )
     .map((tile, index) => ({ ...tile.data, eager: index < EAGER_TILES }));
+}
+
+/**
+ * Die Kacheln fuer das Bilderband auf der Startseite — dieselbe Collection,
+ * gefiltert auf den Haken.
+ *
+ * Standen als vier `<Img>`-Bloecke im Markup, mit vier Import-Zeilen und den
+ * Alt-Texten von Hand daneben: dieselben Fotos wie in der Galerie, nur ein
+ * zweites Mal beschrieben, und die Beschreibungen wichen bereits voneinander
+ * ab. Ein Foto, eine Beschreibung.
+ */
+export async function getHomepageGallery() {
+  return (await getGallery()).filter((tile) => tile.homepage);
 }
 
 /**

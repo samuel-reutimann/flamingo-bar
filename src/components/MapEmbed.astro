@@ -1,0 +1,52 @@
+---
+/**
+ * Die eingebettete Google-Karte des Standorts. Stand vorher zweimal als
+ * statisches JPEG im Markup (Startseite, Kontakt) — beide Vorkommen zeigten
+ * dieselbe Adresse, ohne Zoom und ohne Route.
+ *
+ * Der Rahmen trägt bewusst die Klasse `image`: darauf greifen sowohl das
+ * Skelett-Grau aus `patterns.css` als auch die Seitenverhältnis-Sperre in
+ * `ContentWrapper` zu. Ohne sie fiele die Karte in der Spalte auf die
+ * Standardhöhe eines iframes (150px) zurück.
+ *
+ * Datenschutz: anders als beim Bild lädt hier beim Seitenaufruf ein Dritter
+ * mit — siehe den Abschnitt „Externe Dienste“ auf `/datenschutz`.
+ */
+import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
+
+type Props = {
+  /** Ersetzt den Standardtitel, den Screenreader vorlesen. */
+  title?: string;
+  /** `eager` nur, wenn die Karte über dem Falz steht. */
+  loading?: "lazy" | "eager";
+  class?: string;
+};
+
+const {
+  title = `Google-Karte mit dem Standort ${ADDRESS_LINE}`,
+  loading = "lazy",
+  class: className,
+} = Astro.props;
+---
+
+<iframe
+  src={BUSINESS.mapsEmbedUrl}
+  title={title}
+  loading={loading}
+  referrerpolicy="no-referrer-when-downgrade"
+  allowfullscreen
+  class:list={["image", "map_embed", className]}></iframe>
+
+<style is:global>
+  @layer components {
+    .map_embed {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      /* Die Kacheln kommen hell; ohne den Reset erbt der Rahmen das dunkle
+         Farbschema der Seite und Chrome legt einen grauen Schleier darüber. */
+      color-scheme: light;
+    }
+  }
+</style>

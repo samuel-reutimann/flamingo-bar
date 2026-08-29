@@ -8,11 +8,11 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Img from "@/components/Img.astro";
 import Icon from "@/components/Icon.astro";
 import closeIcon from "@/assets/icons/close.svg";
-import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema } from "@/utils/schema.ts";
 import { BUSINESS } from "@/consts.ts";
 import { getGallery } from "@/utils/content.ts";
+import shot_gruen_einzeln from '@/assets/flamingo/shot-gruen-einzeln.webp';
 
 /**
  * Die Kacheln der Galerie — aus der Collection `src/content/gallery`.
@@ -43,7 +43,7 @@ const tiles = await getGallery();
   />
   {/* Kein Hero-Bild: das Mosaik beginnt direkt darunter, ein zwölftes Foto
        davor sähe nach Versehen aus. */}
-  <PageHero eyebrow="Galerie" heading="Bar, Drinks und lange Nächte" text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen." image={crowdImage} glow={false} />
+  <PageHero eyebrow="Galerie" heading="Bar, Drinks und lange Nächte" text="So sieht es aus, wenn es voll wird: pinkes Licht, beschlagene Gläser, die Fläche um Mitternacht. Zum Vergrössern antippen." image={shot_gruen_einzeln} glow={false} />
 
   <Section paddingTop="small" paddingBottom="medium">
     <div class="gallery_grid measure-main">

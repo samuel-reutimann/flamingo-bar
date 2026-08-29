@@ -3,7 +3,6 @@ import Layout from "@/layouts/BaseLayout.astro";
 import Section from "@/components/Section.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import PageHero from "@/components/PageHero.astro";
-import heroImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
 import HoursTable from "@/components/HoursTable.astro";
 import OpenStatusPill from "@/components/OpenStatusPill.astro";
 import Paragraph from "@/components/Paragraph.astro";
@@ -15,6 +14,7 @@ import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
 import { getHours, getHappyHour } from "@/utils/content.ts";
 import { ADDRESS_LINE } from "@/consts.ts";
 import { hoursSentence, openDaysLabel } from "@/utils/hours.ts";
+import _SCJ6130 from '@/assets/flamingo/_SCJ6130.webp';
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
@@ -73,7 +73,7 @@ const openDaysShort = openDaysLabel(hours);
       breadcrumbSchema([{ name: "Öffnungszeiten", path: "/oeffnungszeiten" }]),
     ]}
   />
-  <PageHero eyebrow="Öffnungszeiten" heading={openDaysLong} text="Montag bleibt die Bar geschlossen." image={heroImage} imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" glow={false}>
+  <PageHero eyebrow="Öffnungszeiten" heading={openDaysLong} text="Montag bleibt die Bar geschlossen." image={_SCJ6130} imageAlt="Zwei Drinks auf der Bartheke, Neonschild im Hintergrund" glow={false}>
     <OpenStatusPill />
   </PageHero>
 

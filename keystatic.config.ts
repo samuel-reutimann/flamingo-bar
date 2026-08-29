@@ -192,10 +192,16 @@ export default config({
           multiline: true,
           description: 'Z. B. "Aperol, Prosecco, Mineral, Orange." Wird nur bei Getränken mit Bild angezeigt.',
         }),
-        image: imageField("Nur die wenigen Getränke oben im Abschnitt brauchen ein Bild."),
+        image: imageField("Nötig, wenn das Getränk auf der Startseite stehen soll."),
         imageAlt: fields.text({
           label: "Bildbeschreibung",
           description: "Für Screenreader und Google.",
+        }),
+        featured: fields.checkbox({
+          label: "Auf der Startseite zeigen",
+          description:
+            "Steht dann als grosse Karte auf der Startseite. Braucht ein Bild — ohne eines wird das Getränk übersprungen. Drei Karten sehen am besten aus.",
+          defaultValue: false,
         }),
         order: fields.number({
           label: "Reihenfolge",
@@ -311,6 +317,12 @@ export default config({
             "Die Höhe der Kachel im Mosaik. Gemischte Formate lassen es dicht wirken; stehen alle auf quadratisch, sieht es aus wie eine Tabelle.",
           options: [...GALLERY_RATIOS],
           defaultValue: "quadrat",
+        }),
+        homepage: fields.checkbox({
+          label: "Auch auf der Startseite zeigen",
+          description:
+            "Läuft dann im Bilderband auf der Startseite mit. Das Band zeigt Stimmung — vier bis sechs Bilder wirken am besten, alle elf machen es beliebig.",
+          defaultValue: false,
         }),
         order: fields.number({
           label: "Reihenfolge",

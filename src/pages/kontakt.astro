@@ -9,15 +9,14 @@ import Paragraph from "@/components/Paragraph.astro";
 import Button from "@/components/Button.astro";
 import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
-import Img from "@/components/Img.astro";
-import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
-import heroImage from "@/assets/flamingo/bar-guests-night.jpeg";
+import MapEmbed from "@/components/MapEmbed.astro";
 import PageHero from "@/components/PageHero.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema } from "@/utils/schema.ts";
 import { getHours } from "@/utils/content.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { ADDRESS_LINE, ADDRESS_SHORT, BUSINESS } from "@/consts.ts";
+import _SCJ6219 from '@/assets/flamingo/_SCJ6219.webp';
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
@@ -36,7 +35,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       breadcrumbSchema([{ name: "Kontakt", path: "/kontakt" }]),
     ]}
   />
-  <PageHero eyebrow="Kontakt" heading="Direkt erreichbar" text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular." image={heroImage} imageAlt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" glow={false}>
+  <PageHero eyebrow="Kontakt" heading="Direkt erreichbar" text="WhatsApp erreicht uns auch während des Abends. Für einen Tisch gibt es das Formular." image={_SCJ6219} imageAlt="Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet" glow={false}>
     <ButtonWrapper>
       <Button element="link" href="/reservation/">Tisch anfragen</Button>
       <Button
@@ -119,11 +118,7 @@ const openDaysLong = openDaysLabel(hours, { long: true });
           </Button>
         </ButtonWrapper>
       </Fragment>
-      <Img
-        slot="column2"
-        src={mapImage}
-        alt={`Karte mit Standort ${ADDRESS_LINE}`}
-      />
+      <MapEmbed slot="column2" />
     </ContentWrapper>
   </Section>
 
@@ -182,10 +177,9 @@ const openDaysLong = openDaysLabel(hours, { long: true });
       overflow: clip;
     }
 
-    .contact_map img {
+    .contact_map iframe {
       width: 100%;
       height: 100%;
-      object-fit: cover;
     }
   }
 </style>
