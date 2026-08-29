@@ -25,6 +25,23 @@ export const values = <T extends readonly Option[]>(options: T) =>
 export const labelOf = (options: readonly Option[], value: string) =>
   options.find((option) => option.value === value)?.label ?? value;
 
+/**
+ * Seitenverhältnis einer Galerie-Kachel.
+ *
+ * Die Galerie läuft als Mosaik in CSS-`columns`, nicht in einem Zeilenraster:
+ * das Verhältnis bestimmt nur die Höhe der einzelnen Kachel, nie ihre
+ * Spannweite. Die gemischten Höhen sind das, was das Mosaik dicht wirken
+ * lässt — stünden alle auf `quadrat`, sähe es aus wie eine Tabelle.
+ *
+ * `quadrat` ist der Standard und schreibt keine Klasse ins Markup.
+ */
+export const GALLERY_RATIOS = [
+  { label: "Quadratisch", value: "quadrat" },
+  { label: "Hochformat", value: "portrait" },
+  { label: "Hoch (schmal)", value: "tall" },
+  { label: "Querformat", value: "landscape" },
+] as const;
+
 /** Art des Abends — erscheint als Tag in der Terminliste. */
 export const EVENT_TAGS = [
   { label: "DJ-Abend", value: "DJ-Abend" },

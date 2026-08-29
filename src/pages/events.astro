@@ -15,8 +15,9 @@ import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
 import heroImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema, eventsSchema } from "@/utils/schema.ts";
-import { getUpcomingEvents, bottleFromCHF } from "@/utils/content.ts";
-import { isoWithOffset, longDate, shortDate, timeNote } from "@/utils/dates.ts";
+import { getUpcomingEvents, bottleFromCHF, getHappyHour } from "@/utils/content.ts";
+import { eventImage } from "@/utils/eventImage.ts";
+import { isoWithOffset, longDate, timeNote } from "@/utils/dates.ts";
 import { BUSINESS } from "@/consts.ts";
 
 /* Termine aus der Collection `src/content/events` — der Betrieb pflegt sie in
@@ -26,13 +27,25 @@ const events = await getUpcomingEvents();
 
 /* Startpreis aus der Flaschenservice-Collection statt als Text daneben. */
 const bottleFrom = await bottleFromCHF();
+
+/* Happy Hour aus der Collection statt als Text im "Jede Woche"-Raster. */
+const happyHour = await getHappyHour();
 const bottleLine = bottleFrom
   ? `Flaschen ab CHF ${bottleFrom}.–, Rest auf Anfrage`
   : "Auf Anfrage";
 
-/* Oben die hervorgehobenen Abende als Poster, darunter der Rest als Liste.
-   Ohne Bild kann ein Termin keine Karte werden, sonst bliebe der Poster leer. */
-const featured = events.filter((event) => event.data.featured && event.data.image);
+/* Oben die hervorgehobenen Abende als Poster, darunter der Rest als Raster.
+   Beide sind `cover`-Karten mit Overlay; der Unterschied ist nur das Format.
+
+   Der Haken allein entscheidet. Vorher stand hier `featured && image`, und
+   weil kein kommender Termin ein Bild hat, blieb die obere Reihe immer leer.
+   `eventImage()` liefert jetzt je nach Art des Abends eines nach.
+
+   Beide Listen werden unten getrennt gerendert. Vorher lief ein einziges
+   `events.map()` ueber alles: `featured` und `listed` wurden berechnet und
+   nie benutzt, und der Keystatic-Haken "Oben als grosse Karte zeigen" blieb
+   damit ohne Wirkung. */
+const featured = events.filter((event) => event.data.featured);
 const listed = events.filter((event) => !featured.includes(event));
 ---
 
@@ -70,10 +83,26 @@ const listed = events.filter((event) => !featured.includes(event));
 
   <Section paddingTop="small" paddingBottom="large" align="center">
     <PageHeader headingTag="h2" variant="h3" heading="Als Nächstes" />
-    <Grid medium={3} class="events_grid alignment-start margin-bottom-6">
+    {/* Die hervorgehobenen Abende als Poster. Faellt weg, solange kein
+         Termin den Haken samt Bild hat. */}
+    <Grid medium={3} class="events_grid alignment-start margin-bottom-6" render={featured.length > 0}>
       {
-        events.map((item) => (
-          <Card variant="cover" image={item.data.image} imageAlt={item.data.imageAlt} eyebrow={longDate(item.data.start)} heading={item.data.name} text={timeNote(item.data.start, item.data.priceCHF)} cardTag="article" ratio="3 / 4" contentAlign="end" />
+        featured.map((item) => (
+          <Card variant="cover" {...eventImage(item.data)} eyebrow={longDate(item.data.start)} heading={item.data.name} text={timeNote(item.data.start, item.data.priceCHF)} cardTag="article" ratio="3 / 4" contentAlign="end" />
+        ))
+      }
+    </Grid>
+
+    {/* Alle uebrigen Termine, ebenfalls `cover`-Karten mit Overlay, nur ohne
+         das 3:4-Posterformat der hervorgehobenen.
+
+         Die Beschreibung aus Keystatic kommt nicht mit: sie wiederholt in den
+         gepflegten Terminen genau, was `timeNote()` aus Startzeit und
+         Eintritt rechnet („Ab 21 Uhr, Eintritt frei.“). */}
+    <Grid medium={3} class="events_grid alignment-start margin-bottom-6" render={listed.length > 0}>
+      {
+        listed.map((item) => (
+          <Card variant="cover" {...eventImage(item.data)} eyebrow={longDate(item.data.start)} heading={item.data.name} text={timeNote(item.data.start, item.data.priceCHF)} cardTag="article" contentAlign="end" />
         ))
       }
     </Grid>
@@ -100,13 +129,15 @@ const listed = events.filter((event) => !featured.includes(event));
       text="Was jede Woche läuft, ohne dass wir es ankündigen."
     />
     <Grid medium={2} large={4} class="weekly_grid">
-      <div class="weekly_item">
-        <p class="weekly_label text-style-small">Donnerstag</p>
-        <Heading tag="h3" variant="h6">Happy Hour</Heading>
-        <Paragraph variant="small" class="section-note">
-          20 – 22 Uhr, ausgewählte Drinks vergünstigt.
-        </Paragraph>
-      </div>
+      {happyHour && (
+        <div class="weekly_item">
+          <p class="weekly_label text-style-small">{happyHour.day}</p>
+          <Heading tag="h3" variant="h6">Happy Hour</Heading>
+          <Paragraph variant="small" class="section-note">
+            {[`${happyHour.time}.`, happyHour.note].filter(Boolean).join(" ")}
+          </Paragraph>
+        </div>
+      )}
       <div class="weekly_item">
         <p class="weekly_label text-style-small">Freitag und Samstag</p>
         <Heading tag="h3" variant="h6">DJ ab 21 Uhr</Heading>

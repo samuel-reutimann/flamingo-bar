@@ -137,6 +137,48 @@ export async function getHours(): Promise<DayHours[]> {
     .sort((a, b) => ((a.weekday + 6) % 7) - ((b.weekday + 6) % 7));
 }
 
+/**
+ * Die Kacheln der Galerie, nach `order` und dann Beschriftung.
+ *
+ * `eager` gehoert nicht ins Schema, sondern hierher: die ersten vier Kacheln
+ * stehen ueber der Falz und laden sofort, der Rest lazy. Als Feld in
+ * Keystatic waere es ein Haken, den irgendwann jede Kachel traegt — und dann
+ * laedt die Seite elf grosse Fotos auf einmal.
+ */
+const EAGER_TILES = 4;
+
+export async function getGallery() {
+  const tiles = await getCollection("gallery");
+  return tiles
+    .sort(
+      (a, b) =>
+        a.data.order - b.data.order || a.data.caption.localeCompare(b.data.caption)
+    )
+    .map((tile, index) => ({ ...tile.data, eager: index < EAGER_TILES }));
+}
+
+/**
+ * Die Happy Hour. Stand vorher als Text auf vier Seiten.
+ *
+ * `day` und `time` kommen roh zurueck, weil die vier Stellen sie
+ * unterschiedlich einbauen (Label, Satz, FAQ-Antwort). `sentence` ist die
+ * Fassung, die zweimal identisch gebraucht wird.
+ */
+export async function getHappyHour() {
+  const entry = await getEntry("happyHour", "happyHour");
+  if (!entry) return undefined;
+  const { day, time, note } = entry.data;
+  return {
+    day,
+    time,
+    note,
+    /** "Donnerstag, 20 – 22 Uhr" — Label-Fassung. */
+    label: `${day}, ${time}`,
+    /** Ein ganzer Satz, fuer FAQ und Structured Data. */
+    sentence: [`${day}, ${time}.`, note].filter(Boolean).join(" "),
+  };
+}
+
 /** Preisstand der Karte als ISO-Datum, oder `undefined`. */
 export async function getPriceDate() {
   const settings = await getEntry("settings", "menu");

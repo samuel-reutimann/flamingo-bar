@@ -29,6 +29,7 @@ import {
   DRINK_CATEGORIES,
   DRINK_GROUPS,
   EVENT_TAGS,
+  GALLERY_RATIOS,
   MENU_SECTIONS,
 } from "./src/content/options.ts";
 
@@ -92,8 +93,9 @@ export default config({
     brand: { name: "Flamingo Bar" },
     navigation: {
       Programm: ["events"],
-      Getränkekarte: ["drinks", "menuSections", "menuSettings"],
-      Betrieb: ["hours"],
+      Getränkekarte: ["drinks", "bottleService", "menuSections", "menuSettings"],
+      Galerie: ["gallery"],
+      Betrieb: ["hours", "happyHour"],
     },
   },
 
@@ -133,14 +135,15 @@ export default config({
           options: [...EVENT_TAGS],
           defaultValue: "DJ-Abend",
         }),
-        image: imageField("Nur nötig, wenn der Abend oben als große Karte stehen soll."),
+        image: imageField("Optional. Ohne eigenes Bild nimmt die Karte eines passend zur Art des Abends."),
         imageAlt: fields.text({
           label: "Bildbeschreibung",
           description: "Für Screenreader und Google. Was ist auf dem Bild zu sehen?",
         }),
         featured: fields.checkbox({
           label: "Oben als große Karte zeigen",
-          description: "Braucht ein Bild. Drei Karten sehen am besten aus.",
+          description:
+            "Stellt den Abend im Posterformat über die anderen. Ohne eigenes Bild nimmt die Karte automatisch eines passend zur Art des Abends. Drei Karten sehen am besten aus.",
           defaultValue: false,
         }),
         priceCHF: fields.number({
@@ -202,6 +205,41 @@ export default config({
       },
     }),
 
+    bottleService: collection({
+      label: "Flaschenservice",
+      path: "src/content/bottle-service/*",
+      slugField: "name",
+      format: { data: "yaml" },
+      entryLayout: "form",
+      columns: ["name", "price"],
+      schema: {
+        name: fields.slug({
+          name: {
+            label: "Stufe",
+            description: 'Wie die Position auf der Karte steht, z. B. "Flasche Gin".',
+          },
+        }),
+        description: fields.text({
+          label: "Was enthalten ist",
+          multiline: true,
+          description:
+            'Eine Zeile: die Sorten oder die Bedingung — z. B. "Gordon\'s, Bombay oder Hendrick\'s" oder "Ab 6 Personen ein Tisch".',
+        }),
+        ...priceGroup("Preis"),
+        fromCHF: fields.number({
+          label: "Startpreis in CHF",
+          description:
+            'Untergrenze der Stufe, ohne Währung — z. B. 120. Daraus rechnet die Seite das "Flaschen ab CHF 125.–" auf Startseite, Events und Reservation. Bei "Auf Anfrage" leer lassen.',
+          validation: { isRequired: false },
+        }),
+        order: fields.number({
+          label: "Reihenfolge",
+          description: "Kleinere Zahl steht weiter oben.",
+          defaultValue: 0,
+        }),
+      },
+    }),
+
     menuSections: collection({
       label: "Abschnitts-Texte",
       path: "src/content/menu-sections/*",
@@ -235,6 +273,52 @@ export default config({
         order: fields.number({ label: "Reihenfolge", defaultValue: 0 }),
       },
     }),
+
+    gallery: collection({
+      label: "Galerie",
+      path: "src/content/gallery/*",
+      slugField: "caption",
+      format: { data: "yaml" },
+      entryLayout: "form",
+      columns: ["caption", "ratio"],
+      schema: {
+        caption: fields.slug({
+          name: {
+            label: "Beschriftung",
+            description:
+              'Kurz, z. B. "Die Bar". Steht nicht unter dem Bild — sie beschriftet den Knopf und die Grossansicht.',
+          },
+        }),
+        image: fields.image({
+          label: "Bild",
+          description: "Das Foto der Kachel.",
+          directory: "src/assets/flamingo",
+          publicPath: "../../assets/flamingo/",
+          validation: { isRequired: true },
+        }),
+        // Pflicht: die Kachel ist ein Knopf, und ohne Beschreibung hoert ein
+        // Screenreader an dieser Stelle nichts als "Grafik".
+        alt: fields.text({
+          label: "Bildbeschreibung",
+          multiline: true,
+          description:
+            "Was ist auf dem Bild zu sehen? Für Screenreader und Google — nicht dasselbe wie die Beschriftung.",
+          validation: { isRequired: true },
+        }),
+        ratio: fields.select({
+          label: "Format",
+          description:
+            "Die Höhe der Kachel im Mosaik. Gemischte Formate lassen es dicht wirken; stehen alle auf quadratisch, sieht es aus wie eine Tabelle.",
+          options: [...GALLERY_RATIOS],
+          defaultValue: "quadrat",
+        }),
+        order: fields.number({
+          label: "Reihenfolge",
+          description: "Kleinere Zahl steht weiter oben.",
+          defaultValue: 0,
+        }),
+      },
+    }),
   },
 
   singletons: {
@@ -250,6 +334,43 @@ export default config({
         freitag: dayField("Freitag", 5),
         samstag: dayField("Samstag", 6),
         sonntag: dayField("Sonntag", 0),
+      },
+    }),
+
+    happyHour: singleton({
+      label: "Happy Hour",
+      path: "src/content/happy-hour",
+      format: { data: "yaml" },
+      schema: {
+        // Der Wrapper-Schluessel muss bleiben: `content.config.ts` liest die
+        // Datei mit Astros `file()`-Loader, der jeden Schluessel der obersten
+        // Ebene als eigenen Eintrag nimmt.
+        happyHour: fields.object(
+          {
+            // `isRequired`, weil `content.config.ts` beide als `z.string()`
+            // fuehrt: ein geleertes Feld schreibt Keystatic gar nicht in die
+            // Datei, und der Build braeche mit einem Zod-Fehler ab. Besser
+            // haelt die Oberflaeche das Speichern an.
+            day: fields.text({
+              label: "Wochentag",
+              description: 'Ausgeschrieben, z. B. "Donnerstag".',
+              defaultValue: "Donnerstag",
+              validation: { isRequired: true },
+            }),
+            time: fields.text({
+              label: "Zeit",
+              description: 'Wie es auf der Seite steht, z. B. "20 – 22 Uhr".',
+              defaultValue: "20 – 22 Uhr",
+              validation: { isRequired: true },
+            }),
+            note: fields.text({
+              label: "Hinweis",
+              multiline: true,
+              description: 'Der Satz darunter, z. B. "Ausgewählte Drinks vergünstigt."',
+            }),
+          },
+          { label: "Happy Hour" }
+        ),
       },
     }),
 

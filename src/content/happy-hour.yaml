@@ -1,0 +1,6 @@
+# Die Happy Hour. Stand vorher als Text auf vier Seiten — Startseite, Events
+# und zweimal auf Öffnungszeiten, einmal davon im FAQ-Structured-Data.
+happyHour:
+  day: Donnerstag
+  time: 20 – 22 Uhr
+  note: Ausgewählte Drinks vergünstigt.

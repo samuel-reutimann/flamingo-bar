@@ -21,7 +21,8 @@ import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
 import mapImage from "@/assets/flamingo/map-langenthal.jpeg";
 import Schema from "@/components/Schema.astro";
 import { barSchema } from "@/utils/schema.ts";
-import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF } from "@/utils/content.ts";
+import { getHours, getUpcomingEvents, minPriceCHF, bottleFromCHF, getHappyHour } from "@/utils/content.ts";
+import { eventImage } from "@/utils/eventImage.ts";
 import { longDate } from "@/utils/dates.ts";
 import { openDaysLabel } from "@/utils/hours.ts";
 import { ADDRESS_LINE, BUSINESS } from "@/consts.ts";
@@ -35,10 +36,11 @@ const hours = await getHours();
    Daten ("Freitag, 21. August 2026"), die nach dem Abend nie wieder stimmten,
    und mit Getränketexten, die bei jeder Keystatic-Änderung auseinanderliefen. */
 
-/* Nur Termine mit Bild — die `cover`-Karte wäre sonst leer. */
-const teaserEvents = (await getUpcomingEvents())
-  .filter((event) => event.data.image)
-  .slice(0, 3);
+/* Die naechsten drei Abende. Nicht auf Termine mit Bild gefiltert: pflegt
+   der Betrieb Termine ohne Bild — heute alle kommenden — bliebe der Teaser
+   sonst leer, obwohl Abende anstehen. `eventImage()` liefert je nach Art des
+   Abends eines nach, damit jede Karte `cover` samt Overlay tragen kann. */
+const teaserEvents = (await getUpcomingEvents()).slice(0, 3);
 
 /* „Ab“-Preise gerechnet, nicht getippt: die Seite behauptete an vier Stellen
    „Cocktails ab CHF 12.–“, während der günstigste Cocktail CHF 14 kostete.
@@ -85,6 +87,12 @@ const bottleLine = bottleFrom ? `Flaschen ab CHF ${bottleFrom}.–` : "Flaschens
 
 /* „Do – So, ab 20 Uhr“ aus den Öffnungszeiten statt als Text daneben. */
 const openDays = openDaysLabel(hours);
+
+/* Happy Hour aus der Collection — stand im Hinweis unter dem Events-Raster. */
+const happyHour = await getHappyHour();
+const happyHourNote = happyHour
+  ? `Jede Woche: Happy Hour am ${happyHour.label}.`
+  : "";
 ---
 
 <Layout
@@ -344,18 +352,17 @@ const openDays = openDaysLabel(hours);
       </ButtonWrapper>
     </PageHeader>
     <div class="events_content">
-      <Grid medium={3} class="events_grid alignment-start">
+      <Grid medium={3} class="events_grid alignment-start" render={teaserEvents.length > 0}>
         {
-          teaserEvents.map((event) => (
-            <Card eyebrow={longDate(event.data.start)} heading={event.data.name} ratio="3 / 4" variant="cover" image={event.data.image!} imageAlt={event.data.imageAlt} cardTag="article" />
+          teaserEvents.map((item) => (
+            <Card variant="cover" {...eventImage(item.data)} eyebrow={longDate(item.data.start)} heading={item.data.name} ratio="3 / 4" contentAlign="end" cardTag="article" />
           ))
         }
       </Grid>
-      <Paragraph variant="small" class="section-note events_note margin-top-6"
-        >Jede Woche: Happy Hour am Donnerstag, 20 – 22 Uhr. Sportübertragungen
-        auf Anfrage. Eintritt frei — ausser an ausgewählten Events mit
-        Live-Musik.</Paragraph
-      >
+      <Paragraph variant="small" class="section-note events_note margin-top-6">
+        {happyHourNote} Sportübertragungen auf Anfrage. Eintritt frei — ausser
+        an ausgewählten Events mit Live-Musik.
+      </Paragraph>
     </div>
   </Section>
   <!-- ATMOSPHÄRE -->

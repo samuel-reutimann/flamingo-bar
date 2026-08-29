@@ -12,12 +12,16 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Grid from "@/components/Grid.astro";
 import Schema from "@/components/Schema.astro";
 import { barSchema, breadcrumbSchema, faqSchema } from "@/utils/schema.ts";
-import { getHours } from "@/utils/content.ts";
+import { getHours, getHappyHour } from "@/utils/content.ts";
 import { ADDRESS_LINE } from "@/consts.ts";
 import { hoursSentence, openDaysLabel } from "@/utils/hours.ts";
 
 /* Öffnungszeiten für das Structured Data — dieselbe Quelle wie die Tabelle. */
 const hours = await getHours();
+
+/* Happy Hour aus der Collection — stand hier zweimal getippt, unten als Fakt
+   und oben in der FAQ, mit zwei verschiedenen Formulierungen derselben Zeit. */
+const happyHour = await getHappyHour();
 
 /* Die FAQ-Antwort zählte die ganze Woche noch einmal als Text auf — eine
    vierte Fassung derselben Zeiten, direkt neben der Tabelle. Jetzt gerechnet. */
@@ -47,11 +51,14 @@ const openDaysShort = openDaysLabel(hours);
           answer:
             "Eine Stunde vor Schluss. Einlass ab 18 Jahren, Ausweis mitbringen.",
         },
-        {
-          question: "Wann ist Happy Hour?",
-          answer:
-            "Donnerstag von 20 bis 22 Uhr, mit vergünstigten Drinks.",
-        },
+        ...(happyHour
+          ? [
+              {
+                question: "Wann ist Happy Hour?",
+                answer: happyHour.sentence,
+              },
+            ]
+          : []),
         {
           question: "Kostet der Eintritt etwas?",
           answer:
@@ -88,13 +95,15 @@ const openDaysShort = openDaysLabel(hours);
           Einlass ab 18 Jahren, Ausweis mitbringen.
         </Paragraph>
       </div>
-      <div class="hours_fact">
-        <p class="hours_fact-label text-style-small">Happy Hour</p>
-        <p class="hours_fact-value">Donnerstag, 20 – 22 Uhr</p>
-        <Paragraph variant="small" class="section-note">
-          Ausgewählte Drinks vergünstigt.
-        </Paragraph>
-      </div>
+      {happyHour && (
+        <div class="hours_fact">
+          <p class="hours_fact-label text-style-small">Happy Hour</p>
+          <p class="hours_fact-value">{happyHour.label}</p>
+          <Paragraph variant="small" class="section-note" render={Boolean(happyHour.note)}>
+            {happyHour.note}
+          </Paragraph>
+        </div>
+      )}
       <div class="hours_fact">
         <p class="hours_fact-label text-style-small">Tisch reserviert</p>
         <p class="hours_fact-value">Ab 6 Personen</p>

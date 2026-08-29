@@ -8,115 +8,28 @@ import ButtonWrapper from "@/components/ButtonWrapper.astro";
 import Img from "@/components/Img.astro";
 import Icon from "@/components/Icon.astro";
 import closeIcon from "@/assets/icons/close.svg";
-import barGuestsImage from "@/assets/flamingo/bar-guests-night.jpeg";
-import neonGlassesImage from "@/assets/flamingo/mood-neon-glasses.jpeg";
-import cocktailHandImage from "@/assets/flamingo/mood-cocktail-hand.jpeg";
-import djKnobsImage from "@/assets/flamingo/mood-dj-knobs.jpeg";
-import djMixerImage from "@/assets/flamingo/event-dj-mixer.jpeg";
 import crowdImage from "@/assets/flamingo/event-crowd-dancing.jpeg";
-import liveSessionImage from "@/assets/flamingo/event-live-session.jpeg";
-import bottleImage from "@/assets/flamingo/bottle-service-lounge.jpeg";
-import aperolImage from "@/assets/flamingo/drink-aperol-spritz.jpeg";
-import longIslandImage from "@/assets/flamingo/drink-long-island.jpeg";
-import pinaColadaImage from "@/assets/flamingo/drink-pina-colada.jpeg";
 import Schema from "@/components/Schema.astro";
 import { breadcrumbSchema } from "@/utils/schema.ts";
 import { BUSINESS } from "@/consts.ts";
+import { getGallery } from "@/utils/content.ts";
 
 /**
- * Die Kacheln der Galerie. Sie laufen als Mosaik in Spalten (CSS
- * `columns`), nicht in einem Zeilenraster — deshalb steuert `ratio` nur das
- * Seitenverhältnis der einzelnen Kachel, nicht ihre Spannweite. Die
- * unterschiedlichen Höhen sind das, was das Mosaik dicht wirken lässt.
+ * Die Kacheln der Galerie — aus der Collection `src/content/gallery`.
  *
- * `caption` steht nicht mehr unter dem Bild, sondern beschriftet nur noch den
- * Button (`aria-label`) und die Grossansicht.
+ * Sie laufen als Mosaik in Spalten (CSS `columns`), nicht in einem
+ * Zeilenraster — deshalb steuert `ratio` nur das Seitenverhältnis der
+ * einzelnen Kachel, nicht ihre Spannweite. Die unterschiedlichen Höhen sind
+ * das, was das Mosaik dicht wirken lässt.
  *
- * Stand als elf ausgeschriebene <figure>-Blöcke im Markup, weil Stackis alter
- * Marker-Parser kein `.map()` verstand. Stacki hat inzwischen eigene
- * Loop-Knoten (siehe AGENTS.md), also ist die Liste wieder eine Liste.
+ * `caption` steht nicht unter dem Bild, sondern beschriftet den Knopf
+ * (`aria-label`) und die Grossansicht.
+ *
+ * Standen als elf ausgeschriebene Objekte hier, mit elf `import`-Zeilen
+ * darüber: ein neues Foto hiess Code anfassen. `eager` kommt weiter aus dem
+ * Code — welche Bilder sofort laden, ist Ladeverhalten, nicht Redaktion.
  */
-type Tile = {
-  image: ImageMetadata;
-  alt: string;
-  caption: string;
-  /** Seitenverhältnis der Kachel. Ohne Angabe: Quadrat. */
-  ratio?: "portrait" | "tall" | "landscape";
-  /** Nur die Kacheln über der Falz laden sofort. */
-  eager?: boolean;
-};
-
-const tiles: Tile[] = [
-  {
-    image: barGuestsImage,
-    caption: "Die Bar",
-    ratio: "portrait",
-    eager: true,
-    alt: "Gäste an der Bartheke der Flamingo Bar bei Nacht, Neon-Pink beleuchtet",
-  },
-  {
-    image: neonGlassesImage,
-    caption: "Neonlicht",
-    ratio: "landscape",
-    eager: true,
-    alt: "Zwei Drinks auf der Bartheke, Neonschild im Hintergrund",
-  },
-  {
-    image: aperolImage,
-    caption: "Aperitif",
-    ratio: "tall",
-    eager: true,
-    alt: "Orangefarbener Aperitif im beschlagenen Glas mit Orangenscheibe und Minze",
-  },
-  {
-    image: cocktailHandImage,
-    caption: "An der Bar",
-    ratio: "portrait",
-    eager: true,
-    alt: "Hand hält einen Tumbler mit Eiswürfeln",
-  },
-  {
-    image: djKnobsImage,
-    caption: "Am Pult",
-    ratio: "tall",
-    alt: "Hände am DJ-Mixer, pinker Laserstrahl über der Konsole",
-  },
-  {
-    image: longIslandImage,
-    caption: "Longdrink",
-    alt: "Longdrinkglas mit Eis und Zitronenscheibe",
-  },
-  {
-    image: crowdImage,
-    caption: "Tanzfläche",
-    ratio: "landscape",
-    alt: "Tanzende Gäste im Konfettiregen an einer Motto-Party",
-  },
-  {
-    image: djMixerImage,
-    caption: "DJ-Abend",
-    ratio: "portrait",
-    alt: "DJane am Pult, pinke Lichtstrahlen über der Menge",
-  },
-  {
-    image: liveSessionImage,
-    caption: "Live Session",
-    ratio: "tall",
-    alt: "Musiker mit Gitarre am Mikrofon im pinken Gegenlicht",
-  },
-  {
-    image: pinaColadaImage,
-    caption: "Auf Eis",
-    ratio: "portrait",
-    alt: "Glas mit Ananasscheibe und Cocktailkirsche an der Bar",
-  },
-  {
-    image: bottleImage,
-    caption: "Flaschenservice",
-    ratio: "landscape",
-    alt: "Gäste in der Loge mit Flasche im Eiskübel und Wunderkerze",
-  },
-];
+const tiles = await getGallery();
 ---
 
 <Layout
@@ -137,7 +50,7 @@ const tiles: Tile[] = [
       {
         tiles.map((tile) => (
           <figure
-            class:list={["gallery_tile", tile.ratio && `is-${tile.ratio}`]}
+            class:list={["gallery_tile", tile.ratio !== "quadrat" && `is-${tile.ratio}`]}
           >
             <button
               class="gallery_button"

@@ -24,6 +24,7 @@ import * as options from "./content/options.ts";
 export const DRINK_CATEGORIES = options.values(options.DRINK_CATEGORIES);
 export const DRINK_GROUPS = options.values(options.DRINK_GROUPS);
 export const MENU_SECTIONS = options.values(options.MENU_SECTIONS);
+export const GALLERY_RATIOS = options.values(options.GALLERY_RATIOS);
 export const EVENT_TAGS = options.values(options.EVENT_TAGS);
 
 const LOCAL_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
@@ -217,6 +218,58 @@ const hours = defineCollection({
   }),
 });
 
+/**
+ * Die Kacheln der Galerie.
+ *
+ * Standen als elf ausgeschriebene Objekte im Frontmatter von `galerie.astro`,
+ * mit elf `import`-Zeilen darüber — ein neues Foto hiess Code anfassen. Jetzt
+ * pflegt der Betrieb sie wie Events und Getränke.
+ *
+ * `eager` steht bewusst *nicht* im Schema: welche Bilder sofort laden, ist
+ * eine Frage des Ladeverhaltens, nicht der Redaktion. Ein Haken dafür würde
+ * irgendwann auf allen elf Kacheln sitzen und damit genau das kaputtmachen,
+ * wofür er da ist. `galerie.astro` leitet ihn aus der Reihenfolge ab.
+ */
+const gallery = defineCollection({
+  loader: glob({ pattern: "**/*.yaml", base: "./src/content/gallery" }),
+  schema: ({ image }) =>
+    z.object({
+      /** Beschriftet den Button und die Grossansicht, steht nicht unter dem Bild. */
+      caption: z.string(),
+      image: image(),
+      /** Pflicht, nicht optional: ein Foto ohne Beschreibung ist für Screenreader nichts. */
+      alt: z.string(),
+      /** Höhe der Kachel im Mosaik. `quadrat` schreibt keine Klasse ins Markup. */
+      ratio: z.enum(GALLERY_RATIOS).default("quadrat"),
+      /** Kleinere Zahl steht weiter oben. */
+      order: z.number().default(0),
+    }),
+});
+
+/**
+ * Die Happy Hour. Ein Eintrag, `id` = `happyHour`.
+ *
+ * Stand vorher als Text an vier Stellen — Startseite, Events und zweimal auf
+ * `/oeffnungszeiten`, davon einmal in der FAQ fuer Google. Die Zeiten waren
+ * dort schon unterschiedlich formuliert ("von 20 bis 22 Uhr" gegen
+ * "20 – 22 Uhr"); eine Aenderung an der Bar haette alle vier gebraucht.
+ *
+ * Der Wrapper-Schluessel in der Datei ist Absicht: der `file()`-Loader macht
+ * aus jedem Schluessel der obersten Ebene einen Eintrag. Ohne ihn wuerden
+ * `day`, `time` und `note` drei Eintraege mit Strings statt Objekten.
+ */
+const happyHour = defineCollection({
+  loader: file("src/content/happy-hour.yaml"),
+  schema: z.object({
+    /** Wochentag, ausgeschrieben — steht als Label und im Satz. */
+    day: z.string(),
+    /** Anzeigetext der Zeitspanne, z. B. "20 – 22 Uhr". */
+    time: z.string(),
+    /** Der Satz darunter, z. B. "Ausgewaehlte Drinks verguenstigt." */
+    note: optionalText,
+  }),
+});
+
 /** Einzelwerte, die zu keiner Liste gehören. `id` = Bereich. */
 const settings = defineCollection({
   loader: file("src/content/settings.yaml"),
@@ -231,6 +284,8 @@ export const collections = {
   drinks,
   bottleService,
   menuSections,
+  gallery,
   hours,
+  happyHour,
   settings,
 };
