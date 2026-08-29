@@ -1,0 +1,11 @@
+name: Sex on the Beach
+category: aperitif
+group: keine
+price: CHF 8.–
+priceCHF: 8
+note: 11%
+description: Wodka, Pfirsichlikör, Orangensaft, Cranberrysaft
+image: ../../assets/flamingo/sex-on-the-beach/image.webp
+imageAlt: Sex on the Beach im beschlagenen Glas mit Orangenscheibe und Kirsche
+featured: true
+order: 5
