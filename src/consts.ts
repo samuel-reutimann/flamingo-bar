@@ -29,11 +29,12 @@ export const NOINDEX_ROUTES: string[] = ["/404"];
  *    Handelsregister bzw. MWST-Register eingetragen, die CHE-Nummern.
  *    Solange sie fehlen, nennt `/impressum` diese Punkte gar nicht — leere
  *    eckige Klammern auf einer Pflichtseite wären schlimmer als ihr Fehlen.
- * 2. `instagram` / `instagramHandle` sind nie bestätigt worden. Dasselbe gilt
- *    für `facebook` und `tiktok`: die beiden Profile heissen laut Betrieb
- *    „Flamingo Bar Langenthal“, die genauen URLs sind aber geraten (dieselbe
- *    Schreibweise wie beim Instagram-Profil). Vor dem Livegang öffnen und
- *    korrigieren — ein falscher Link ist schlimmer als kein Link.
+ * 2. `facebook` ist nie bestätigt worden: das Profil heisst laut Betrieb
+ *    „Flamingo Bar Langenthal“, die genaue URL ist aber geraten. Vor dem
+ *    Livegang öffnen und korrigieren — ein falscher Link ist schlimmer als
+ *    kein Link. `instagram` und `tiktok` sind vom Betrieb bestätigt; beachte,
+ *    dass Instagram einen Unterstrich schreibt und TikTok auf `.lange` endet,
+ *    die drei Handles also nicht dieselbe Schreibweise haben.
  * 3. `geo` im Structured Data fehlt bewusst (siehe `utils/schema.ts`).
  */
 export const BUSINESS = {
@@ -44,10 +45,10 @@ export const BUSINESS = {
   /** Nur Ziffern, für `wa.me`-Links. */
   whatsapp: "41764019466",
   email: "negasi.gebretnsa@icloud.com",
-  instagram: "https://www.instagram.com/flamingobar.langenthal/",
-  instagramHandle: "@flamingobar.langenthal",
+  instagram: "https://www.instagram.com/flamingobar_langenthal/",
+  instagramHandle: "@flamingobar_langenthal",
   facebook: "https://www.facebook.com/flamingobar.langenthal",
-  tiktok: "https://www.tiktok.com/@flamingobar.langenthal",
+  tiktok: "https://www.tiktok.com/@flamingobar.lange",
   street: "Marktgasse 34B",
   postalCode: "4900",
   city: "Langenthal",
